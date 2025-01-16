@@ -28,7 +28,7 @@ public class TetrisCanvas extends JPanel implements KeyListener {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setColor(Color.BLUE);
         g2d.fillRect(0, 0, 30, 30);
-        g2d.fill3DRect(40, 0, 30, 30, true);
+        g2d.fill3DRect(40, 0, 30, 30, false);
     }
 
     @Override
