@@ -20,7 +20,6 @@ public class TetrisCanvas extends JPanel {
     }
 
     private TetrisCanvas() {
-        setSize(200, 700);
         setLayout(null);
         setVisible(true);
         setBackground(Color.WHITE);
