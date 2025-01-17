@@ -1,12 +1,16 @@
 package org.sehes.Tetris.GUI;
 
+import org.sehes.Tetris.Logic.GameBoard;
+import org.sehes.Tetris.Logic.KeyListener;
+import org.sehes.Tetris.Logic.TetrisDrawingHandler;
+import org.sehes.Tetris.Logic.TetrominoFactory;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
-public class TetrisCanvas extends JPanel implements KeyListener {
+public class TetrisCanvas extends JPanel {
     private static TetrisCanvas instance;
+    private final GameBoard board;
 
     public static TetrisCanvas getInstance() {
         if (instance == null) {
@@ -20,30 +24,26 @@ public class TetrisCanvas extends JPanel implements KeyListener {
         setLayout(null);
         setVisible(true);
         setBackground(Color.WHITE);
+        //this need to be added to catch key events
+        this.setFocusable(true);
+        this.requestFocusInWindow();
+        board = GameBoard.getInstance();
+        this.addKeyListener(new KeyListener());
     }
+    TetrominoFactory tetromino2 = new TetrominoFactory(50, 50, 30, 30);
+
+
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
-        g2d.setColor(Color.BLUE);
-        g2d.fillRect(0, 0, 30, 30);
-        g2d.fill3DRect(40, 0, 30, 30, false);
-    }
-
-    @Override
-    public void keyTyped(KeyEvent e) {
+        TetrisDrawingHandler.initialize(g2d);
+        TetrisDrawingHandler.drawingTetromino(g2d, board.drawTetromino());
+        TetrisDrawingHandler.drawingTetromino(g2d, tetromino2.getRectangle());
 
     }
 
-    @Override
-    public void keyPressed(KeyEvent e) {
 
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-
-    }
 }
 
