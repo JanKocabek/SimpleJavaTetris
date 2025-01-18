@@ -41,4 +41,7 @@ public class TetrisDrawingHandler {
             g2d.fill(tetromino.getRectangle());
         }
     }
+    public static void repaint() {
+        TetrisCanvas.getInstance().repaint();
+    }
 }

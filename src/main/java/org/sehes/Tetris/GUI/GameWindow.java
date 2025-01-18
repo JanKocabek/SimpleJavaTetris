@@ -1,7 +1,5 @@
 package org.sehes.Tetris.GUI;
 
-import org.sehes.Tetris.Logic.GameBoard;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -9,7 +7,11 @@ public class GameWindow extends JFrame {
     private static GameWindow instance;
     private final int WIDTH = 600;
     private final int HEIGHT = 800;
-    TetrisCanvas tetrisCanvas;
+    private final int CWIDTH = WIDTH / 2;
+    private final int CHEIGHT = HEIGHT - 200;
+    private final int CANVASX = WIDTH / 4;
+    private final int CANVASY = 100;
+    private final TetrisCanvas tetrisCanvas;
 
     public static GameWindow getInstance() {
         if (instance == null) {
@@ -28,13 +30,12 @@ public class GameWindow extends JFrame {
         setLayout(null);
         //adding my custom Jpanel
         tetrisCanvas = TetrisCanvas.getInstance();
-        tetrisCanvas.setBounds(WIDTH/4, 100, WIDTH / 2, HEIGHT - 200);
+        tetrisCanvas.setBounds(CANVASX, CANVASY, CWIDTH, CHEIGHT);
         add(tetrisCanvas);
         pack();//setting all size how I set
         setResizable(false);
         setVisible(true);
         SwingUtilities.invokeLater(() -> tetrisCanvas.requestFocusInWindow());//ensure for focus on my Jpanel
-        GameBoard.getInstance().init(tetrisCanvas);
 
 
     }

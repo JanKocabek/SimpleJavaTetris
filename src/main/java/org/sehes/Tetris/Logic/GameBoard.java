@@ -1,23 +1,23 @@
 package org.sehes.Tetris.Logic;
 
 import org.sehes.Tetris.GUI.TetrisCanvas;
+import org.sehes.Tetris.GUI.TetrisDrawingHandler;
 
-import javax.swing.Timer;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class GameBoard {
-    private static final int MOVE = 30;
-    private final int GRIDUNIT = 30;
-
+    private final int HEIGHT = TetrisCanvas.getInstance().getHeight();
+    private final int WIDTH = TetrisCanvas.getInstance().getWidth();
+    private final int MOVE = 30;//hoiw much pix is the one rec move
+    private final int GRIDUNIT = 30;// size of one grid block
     private static GameBoard instance;
-    private TetrisCanvas canvas;
-    private double width;
-    private double height;
     private TetrominoFactory currentTetromino;
     private final boolean[][] board;
     private final int delay;
     private final Timer gameLoopTimer;
+
 
 
     public static GameBoard getInstance() {
@@ -25,16 +25,6 @@ public class GameBoard {
             instance = new GameBoard();
         }
         return instance;
-    }
-
-    public void init(TetrisCanvas canvas) {
-        if (this.canvas == null) {
-            this.canvas = TetrisCanvas.getInstance();
-            width = canvas.getSize().width;
-            height = canvas.getSize().height;
-            currentTetromino = null;
-            //tetromino = new TetrominoFactory(0, 0, 30, 30);
-        }
     }
 
     private GameBoard() {
@@ -51,7 +41,7 @@ public class GameBoard {
     public void movePiece(int x, int y) {
         if (checkCollisions(x, y)) {
             currentTetromino.move(x, y);
-            canvas.repaint();
+            TetrisDrawingHandler.repaint();
         }
     }
 
@@ -64,7 +54,7 @@ public class GameBoard {
     private boolean checkCollisions(int x, int y) {
         int dx = (int) (currentTetromino.getX() + x);
         int dy = (int) (currentTetromino.getY() + y);
-        return dx >= 0 && dx < width && dy >= 0 && dy < height;
+        return dx >= 0 && dx < WIDTH && dy >= 0 && dy < HEIGHT;
     }
 
 
