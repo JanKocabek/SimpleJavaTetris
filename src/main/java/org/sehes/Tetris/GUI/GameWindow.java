@@ -30,11 +30,11 @@ public class GameWindow extends JFrame {
         tetrisCanvas = TetrisCanvas.getInstance();
         tetrisCanvas.setBounds(WIDTH/4, 100, WIDTH / 2, HEIGHT - 200);
         add(tetrisCanvas);
-        GameBoard.getInstance().init(tetrisCanvas);
         pack();//setting all size how I set
         setResizable(false);
         setVisible(true);
         SwingUtilities.invokeLater(() -> tetrisCanvas.requestFocusInWindow());//ensure for focus on my Jpanel
+        GameBoard.getInstance().init(tetrisCanvas);
 
 
     }

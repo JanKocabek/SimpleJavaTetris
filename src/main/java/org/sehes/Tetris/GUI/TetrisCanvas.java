@@ -3,7 +3,6 @@ package org.sehes.Tetris.GUI;
 import org.sehes.Tetris.Logic.GameBoard;
 import org.sehes.Tetris.Logic.KeyListener;
 import org.sehes.Tetris.Logic.TetrisDrawingHandler;
-import org.sehes.Tetris.Logic.TetrominoFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,7 +28,7 @@ public class TetrisCanvas extends JPanel {
         board = GameBoard.getInstance();
         this.addKeyListener(new KeyListener());
     }
-    TetrominoFactory tetromino2 = new TetrominoFactory(50, 50, 30, 30);
+
 
 
 
@@ -39,8 +38,6 @@ public class TetrisCanvas extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
         TetrisDrawingHandler.initialize(g2d);
         TetrisDrawingHandler.drawingTetromino(g2d, board.drawTetromino());
-        TetrisDrawingHandler.drawingTetromino(g2d, tetromino2.getRectangle());
-
     }
 
 
