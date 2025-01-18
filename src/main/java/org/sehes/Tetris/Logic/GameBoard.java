@@ -69,18 +69,19 @@ public class GameBoard {
     }
 
 
-    ActionListener gameLoopListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            if (checkCollisions(0, MOVE)) {
-
-                movePiece(0, MOVE);
-            } else gameLoopTimer.stop();
-        }
-    };
+    ActionListener gameLoopListener = new MainLoopListener();
 
     public void startGame() {
         gameLoopTimer.start();
 
     }
 
+    private class MainLoopListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            if (checkCollisions(0, MOVE)) {
+
+                movePiece(0, MOVE);
+            } else gameLoopTimer.stop();
+        }
+    }
 }
