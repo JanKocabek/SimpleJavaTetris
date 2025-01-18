@@ -1,13 +1,16 @@
-# Java-Swing Tetris
-My first real game attempt
-Tetris in Java with simple GUI in Swing 
-## current goals are:
-* learning how to draw shapes
-* How to catch keystrokes 
-* moving and redrawing things in JPanel
-* catching collisions
-* thinking about how to use a 2Darray for the tracking tetromino
-* How to implement tetrominoObjects
-* How to rotate them
-* How to draw them
-* How to catch collisions
+# Java-swing Tetris
+
+## Description
+This is my first attempt at creating a real game to learn Object-Oriented Programming (OOP) and Java. 
+
+## Roadmap
+| Current Goals                                 | Finished Steps                              |
+|------------------------------------------- ---|---------------------------------------------|
+| How to implement tetromino objects            | ✔ Learning how to draw shapes               |
+| Must think about how to use a 2D array for:   | ✔ Moving and redrawing things in JPanel     |
+| tracking tetrominoes                          | ✔ Catching collisions                       |
+| tracking lines and so on                      | ✔ Simple timer                              |
+| How to catch keystrokes                       | ✔                                           |
+| How to rotate them                            | ✔                                           |
+| Put all parts of the code in the right order  | ✔                                           |
+|                                               | ✔                                           |
