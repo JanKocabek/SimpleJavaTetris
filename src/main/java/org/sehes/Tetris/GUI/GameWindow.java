@@ -22,7 +22,7 @@ public class GameWindow extends JFrame {
     private GameWindow() {
         //basic setting for window
         super("Tetris");
-        getContentPane().setBackground(Color.red);
+        getContentPane().setBackground(Color.WHITE);
         getContentPane().setPreferredSize(new Dimension(WIDTH, HEIGHT));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(null);

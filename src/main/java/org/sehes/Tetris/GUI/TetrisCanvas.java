@@ -2,7 +2,6 @@ package org.sehes.Tetris.GUI;
 
 import org.sehes.Tetris.Logic.GameBoard;
 import org.sehes.Tetris.Logic.KeyListener;
-import org.sehes.Tetris.Logic.TetrisDrawingHandler;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,7 +20,7 @@ public class TetrisCanvas extends JPanel {
     private TetrisCanvas() {
         setLayout(null);
         setVisible(true);
-        setBackground(Color.WHITE);
+        setBackground(Color.BLACK);
         //this need to be added to catch key events
         this.setFocusable(true);
         this.requestFocusInWindow();
@@ -37,6 +36,7 @@ public class TetrisCanvas extends JPanel {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         TetrisDrawingHandler.initialize(g2d);
+        TetrisDrawingHandler.drawGrid(g2d);
         TetrisDrawingHandler.drawingTetromino(g2d, board.drawTetromino());
     }
 
