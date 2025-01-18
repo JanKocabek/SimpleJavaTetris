@@ -5,15 +5,16 @@ import org.sehes.Tetris.GUI.TetrisCanvas;
 import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Rectangle2D;
 
 public class GameBoard {
     private static final int MOVE = 30;
+    private final int GRIDUNIT = 30;
+
     private static GameBoard instance;
     private TetrisCanvas canvas;
     private double width;
     private double height;
-    private TetrominoFactory tetromino;
+    private TetrominoFactory currentTetromino;
     private final boolean[][] board;
     private final int delay;
     private final Timer gameLoopTimer;
@@ -31,7 +32,8 @@ public class GameBoard {
             this.canvas = TetrisCanvas.getInstance();
             width = canvas.getSize().width;
             height = canvas.getSize().height;
-            tetromino = new TetrominoFactory(0, 0, 30, 30);
+            currentTetromino = null;
+            //tetromino = new TetrominoFactory(0, 0, 30, 30);
         }
     }
 
@@ -41,17 +43,14 @@ public class GameBoard {
         gameLoopTimer = new Timer(delay, gameLoopListener);
     }
 
-    public Rectangle2D.Double drawTetromino() {
-        return tetromino.getRectangle();
-    }
 
-    TetrominoFactory getCurrentTetromino() {
-        return tetromino;
+    public TetrominoFactory getCurrentTetromino() {
+        return currentTetromino;
     }
 
     public void movePiece(int x, int y) {
         if (checkCollisions(x, y)) {
-            tetromino.move(x, y);
+            currentTetromino.move(x, y);
             canvas.repaint();
         }
     }
@@ -63,8 +62,8 @@ public class GameBoard {
      * @return true if it could move, false if not able to move
      */
     private boolean checkCollisions(int x, int y) {
-        int dx = (int) (tetromino.getX() + x);
-        int dy = (int) (tetromino.getY() + y);
+        int dx = (int) (currentTetromino.getX() + x);
+        int dy = (int) (currentTetromino.getY() + y);
         return dx >= 0 && dx < width && dy >= 0 && dy < height;
     }
 
@@ -78,10 +77,17 @@ public class GameBoard {
 
     private class MainLoopListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
+            if (currentTetromino == null) {
+                getNewTetromino();
+            }
             if (checkCollisions(0, MOVE)) {
 
                 movePiece(0, MOVE);
             } else gameLoopTimer.stop();
         }
+    }
+
+    private void getNewTetromino() {
+        currentTetromino = new TetrominoFactory(4 * GRIDUNIT, 0);
     }
 }

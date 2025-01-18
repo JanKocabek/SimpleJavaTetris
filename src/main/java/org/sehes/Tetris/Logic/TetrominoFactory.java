@@ -1,17 +1,26 @@
 package org.sehes.Tetris.Logic;
 
+import java.awt.*;
 import java.awt.geom.Rectangle2D;
 
-public class TetrominoFactory {
-    private final Rectangle2D.Double rectangle;
 
-    public TetrominoFactory(double x, double y, double width, double height) {
-        rectangle = new Rectangle2D.Double(x, y, width, height);
+public class TetrominoFactory {
+    private final int SIZEREC = 30;
+    private final Rectangle2D.Double rectangle;
+    private final Color color;
+
+    public TetrominoFactory(double x, double y) {
+        rectangle = new Rectangle2D.Double(x, y, SIZEREC, SIZEREC);
+        color = Color.BLUE;
+    }
+
+    public Color getColor() {
+        return color;
     }
 
     public void move(double x, double y) {
-        rectangle.x+=x;
-        rectangle.y+=y;
+        rectangle.x += x;
+        rectangle.y += y;
     }
 
 
