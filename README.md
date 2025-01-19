@@ -2,7 +2,7 @@
 
 ## Description
 This is my first attempt at creating a real game to learn Object-Oriented Programming (OOP) and Java. 
-
+```
 ## Roadmap
 | Current Goals                                 | Finished Steps                             |
 |------------------------------------------- ---|--------------------------------------------|
@@ -14,4 +14,6 @@ This is my first attempt at creating a real game to learn Object-Oriented Progra
 | How to catch keystrokes                       |                                           |
 | How to rotate them                            |                                           |
 | Put all parts of the code in the right order  |                                           |
-|                                               |                                           |
+|     
+|                                           |
+```
