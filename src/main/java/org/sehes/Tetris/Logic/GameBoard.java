@@ -10,14 +10,13 @@ import java.awt.event.ActionListener;
 public class GameBoard {
     private final int HEIGHT = TetrisCanvas.getInstance().getHeight();
     private final int WIDTH = TetrisCanvas.getInstance().getWidth();
-    private final int MOVE = 30;//hoiw much pix is the one rec move
+    private final int MOVE = 30;//how much pix is the one rec move
     private final int GRIDUNIT = 30;// size of one grid block
     private static GameBoard instance;
     private TetrominoFactory currentTetromino;
     private final boolean[][] board;
     private final int delay;
     private final Timer gameLoopTimer;
-
 
 
     public static GameBoard getInstance() {
@@ -62,22 +61,21 @@ public class GameBoard {
 
     public void startGame() {
         gameLoopTimer.start();
-
-    }
-
-    private class MainLoopListener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-            if (currentTetromino == null) {
-                getNewTetromino();
-            }
-            if (checkCollisions(0, MOVE)) {
-
-                movePiece(0, MOVE);
-            } else gameLoopTimer.stop();
-        }
     }
 
     private void getNewTetromino() {
         currentTetromino = new TetrominoFactory(4 * GRIDUNIT, 0);
+    }
+
+
+    private class MainLoopListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            if (currentTetromino == null || currentTetromino.getY() == (HEIGHT - MOVE)) {
+                getNewTetromino();
+            }
+            if (checkCollisions(0, MOVE)) {
+                movePiece(0, MOVE);
+            }
+        }
     }
 }
