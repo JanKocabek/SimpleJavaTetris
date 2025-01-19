@@ -5,7 +5,7 @@ This is my first attempt at creating a real game to learn Object-Oriented Progra
 ```
 ## Roadmap
 | Current Goals                                 | Finished Steps                             |
-|-----------------------------------------------|--------------------------------------------|           
+|-----------------------------------------------|--------------------------------------------| 
 | How to implement tetromino objects            |  ✔ Moving and redrawing things in JPanel   |
 | Must think about how to use a 2D array for:   |  ✔ Catching collisions                     |
 | - tracking tetrominoes                        |  ✔ Simple timer                            |
