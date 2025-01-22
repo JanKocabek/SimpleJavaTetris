@@ -12,7 +12,6 @@ public class TetrisDrawingHandler {
     private final static int COL = 10;//number of cell in row (columns)
     private final static int ROWS = 20;//number of cell in column (rows)
     private final static GameBoard gameBoard = GameBoard.getInstance();
-    private static TetrominoFactory tetromino;
 
     private TetrisDrawingHandler() {
 
@@ -35,12 +34,21 @@ public class TetrisDrawingHandler {
     }
 
     public static void drawGame(Graphics2D g2d) {
+        gameBoard.getPlacedBlocks().forEach(block -> {
+            g2d.setColor(block.getColor());
+            g2d.fill(block.getRectangle());
+        });
+        drawCurrentTetromino(g2d);
+    }
+
+    private static void drawCurrentTetromino(Graphics2D g2d) {
+        TetrominoFactory tetromino = gameBoard.getCurrentTetromino();
         if (gameBoard.getCurrentTetromino() != null) {
-            tetromino = gameBoard.getCurrentTetromino();
             g2d.setColor(tetromino.getColor());
             g2d.fill(tetromino.getRectangle());
         }
     }
+
     public static void repaint() {
         TetrisCanvas.getInstance().repaint();
     }

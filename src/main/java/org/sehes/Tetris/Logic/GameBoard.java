@@ -6,6 +6,8 @@ import org.sehes.Tetris.GUI.TetrisDrawingHandler;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GameBoard {
     private final int HEIGHT = TetrisCanvas.getInstance().getHeight();
@@ -17,6 +19,7 @@ public class GameBoard {
     private final boolean[][] board;
     private final int delay;
     private final Timer gameLoopTimer;
+    private final List<TetrominoFactory> listOfTetrominos;
 
 
     public static GameBoard getInstance() {
@@ -27,14 +30,41 @@ public class GameBoard {
     }
 
     private GameBoard() {
-        board = new boolean[20][10];
+        board = new boolean[][]{
+                {false, false, false, false, false, false, false, false, false, false},
+                {false, false, false, false, false, false, false, false, false, false},
+                {false, false, false, false, false, false, false, false, false, false},
+                {false, false, false, false, false, false, false, false, false, false},
+                {false, false, false, false, false, false, false, false, false, false},
+                {false, false, false, false, false, false, false, false, false, false},
+                {false, false, false, false, false, false, false, false, false, false},
+                {false, false, false, false, false, false, false, false, false, false},
+                {false, false, false, false, false, false, false, false, false, false},
+                {false, false, false, false, false, false, false, false, false, false},
+                {false, false, false, false, false, false, false, false, false, false},
+                {false, false, false, false, false, false, false, false, false, false},
+                {false, false, false, false, false, false, false, false, false, false},
+                {false, false, false, false, false, false, false, false, false, false},
+                {false, false, false, false, false, false, false, false, false, false},
+                {false, false, false, false, false, false, false, false, false, false},
+                {false, false, false, false, false, false, false, false, false, false},
+                {false, false, false, false, false, false, false, false, false, false},};
         delay = 800;
         gameLoopTimer = new Timer(delay, gameLoopListener);
+        listOfTetrominos = new ArrayList<>();
     }
 
+    public List<TetrominoFactory> getPlacedBlocks() {
+        return listOfTetrominos;
+    }
 
+    /* these method will be in finally  in GameManager class*/
     public TetrominoFactory getCurrentTetromino() {
         return currentTetromino;
+    }
+
+    private void getNewTetromino() {
+        currentTetromino = new TetrominoFactory(4 * GRIDUNIT, 0);
     }
 
     public void movePiece(int x, int y) {
@@ -43,9 +73,11 @@ public class GameBoard {
             TetrisDrawingHandler.repaint();
         }
     }
+    /* to here */
+
 
     /**
-     *
+     * primitive colision check
      * @param x value how much should tetromino piece move to right (+) or left (-)
      * @param y
      * @return true if it could move, false if not able to move
@@ -63,18 +95,17 @@ public class GameBoard {
         gameLoopTimer.start();
     }
 
-    private void getNewTetromino() {
-        currentTetromino = new TetrominoFactory(4 * GRIDUNIT, 0);
-    }
-
 
     private class MainLoopListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            if (currentTetromino == null || currentTetromino.getY() == (HEIGHT - MOVE)) {
+            if (currentTetromino == null) {
                 getNewTetromino();
             }
             if (checkCollisions(0, MOVE)) {
                 movePiece(0, MOVE);
+            } else if (currentTetromino.getY() == (HEIGHT - MOVE)) {
+                listOfTetrominos.add(currentTetromino);
+                getNewTetromino();
             }
         }
     }
