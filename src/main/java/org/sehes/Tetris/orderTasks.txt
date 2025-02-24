@@ -1,1 +1,3 @@
--drawing piece after start fo the game
+-need to revise all direction values and directions
+-need to revise how the
+

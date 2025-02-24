@@ -2,7 +2,6 @@ package org.sehes.Tetris.GUI;
 
 import org.sehes.Tetris.Logic.GameBoard;
 
-
 import java.awt.*;
 
 public class TetrisDrawingHandler {
@@ -39,7 +38,7 @@ public class TetrisDrawingHandler {
             g2d.fill(block.getRectangle());
         });
 
-}
+    }
 
     public static void repaint() {
         TetrisCanvas.getInstance().repaint();

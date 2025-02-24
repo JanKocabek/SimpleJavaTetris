@@ -7,32 +7,41 @@ public class TetrominoFactory {
     private final int SIZEREC = 30;
     private final Rectangle2D.Double rectangle;
     private final Color color;
-    private final boolean[] grid;
+    private final boolean[][] grid;
+    private final int[] position;
+    private final int[] STARTPOS = {4, -1};
 
-    public TetrominoFactory(double x, double y) {
-        rectangle = new Rectangle2D.Double(x, y, SIZEREC, SIZEREC);
+    public TetrominoFactory() {
+        rectangle = new Rectangle2D.Double(STARTPOS[0] * SIZEREC, STARTPOS[1] * SIZEREC, SIZEREC, SIZEREC);
         color = Color.BLUE;
-        grid = new boolean[] {true};
+        grid = new boolean[][]
+                {
+                        {true},
+                };
+        position = STARTPOS;
     }
 
     public Color getColor() {
         return color;
     }
 
-    public void move(double x, double y) {
-        rectangle.x += x;
-        rectangle.y += y;
+    public void move(DirectionFlag flag) {
+        rectangle.x += flag.getDCol() * SIZEREC;
+        rectangle.y += flag.getDRow() * SIZEREC;
+        position[0] += flag.getDCol();
+        position[1] += flag.getDRow();
     }
+
+    public boolean[][] getGrid() {
+        return grid;
+    }
+
+    public int[] getPosition() {
+        return position;
+    }
+
 
     public Rectangle2D.Double getRectangle() {
         return rectangle;
-    }
-
-    public double getX() {
-        return rectangle.x;
-    }
-
-    public double getY() {
-        return rectangle.y;
     }
 }

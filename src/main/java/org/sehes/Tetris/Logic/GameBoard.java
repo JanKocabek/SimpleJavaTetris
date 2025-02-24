@@ -30,25 +30,8 @@ public class GameBoard {
     }
 
     private GameBoard() {
-        board = new boolean[][]{
-                {false, false, false, false, false, false, false, false, false, false},
-                {false, false, false, false, false, false, false, false, false, false},
-                {false, false, false, false, false, false, false, false, false, false},
-                {false, false, false, false, false, false, false, false, false, false},
-                {false, false, false, false, false, false, false, false, false, false},
-                {false, false, false, false, false, false, false, false, false, false},
-                {false, false, false, false, false, false, false, false, false, false},
-                {false, false, false, false, false, false, false, false, false, false},
-                {false, false, false, false, false, false, false, false, false, false},
-                {false, false, false, false, false, false, false, false, false, false},
-                {false, false, false, false, false, false, false, false, false, false},
-                {false, false, false, false, false, false, false, false, false, false},
-                {false, false, false, false, false, false, false, false, false, false},
-                {false, false, false, false, false, false, false, false, false, false},
-                {false, false, false, false, false, false, false, false, false, false},
-                {false, false, false, false, false, false, false, false, false, false},
-                {false, false, false, false, false, false, false, false, false, false},
-                {false, false, false, false, false, false, false, false, false, false},};
+        board = new boolean[20][10];
+
         delay = 800;
         gameLoopTimer = new Timer(delay, gameLoopListener);
         listOfTetrominos = new ArrayList<>();
@@ -64,26 +47,28 @@ public class GameBoard {
     }
 
     private void getNewTetromino() {
-        currentTetromino = new TetrominoFactory(4 * GRIDUNIT, 0);
-
+        currentTetromino = new TetrominoFactory();
+        listOfTetrominos.add(currentTetromino);
     }
 
-    public void movePiece(int x, int y) {
-        if (checkCollisions(x, y)) {
-            currentTetromino.move(x, y);
+    public boolean movePiece(DirectionFlag flag) {
+        if (checkCollisions(currentTetromino.getGrid(), currentTetromino.getPosition(), DirectionFlag.DOWN)) {
+            currentTetromino.move(flag);
             TetrisDrawingHandler.repaint();
+            return true;
         }
+        return false;
     }
     /* to here */
 
 
     /**
-     * compare 2d array representation of tetromino with 2d representation
-     * [00][01]
-     * [10][11]-tetromino grid
+     * compare if a new position of tetromino isn't occupied,
+     * both are represented as 2D boolean array
      * tetromino position [column][row]
-     * @param tetrominoGrid
-     * @param tetrominoPosition
+     * @param tetrominoGrid 2D boolean array of tetromino
+     * @param tetrominoPosition coordinates of a upper left position of tetromino
+     * @param flag which direction are the tetromino supposed to move
      * @return true if collision not happened
      */
     private boolean checkCollisions(boolean[][] tetrominoGrid, int[] tetrominoPosition, DirectionFlag flag) {
@@ -93,9 +78,9 @@ public class GameBoard {
             return false;
         for (int gridCol = 0; gridCol < tetrominoGrid.length; gridCol++) {
             for (int gridRow = 0; gridRow < tetrominoGrid.length; gridRow++) {
-                int newPosCol = column + gridCol+ flag.getDCol();
+                int newPosCol = column + gridCol + flag.getDCol();
                 int newPosRow = row + gridRow + flag.getDRow();
-                if( tetrominoGrid[gridRow][gridCol] && this.board[newPosCol][newPosRow] ){
+                if (tetrominoGrid[gridRow][gridCol] && this.board[newPosRow][newPosCol]) {
                     return false;
                 }
             }
@@ -138,9 +123,20 @@ public class GameBoard {
          *  ←↑ →y
          *  [][]
          *    []↓  */
-        return leftUpPos[0] >= 0 && leftUpPos[1] >= 0 &&
-                rightUpPos[0] <= this.board.length - 1 &&
-                rightDownPos[0] <= this.board[0].length - 1;
+        return leftUpPos[0] >= 0 &&
+                leftUpPos[1] >= 0 &&
+                rightUpPos[0] <= this.board[0].length - 1 &&
+                rightDownPos[1] <= this.board.length - 1;
+    }
+
+    private void addBlockToBoard(TetrominoFactory tetromino) {
+        for (int i = 0; i < tetromino.getGrid().length; i++) {
+            for (int j = 0; j < tetromino.getGrid()[0].length; j++) {
+                if (tetromino.getGrid()[i][j]) {
+                    this.board[tetromino.getPosition()[1]][tetromino.getPosition()[0]] = true;
+                }
+            }
+        }
     }
 
 
@@ -156,10 +152,9 @@ public class GameBoard {
             if (currentTetromino == null) {
                 getNewTetromino();
             }
-            if (checkCollisions(0, MOVE)) {
-                movePiece(0, MOVE);
-            } else if (currentTetromino.getY() == (HEIGHT - MOVE)) {
-                getNewTetromino();
+            if (!movePiece(DirectionFlag.DOWN)) {
+                addBlockToBoard(currentTetromino);
+                    getNewTetromino();
             }
         }
     }

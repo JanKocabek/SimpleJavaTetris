@@ -20,10 +20,9 @@ public class TetrisCanvas extends JPanel {
         setLayout(null);
         setVisible(true);
         setBackground(Color.BLACK);
-        //this need to be added to catch key events
+        //this needs to be added to catch key event
         this.setFocusable(true);
         this.requestFocusInWindow();
-        //board = GameBoard.getInstance();
         this.addKeyListener(new KeyListener());
     }
 
