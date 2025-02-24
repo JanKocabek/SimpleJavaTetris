@@ -52,7 +52,7 @@ public class GameBoard {
     }
 
     public boolean movePiece(DirectionFlag flag) {
-        if (checkCollisions(currentTetromino.getGrid(), currentTetromino.getPosition(), DirectionFlag.DOWN)) {
+        if (checkCollisions(currentTetromino.getGrid(), currentTetromino.getPosition(), flag)) {
             currentTetromino.move(flag);
             TetrisDrawingHandler.repaint();
             return true;
@@ -154,7 +154,7 @@ public class GameBoard {
             }
             if (!movePiece(DirectionFlag.DOWN)) {
                 addBlockToBoard(currentTetromino);
-                    getNewTetromino();
+                getNewTetromino();
             }
         }
     }
