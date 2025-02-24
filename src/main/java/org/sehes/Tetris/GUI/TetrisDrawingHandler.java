@@ -1,7 +1,7 @@
 package org.sehes.Tetris.GUI;
 
 import org.sehes.Tetris.Logic.GameBoard;
-import org.sehes.Tetris.Logic.TetrominoFactory;
+
 
 import java.awt.*;
 
@@ -38,16 +38,8 @@ public class TetrisDrawingHandler {
             g2d.setColor(block.getColor());
             g2d.fill(block.getRectangle());
         });
-        drawCurrentTetromino(g2d);
-    }
 
-    private static void drawCurrentTetromino(Graphics2D g2d) {
-        TetrominoFactory tetromino = gameBoard.getCurrentTetromino();
-        if (gameBoard.getCurrentTetromino() != null) {
-            g2d.setColor(tetromino.getColor());
-            g2d.fill(tetromino.getRectangle());
-        }
-    }
+}
 
     public static void repaint() {
         TetrisCanvas.getInstance().repaint();
