@@ -72,14 +72,14 @@ public class GameBoard {
      * @return true if collision not happened
      */
     private boolean checkCollisions(boolean[][] tetrominoGrid, int[] tetrominoPosition, DirectionFlag flag) {
-        int column = tetrominoPosition[0];
-        int row = tetrominoPosition[1];
+        int column = tetrominoPosition[0] + flag.getDCol();
+        int row = tetrominoPosition[1] + flag.getDRow();
         if (!checkBoundaries(tetrominoPosition, new int[]{tetrominoGrid.length, tetrominoGrid[0].length}, flag))
             return false;
         for (int gridCol = 0; gridCol < tetrominoGrid.length; gridCol++) {
             for (int gridRow = 0; gridRow < tetrominoGrid.length; gridRow++) {
-                int newPosCol = column + gridCol + flag.getDCol();
-                int newPosRow = row + gridRow + flag.getDRow();
+                int newPosCol = column + gridCol;
+                int newPosRow = row + gridRow;
                 if (tetrominoGrid[gridRow][gridCol] && this.board[newPosRow][newPosCol]) {
                     return false;
                 }
