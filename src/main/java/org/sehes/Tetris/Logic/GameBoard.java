@@ -13,11 +13,13 @@ public class GameBoard {
     private final int HEIGHT = TetrisCanvas.getInstance().getHeight();
     private final int WIDTH = TetrisCanvas.getInstance().getWidth();
     private final int MOVE = 30;//how much pix are the rectangles move
-    private final int GRIDUNIT = 30;// size of one grid block
+    private final int GRIDUNIT = 30;
+    private final int ROWS = 21;
+    private final int COLUMN = 10;// size of one grid block
     private static GameBoard instance;
     private Tetromino currentTetromino;
     private final boolean[][] board;
-    private final int delay;
+    private final int delay = 800;
     private final Timer gameLoopTimer;
     private final List<Tetromino> listOfTetrominos;
 
@@ -30,9 +32,7 @@ public class GameBoard {
     }
 
     private GameBoard() {
-        board = new boolean[21][10];
-
-        delay = 800;
+        board = new boolean[ROWS][COLUMN];
         gameLoopTimer = new Timer(delay, gameLoopListener);
         listOfTetrominos = new ArrayList<>();
     }
@@ -52,6 +52,7 @@ public class GameBoard {
     }
 
     public boolean movePiece(DirectionFlag flag) {
+        if (this.currentTetromino == null) return false;
         if (checkCollisions(currentTetromino, flag)) {
             currentTetromino.move(flag);
             TetrisDrawingHandler.repaint();
@@ -99,13 +100,11 @@ public class GameBoard {
         int Y = tetromino.getPosition()[0];
         int newPositionX = tetromino.getPosition()[0] + flag.getX();
         int newPositionY = tetromino.getPosition()[1] + flag.getY();
-
         int newUpperRightX = newPositionX + tetromino.getGrid()[0].length - 1;
         int newBottomLeftY = newPositionY + tetromino.getGrid().length - 1;
         return newPositionX >= 0 &&
                newUpperRightX < this.board[Y].length &&
                newBottomLeftY < this.board.length;
-
     }
 
     private void addBlockToBoard(Tetromino tetromino) {
@@ -114,19 +113,17 @@ public class GameBoard {
         for (int row = 0; row < tetromino.getGrid().length; row++) {
             for (int column = 0; column < tetromino.getGrid()[row].length; column++) {
                 if (tetromino.getGrid()[row][column]) {
-                    this.board[Y+row][X+column] = true;
+                    this.board[Y + row][X + column] = true;
                 }
             }
         }
     }
-
 
     ActionListener gameLoopListener = new MainLoopListener();
 
     public void startGame() {
         gameLoopTimer.start();
     }
-
 
     private class MainLoopListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
