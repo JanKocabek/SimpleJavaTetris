@@ -4,12 +4,48 @@ import org.sehes.Tetris.GUI.TetrisCanvas;
 import org.sehes.Tetris.GUI.TetrisDrawingHandler;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GameBoard {
+    public enum BlockContent {
+        CYAN(Color.CYAN),
+        YELLOW(Color.YELLOW),
+        GREEN(Color.GREEN),
+        BLUE(Color.BLUE),
+        ORANGE(Color.ORANGE),
+        RED(Color.RED),
+        MAGENTA(Color.MAGENTA),
+        EMPTY(null);
+
+
+        private final Color color ;
+
+        BlockContent(Color color) {
+            this.color = color;
+        }
+
+
+        public Color getColor() {
+            return color;
+        }
+
+        private static final Map<Color, BlockContent> map = new HashMap<>();
+        static {
+            for (BlockContent type : BlockContent.values()) {
+                map.put(type.color, type);
+            }
+        }
+
+        public BlockContent setColor(Color color) {
+            return map.get(color);
+        }
+    }
+
     private final int HEIGHT = TetrisCanvas.getInstance().getHeight();
     private final int WIDTH = TetrisCanvas.getInstance().getWidth();
     private final int MOVE = 30;//how much pix are the rectangles move
@@ -18,10 +54,9 @@ public class GameBoard {
     private final int COLUMN = 10;// size of one grid block
     private static GameBoard instance;
     private Tetromino currentTetromino;
-    private final boolean[][] board;
+    private final BlockContent[][] board;
     private final int delay = 800;
     private final Timer gameLoopTimer;
-    private final List<Tetromino> listOfTetrominos;
 
 
     public static GameBoard getInstance() {
@@ -32,23 +67,33 @@ public class GameBoard {
     }
 
     private GameBoard() {
-        board = new boolean[ROWS][COLUMN];
+        board = new BlockContent[ROWS][COLUMN];
+        fillBoard();
         gameLoopTimer = new Timer(delay, gameLoopListener);
-        listOfTetrominos = new ArrayList<>();
+    }
+    private void fillBoard() {
+        for (BlockContent[] blockContents : board) {
+            Arrays.fill(blockContents, BlockContent.EMPTY);
+        }
     }
 
-    public List<Tetromino> getPlacedBlocks() {
-        return listOfTetrominos;
+    public int getGRIDUNIT() {
+        return GRIDUNIT;
     }
+
+
 
     /* these methods will be in finally in GameManager class probably*/
     public Tetromino getCurrentTetromino() {
         return currentTetromino;
     }
 
+    public BlockContent[][] getBoard() {
+        return board;
+    }
+
     private void getNewTetromino() {
         currentTetromino = Tetromino.tetrominoFactory();
-        listOfTetrominos.add(currentTetromino);
     }
 
     public boolean movePiece(DirectionFlag flag) {
@@ -67,8 +112,7 @@ public class GameBoard {
      * compare if a new position of tetromino isn't occupied,
      * both are represented as 2D boolean array
      * tetromino position [column][row]
-     * @param tetrominoGrid 2D boolean array of tetromino
-     * @param tetrominoPosition coordinates of a upper left position of tetromino
+     *
      * @param flag which direction are the tetromino supposed to move
      * @return true if collision not happened
      */
@@ -78,7 +122,7 @@ public class GameBoard {
         if (!checkBoundaries(this.getCurrentTetromino(), flag)) return false;
         for (int row = 0; row < tetromino.getGrid().length; row++) {
             for (int column = 0; column < tetromino.getGrid()[row].length; column++) {
-                if (tetromino.getGrid()[row][column] && this.board[newY + row][newX + column]) {
+                if (tetromino.getGrid()[row][column] && this.board[newY + row][newX + column]!=BlockContent.EMPTY) {
                     return false;
                 }
             }
@@ -89,8 +133,7 @@ public class GameBoard {
     /**
      * this method check if the position after moving a piece is in the gameBoardBoundaries
      *
-     * @param tetrominoPosition its hold the new column [0] and row [1] position
-     * @param tetrominoLenght  the lenght of tetromino grid [0]  coll and row [1]
+     *
      * @param flag which direction are the tetromino supposed to move
      * @return true if the final position is in the gameBoard boundaries
      */
@@ -113,7 +156,7 @@ public class GameBoard {
         for (int row = 0; row < tetromino.getGrid().length; row++) {
             for (int column = 0; column < tetromino.getGrid()[row].length; column++) {
                 if (tetromino.getGrid()[row][column]) {
-                    this.board[Y + row][X + column] = true;
+                    this.board[Y + row][X + column]= this.board[Y + row][X + column].setColor(tetromino.getColor());
                 }
             }
         }

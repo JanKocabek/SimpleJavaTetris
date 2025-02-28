@@ -100,9 +100,6 @@ public class Tetromino {
             return grid;
         }
 
-        public int getIntValue() {
-            return intValue;
-        }
 
         private static final Map<Integer, TETROMINO_TYPE> map = new HashMap<>();
 
