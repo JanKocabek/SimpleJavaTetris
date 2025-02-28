@@ -1,3 +1,7 @@
--need to revise all direction values and directions
--need to revise how the
+- need to add rotation
+- need to add row deleting
+- need to change boolean into color enum in game grid
+- other stuff
+
+
 
