@@ -15,11 +15,11 @@ public class GameBoard {
     private final int MOVE = 30;//how much pix are the rectangles move
     private final int GRIDUNIT = 30;// size of one grid block
     private static GameBoard instance;
-    private TetrominoFactory currentTetromino;
+    private Tetromino currentTetromino;
     private final boolean[][] board;
     private final int delay;
     private final Timer gameLoopTimer;
-    private final List<TetrominoFactory> listOfTetrominos;
+    private final List<Tetromino> listOfTetrominos;
 
 
     public static GameBoard getInstance() {
@@ -30,29 +30,29 @@ public class GameBoard {
     }
 
     private GameBoard() {
-        board = new boolean[20][10];
+        board = new boolean[21][10];
 
         delay = 800;
         gameLoopTimer = new Timer(delay, gameLoopListener);
         listOfTetrominos = new ArrayList<>();
     }
 
-    public List<TetrominoFactory> getPlacedBlocks() {
+    public List<Tetromino> getPlacedBlocks() {
         return listOfTetrominos;
     }
 
     /* these methods will be in finally in GameManager class probably*/
-    public TetrominoFactory getCurrentTetromino() {
+    public Tetromino getCurrentTetromino() {
         return currentTetromino;
     }
 
     private void getNewTetromino() {
-        currentTetromino = new TetrominoFactory();
+        currentTetromino = Tetromino.tetrominoFactory();
         listOfTetrominos.add(currentTetromino);
     }
 
     public boolean movePiece(DirectionFlag flag) {
-        if (checkCollisions(currentTetromino.getGrid(), currentTetromino.getPosition(), flag)) {
+        if (checkCollisions(currentTetromino, flag)) {
             currentTetromino.move(flag);
             TetrisDrawingHandler.repaint();
             return true;
@@ -71,16 +71,13 @@ public class GameBoard {
      * @param flag which direction are the tetromino supposed to move
      * @return true if collision not happened
      */
-    private boolean checkCollisions(boolean[][] tetrominoGrid, int[] tetrominoPosition, DirectionFlag flag) {
-        int column = tetrominoPosition[0] + flag.getDCol();
-        int row = tetrominoPosition[1] + flag.getDRow();
-        if (!checkBoundaries(tetrominoPosition, new int[]{tetrominoGrid.length, tetrominoGrid[0].length}, flag))
-            return false;
-        for (int gridCol = 0; gridCol < tetrominoGrid.length; gridCol++) {
-            for (int gridRow = 0; gridRow < tetrominoGrid.length; gridRow++) {
-                int newPosCol = column + gridCol;
-                int newPosRow = row + gridRow;
-                if (tetrominoGrid[gridRow][gridCol] && this.board[newPosRow][newPosCol]) {
+    private boolean checkCollisions(Tetromino tetromino, DirectionFlag flag) {
+        int newX = tetromino.getPosition()[0] + flag.getX();
+        int newY = tetromino.getPosition()[1] + flag.getY();
+        if (!checkBoundaries(this.getCurrentTetromino(), flag)) return false;
+        for (int row = 0; row < tetromino.getGrid().length; row++) {
+            for (int column = 0; column < tetromino.getGrid()[row].length; column++) {
+                if (tetromino.getGrid()[row][column] && this.board[newY + row][newX + column]) {
                     return false;
                 }
             }
@@ -91,49 +88,33 @@ public class GameBoard {
     /**
      * this method check if the position after moving a piece is in the gameBoardBoundaries
      *
-     * @param tetrominoPosition its hold the current column [0] and row [1] position
+     * @param tetrominoPosition its hold the new column [0] and row [1] position
      * @param tetrominoLenght  the lenght of tetromino grid [0]  coll and row [1]
      * @param flag which direction are the tetromino supposed to move
      * @return true if the final position is in the gameBoard boundaries
      */
-    private boolean checkBoundaries(int[] tetrominoPosition, int[] tetrominoLenght, DirectionFlag flag) {
+    private boolean checkBoundaries(Tetromino tetromino, DirectionFlag flag) {
         /* positions after move*/
         /* 0,0 -> 0+dx,0+dy*/
-        int[] leftUpPos = {
-                tetrominoPosition[0] + flag.getDCol(),
-                tetrominoPosition[1] + flag.getDRow()
-        };
-        /*[][]
+        int Y = tetromino.getPosition()[0];
+        int newPositionX = tetromino.getPosition()[0] + flag.getX();
+        int newPositionY = tetromino.getPosition()[1] + flag.getY();
 
-         * [][]*/
-        int[] rightUpPos = {
-                leftUpPos[0] + tetrominoLenght[0] - 1,
-                leftUpPos[1]
-        };
-        int[] leftDownPos = {
-                leftUpPos[0],
-                leftUpPos[1] + tetrominoLenght[1] - 1
-        };
-        int[] rightDownPos = {
-                rightUpPos[0],
-                rightUpPos[1] + tetrominoLenght[1] - 1
-        };
-        /*need to check only
-         *  x
-         *  ←↑ →y
-         *  [][]
-         *    []↓  */
-        return leftUpPos[0] >= 0 &&
-                leftUpPos[1] >= 0 &&
-                rightUpPos[0] <= this.board[0].length - 1 &&
-                rightDownPos[1] <= this.board.length - 1;
+        int newUpperRightX = newPositionX + tetromino.getGrid()[0].length - 1;
+        int newBottomLeftY = newPositionY + tetromino.getGrid().length - 1;
+        return newPositionX >= 0 &&
+               newUpperRightX < this.board[Y].length &&
+               newBottomLeftY < this.board.length;
+
     }
 
-    private void addBlockToBoard(TetrominoFactory tetromino) {
-        for (int i = 0; i < tetromino.getGrid().length; i++) {
-            for (int j = 0; j < tetromino.getGrid()[0].length; j++) {
-                if (tetromino.getGrid()[i][j]) {
-                    this.board[tetromino.getPosition()[1]][tetromino.getPosition()[0]] = true;
+    private void addBlockToBoard(Tetromino tetromino) {
+        int X = tetromino.getPosition()[0];
+        int Y = tetromino.getPosition()[1];
+        for (int row = 0; row < tetromino.getGrid().length; row++) {
+            for (int column = 0; column < tetromino.getGrid()[row].length; column++) {
+                if (tetromino.getGrid()[row][column]) {
+                    this.board[Y+row][X+column] = true;
                 }
             }
         }

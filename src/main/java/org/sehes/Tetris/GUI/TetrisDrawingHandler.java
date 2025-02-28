@@ -1,11 +1,13 @@
 package org.sehes.Tetris.GUI;
 
 import org.sehes.Tetris.Logic.GameBoard;
+import org.sehes.Tetris.Logic.Tetromino;
 
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 
 public class TetrisDrawingHandler {
-    private final static int SIZET = 30;//size of one rectangle from tetromino
+    private final static int SIZET = 30;//size of one cell of GameBoard grid
     private final static int CWIDTH = TetrisCanvas.getInstance().getWidth();
     private final static int CHEIGHT = TetrisCanvas.getInstance().getHeight();
     private final static int COL = 10;//number of cell in row (columns)
@@ -33,12 +35,23 @@ public class TetrisDrawingHandler {
     }
 
     public static void drawGame(Graphics2D g2d) {
-        gameBoard.getPlacedBlocks().forEach(block -> {
+        for (Tetromino block : gameBoard.getPlacedBlocks()) {
             g2d.setColor(block.getColor());
-            g2d.fill(block.getRectangle());
-        });
-
+            boolean[][] grid = block.getGrid();
+            int x = block.getxCoord();
+            int y = block.getyCoord();
+            int size =block.getSIZEREC();
+            for (int row = 0; row < grid.length; row++) {
+                for (int column = 0; column < grid[row].length; column++) {
+                    if (grid[row][column]) {
+                        g2d.fill(new Rectangle2D.Double(x+column*size,y+row*size, size,size));
+                    }
+                }
+            }
+        }
     }
+
+
 
     public static void repaint() {
         TetrisCanvas.getInstance().repaint();

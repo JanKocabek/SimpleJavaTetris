@@ -13,11 +13,11 @@ public enum DirectionFlag {
         this.dY = dY;
     }
 
-    public int getDCol() {
+    public int getX() {
         return dX;
     }
 
-    public int getDRow() {
+    public int getY() {
         return dY;
     }
 }
