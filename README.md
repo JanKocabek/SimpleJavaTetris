@@ -9,10 +9,10 @@ This is my first attempt at creating a real game to learn Object-Oriented Progra
 |-----------------------------------------------|--------------------------------------------| 
 |                                               |  ✔ implement all tetrominos                |
 | fixing rotation                               |  ✔ Moving and redrawing things in JPanel   |
-| probably redoing rotation  and movment sytsem |  ✔ Catching collisions                   |
+| probably redoing rotation  and movment sytsem |  ✔ Catching collisions                     |
 |                from scratch                   |  ✔ Simple timer                            |
 | - tracking lines and so on                    |  ✔ drawing things after start of the game  |
-| How to rotate them                            |  ✔ How to catch keystrokes                 |   
+|                                               |  ✔ How to catch keystrokes                 |   
 | Put all parts of the code in the right order  |  ✔ Learning how to draw shapes             |
 |                                               |  ✔ How to keep track of all pieces         |
 |                                               |     that are already placed on desks       | 
