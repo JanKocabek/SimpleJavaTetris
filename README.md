@@ -2,7 +2,7 @@
 current progress is it for now in tthis branch
 
 ## Description
-This is my first attempt at creating a real game to learn Object-Oriented Programming (OOP) and Java. 
+This is my first attempt at creating a real game to improve my Java and (OOP) skills. 
 ```
 ## Roadmap
 | Current Goals                                 | Finished Steps                             |
