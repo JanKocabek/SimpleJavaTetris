@@ -25,4 +25,18 @@ public class Util {
             endCol--;
         }
     }
+
+    public static void swapRows(boolean[][] grid) {
+        if (grid.length == 0) return;
+        int startRow = 0;
+        int endRow = grid.length - 1 - startRow;
+        for (; startRow < endRow; startRow++) {
+            for (int col = 0; col < grid[0].length; col++) {
+                boolean tmp = grid[startRow][col];
+                grid[startRow][col] = grid[endRow][col];
+                grid[endRow][col] = tmp;
+            }
+            endRow--;
+        }
+    }
 }

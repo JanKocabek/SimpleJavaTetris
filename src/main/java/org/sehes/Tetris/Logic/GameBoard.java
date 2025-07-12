@@ -23,7 +23,7 @@ public class GameBoard {
         EMPTY(null);
 
 
-        private final Color color ;
+        private final Color color;
 
         BlockContent(Color color) {
             this.color = color;
@@ -35,6 +35,7 @@ public class GameBoard {
         }
 
         private static final Map<Color, BlockContent> map = new HashMap<>();
+
         static {
             for (BlockContent type : BlockContent.values()) {
                 map.put(type.color, type);
@@ -55,7 +56,7 @@ public class GameBoard {
     private static GameBoard instance;
     private Tetromino currentTetromino;
     private final BlockContent[][] board;
-    private final int delay = 800;
+    private final int delay = 1600;
     private final Timer gameLoopTimer;
 
 
@@ -71,6 +72,7 @@ public class GameBoard {
         fillBoard();
         gameLoopTimer = new Timer(delay, gameLoopListener);
     }
+
     private void fillBoard() {
         for (BlockContent[] blockContents : board) {
             Arrays.fill(blockContents, BlockContent.EMPTY);
@@ -80,7 +82,6 @@ public class GameBoard {
     public int getGRIDUNIT() {
         return GRIDUNIT;
     }
-
 
 
     /* these methods will be in finally in GameManager class probably*/
@@ -105,6 +106,19 @@ public class GameBoard {
         }
         return false;
     }
+
+    public void rotatePiece(DirectionFlag flag) {
+        if (this.currentTetromino == null) return;
+        System.out.println("beforePosition: " + Arrays.toString(currentTetromino.getPosition()));
+        boolean[][] nextGrid = currentTetromino.rotate(flag);
+
+        // Check if the rotation would cause a collision
+        if (checkCollisions(nextGrid, currentTetromino.getNextPos(), flag)) {
+            currentTetromino.setGrid(nextGrid);
+            currentTetromino.applyNewPosition();
+        }
+        System.out.println("afterPosition: " + Arrays.toString(currentTetromino.getPosition()));
+    }
     /* to here */
 
 
@@ -122,13 +136,31 @@ public class GameBoard {
         if (!checkBoundaries(this.getCurrentTetromino(), flag)) return false;
         for (int row = 0; row < tetromino.getGrid().length; row++) {
             for (int column = 0; column < tetromino.getGrid()[row].length; column++) {
-                if (tetromino.getGrid()[row][column] && this.board[newY + row][newX + column]!=BlockContent.EMPTY) {
+                if (tetromino.getGrid()[row][column] &&
+                    this.board[newY + row][newX + column] != BlockContent.EMPTY) {
                     return false;
                 }
             }
         }
         return true;
     }
+
+    private boolean checkCollisions(boolean[][] tetrominoGrid, int[] position, DirectionFlag flag) {
+        int newX = position[0] + flag.getX();
+        int newY = position[1] + flag.getY();
+
+        if (!checkBoundaries(getCurrentTetromino(), flag)) return false;
+
+        for (int row = 0; row < tetrominoGrid.length; row++) {
+            for (int column = 0; column < tetrominoGrid[row].length; column++) {
+                if (tetrominoGrid[row][column] && this.board[newY + row][newX + column] != BlockContent.EMPTY) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
 
     /**
      * this method check if the position after moving a piece is in the gameBoardBoundaries
@@ -140,7 +172,7 @@ public class GameBoard {
     private boolean checkBoundaries(Tetromino tetromino, DirectionFlag flag) {
         /* positions after move*/
         /* 0,0 -> 0+dx,0+dy*/
-        int Y = tetromino.getPosition()[0];
+        int Y = tetromino.getPosition()[1]; // Fixed: Y should be position[1], not position[0]
         int newPositionX = tetromino.getPosition()[0] + flag.getX();
         int newPositionY = tetromino.getPosition()[1] + flag.getY();
         int newUpperRightX = newPositionX + tetromino.getGrid()[0].length - 1;
@@ -156,7 +188,7 @@ public class GameBoard {
         for (int row = 0; row < tetromino.getGrid().length; row++) {
             for (int column = 0; column < tetromino.getGrid()[row].length; column++) {
                 if (tetromino.getGrid()[row][column]) {
-                    this.board[Y + row][X + column]= this.board[Y + row][X + column].setColor(tetromino.getColor());
+                    this.board[Y + row][X + column] = this.board[Y + row][X + column].setColor(tetromino.getColor());
                 }
             }
         }

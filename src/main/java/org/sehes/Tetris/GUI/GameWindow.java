@@ -22,7 +22,7 @@ public class GameWindow extends JFrame {
 
     //private final FlowLayout layout = new FlowLayout();/if we added manager later
     private GameWindow() {
-        //basic setting for window
+        //basic setting for a window
         super("Tetris");
         getContentPane().setBackground(Color.WHITE);
         getContentPane().setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -35,7 +35,7 @@ public class GameWindow extends JFrame {
         pack();//setting all size how I set
         setResizable(false);
         setVisible(true);
-        SwingUtilities.invokeLater(() -> tetrisCanvas.requestFocusInWindow());//ensure for focus on my Jpanel
+        SwingUtilities.invokeLater(tetrisCanvas::requestFocusInWindow);//ensure for focus on my Jpanel
 
 
     }

@@ -32,6 +32,7 @@ public class TetrisCanvas extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+      //  g.setClip(0,30,getWidth(),getHeight());
         Graphics2D g2d = (Graphics2D) g;
         TetrisDrawingHandler.initialize(g2d);
         TetrisDrawingHandler.drawGrid(g2d);

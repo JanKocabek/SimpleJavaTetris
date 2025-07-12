@@ -36,27 +36,13 @@ public class TetrisDrawingHandler {
     }
 
     public static void drawGame(Graphics2D g2d) {
-//        for (Tetromino block : gameBoard.getPlacedBlocks()) {
-//            g2d.setColor(block.getColor());
-//            boolean[][] grid = block.getGrid();
-//            int x = block.getxCoord();
-//            int y = block.getyCoord();
-//            int size =block.getSIZEREC();
-//            for (int row = 0; row < grid.length; row++) {
-//                for (int column = 0; column < grid[row].length; column++) {
-//                    if (grid[row][column]) {
-//                        g2d.fill(new Rectangle2D.Double(x+column*size,y+row*size, size,size));
-//                    }
-//                }
-//            }
-//        }
         GameBoard.BlockContent[][] grid = TetrisDrawingHandler.board.getBoard();
         for (int row = grid.length - 1; row >= 0; row--) {
             for (int col = grid[row].length - 1; col >= 0; col--) {
                 if (grid[row][col] != GameBoard.BlockContent.EMPTY) {
                     g2d.setColor(grid[row][col].getColor());
                     int x = (col) * SIZETetromino;
-                    int y = (row-1) * SIZETetromino;
+                    int y = (row - 1) * SIZETetromino;
                     g2d.fillRect(x, y, SIZETetromino, SIZETetromino);
                 }
             }
@@ -70,8 +56,8 @@ public class TetrisDrawingHandler {
         Tetromino t = board.getCurrentTetromino();
         g2d.setColor(t.getColor());
         boolean[][] grid = t.getGrid();
-        int x = t.getxCoord();
-        int y = t.getyCoord();
+        int x = t.getXCoord();
+        int y = t.getYCoord();
         int size = t.getSIZEREC();
         for (int row = 0; row < grid.length; row++) {
             for (int column = 0; column < grid[row].length; column++) {
