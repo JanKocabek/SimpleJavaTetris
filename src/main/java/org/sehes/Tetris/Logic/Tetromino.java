@@ -1,6 +1,6 @@
-package org.sehes.Tetris.Logic;
+package org.sehes.tetris.logic;
 
-import org.sehes.Tetris.Logic.util.Util;
+import org.sehes.tetris.logic.util.Util;
 
 import java.awt.*;
 import java.util.Arrays;

@@ -1,9 +1,11 @@
-package org.sehes.Tetris.GUI;
+package org.sehes.tetris.gui;
 
-import org.sehes.Tetris.Logic.GameBoard;
-import org.sehes.Tetris.Logic.Tetromino;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
-import java.awt.*;
+import org.sehes.tetris.logic.GameBoard;
+import org.sehes.tetris.logic.Tetromino;
 
 public class TetrisDrawingHandler {
     //size of one cell of GameBoard grid

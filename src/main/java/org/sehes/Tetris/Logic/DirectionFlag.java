@@ -1,4 +1,4 @@
-package org.sehes.Tetris.Logic;
+package org.sehes.tetris.logic;
 
 public enum DirectionFlag {
     DOWN(0, 1),

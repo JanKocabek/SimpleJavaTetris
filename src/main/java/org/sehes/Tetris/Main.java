@@ -1,8 +1,8 @@
-package org.sehes.Tetris;
+package org.sehes.tetris;
 
-import org.sehes.Tetris.GUI.GameWindow;
+import javax.swing.SwingUtilities;
 
-import javax.swing.*;
+import org.sehes.tetris.gui.GameWindow;
 
 public class Main {
 

@@ -1,8 +1,8 @@
 package org.sehes.Tetris.Logic.util;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertArrayEquals;
+import org.junit.Test;
+import org.sehes.tetris.logic.util.Util;
 
 public class MatrixTest {
 

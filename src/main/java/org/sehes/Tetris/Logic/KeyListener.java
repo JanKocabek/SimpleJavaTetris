@@ -1,4 +1,4 @@
-package org.sehes.Tetris.Logic;
+package org.sehes.tetris.logic;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;

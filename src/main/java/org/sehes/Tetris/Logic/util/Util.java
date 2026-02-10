@@ -1,4 +1,4 @@
-package org.sehes.Tetris.Logic.util;
+package org.sehes.tetris.logic.util;
 
 public class Util {
     public static boolean[][] transposeMatrix(boolean[][] matrix) {

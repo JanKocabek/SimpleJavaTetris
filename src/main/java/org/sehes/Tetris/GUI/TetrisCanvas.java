@@ -1,9 +1,12 @@
-package org.sehes.Tetris.GUI;
+package org.sehes.tetris.gui;
 
-import org.sehes.Tetris.Logic.KeyListener;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JPanel;
+
+import org.sehes.tetris.logic.KeyListener;
 
 public class TetrisCanvas extends JPanel {
     private static TetrisCanvas instance;
