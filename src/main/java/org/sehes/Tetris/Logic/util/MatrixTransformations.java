@@ -1,8 +1,17 @@
 package org.sehes.tetris.logic.util;
 
-public class Util {
+/**
+ * The MatrixTransformations class provides utility methods for manipulating 2D boolean arrays, which are used to represent the shapes of tetrominoes in the Tetris game. It includes methods for transposing a matrix, swapping columns, and swapping rows. These operations are essential for rotating the tetrominoes and adjusting their positions on the game board.
+ */
+public class MatrixTransformations {
+
+    private MatrixTransformations() {
+    }
+
     public static boolean[][] transposeMatrix(boolean[][] matrix) {
-        if (matrix.length == 0) return matrix;
+        if (matrix.length == 0) {
+            return matrix;
+        }
         boolean[][] newMatrix = new boolean[matrix[0].length][matrix.length];
         for (int row = 0; row < matrix.length; row++) {
             for (int col = 0; col < matrix[0].length; col++) {
@@ -13,7 +22,9 @@ public class Util {
     }
 
     public static void swapColumns(boolean[][] grid) {
-        if (grid.length == 0) return;
+        if (grid.length == 0) {
+            return;
+        }
         int startCol = 0;
         int endCol = grid[0].length - 1 - startCol;
         for (; startCol < endCol; startCol++) {
@@ -27,7 +38,9 @@ public class Util {
     }
 
     public static void swapRows(boolean[][] grid) {
-        if (grid.length == 0) return;
+        if (grid.length == 0) {
+            return;
+        }
         int startRow = 0;
         int endRow = grid.length - 1 - startRow;
         for (; startRow < endRow; startRow++) {

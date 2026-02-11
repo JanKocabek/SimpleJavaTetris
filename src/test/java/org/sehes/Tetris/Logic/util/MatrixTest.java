@@ -2,7 +2,7 @@ package org.sehes.Tetris.Logic.util;
 
 import static org.junit.Assert.assertArrayEquals;
 import org.junit.Test;
-import org.sehes.tetris.logic.util.Util;
+import org.sehes.tetris.logic.util.MatrixTransformations;
 
 public class MatrixTest {
 
@@ -22,7 +22,7 @@ public class MatrixTest {
         };
 
         // Call the transpose method
-        boolean[][] result = Util.transposeMatrix(input);
+        boolean[][] result = MatrixTransformations.transposeMatrix(input);
 
         // Assert the transposed matrix is as expected
         assertArrayEquals(expected, result);
@@ -37,7 +37,7 @@ public class MatrixTest {
         boolean[][] expected = {};
 
         // Call the transpose method
-        boolean[][] result = Util.transposeMatrix(input);
+        boolean[][] result = MatrixTransformations.transposeMatrix(input);
 
         // Assert the result is an empty matrix
         assertArrayEquals(expected, result);
@@ -55,7 +55,7 @@ public class MatrixTest {
                 {true, false},
                 {true, false}
         };
-        Util.swapColumns(input);
+        MatrixTransformations.swapColumns(input);
         assertArrayEquals(expected, input);
 
     }

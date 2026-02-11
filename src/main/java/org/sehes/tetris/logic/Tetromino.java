@@ -6,22 +6,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-public class Tetromino {
-    private final int SIZEREC = 30;
-    private final Color color;
-    private boolean[][] grid;
-    private final int[] position;
-    private final int[] STARTPOS = {4, 0};/*X left to right, Y up to bottom will be center block*/
-    private final int[] pivotGridCord;
-    private final int[] nextPivotGridCord = new int[2];
-    private final int[] nextPos = new int[2];
-    private final int[] pivotPos = new int[2];
-    private final static Random random = new Random();
+import org.sehes.tetris.logic.util.MatrixTransformations;
 
+public class Tetromino {
+
+    private static final int SIZEREC = 30;
+    private static final int[] STARTPOS = {4, 0};/*X left to right, Y up to bottom will be center block*/
+    private static final Random random = new Random();
+    private final Color color;
+    private final int[] position;
+    private boolean[][] grid;
 
     public static Tetromino tetrominoFactory() {
-           int tetrominoType = random.nextInt(7);
-        //int tetrominoType = 0;
+        int tetrominoType = random.nextInt(7);
         return new Tetromino(TETROMINO_TYPE.get(tetrominoType));
     }
 
@@ -29,7 +26,6 @@ public class Tetromino {
         color = type.color;
         grid = type.grid;
         position = Arrays.copyOf(STARTPOS, STARTPOS.length);
-        pivotGridCord = type.PivotGridCord;
     }
 
     public Color getColor() {
@@ -39,7 +35,6 @@ public class Tetromino {
     public int getSIZEREC() {
         return SIZEREC;
     }
-
 
     public int getXCoord() {
         return position[0] * SIZEREC;
@@ -61,10 +56,6 @@ public class Tetromino {
         this.grid = grid;
     }
 
-    public int[] getNextPos() {
-        return nextPos;
-    }
-
     public void move(DirectionFlag flag) {
         position[0] += flag.getX();
         position[1] += flag.getY();
@@ -72,102 +63,90 @@ public class Tetromino {
 
     /**
      * Rotates the tetromino grid based on the direction flag
+     * <p>
+     * The logic follows these steps: 1. Calculate the absolute world position
+     * of the "pivot" block (the center of rotation). 2. Perform the matrix
+     * rotation (Transpose + Swap). 3. Calculate where the pivot block ended up
+     * inside the new rotated grid. 4. Adjust the Tetromino's top-left position
+     * so that the pivot block remains at the same world coordinates.
+     *
      * @param flag Direction of rotation (ROTATE_R or ROTATE_L)
      * @return The rotated grid
      */
     public boolean[][] rotate(DirectionFlag flag) {
-        setPivotPos();
-        boolean[][] newGrid = Util.transposeMatrix(grid);
-        switch (flag) {
-            case ROTATE_R -> Util.swapColumns(newGrid);
-            case ROTATE_L -> Util.swapRows(newGrid);
+        boolean[][] newGrid = MatrixTransformations.transposeMatrix(grid);
+        if (flag == DirectionFlag.ROTATE_R) {
+            MatrixTransformations.swapColumns(newGrid);
+        } else if (flag == DirectionFlag.ROTATE_L) {
+            MatrixTransformations.swapRows(newGrid);
         }
-        calcNextPivotCord(flag);
-        createNextPos(newGrid);
         return newGrid;
     }
 
-    /**
-     * its calculate position of pivot block in the mainBoard
-     *
-     *
+    /*
+        *DISCLAMER: The Tetromino is define as N*N grid, where N is the largest dimension of the piece (e.g., 4 for I, 3 for T, etc.). This allows for a consistent rotation logic across all pieces.
+        * Enum representing the 7 standard Tetris tetromino types, each with its own shape, color, and int value for easy retrieval.
+        * Each type defines a 2D boolean grid where 'true' represents a block and
+        * 'false' represents empty space.
+        * The color field assigns a specific color to each tetromino type for rendering purposes.
+        * The intValue is a unique identifier for each tetromino type, used for easy retrieval from the map.
+        * The static block initializes a map that allows for quick lookup of tetromino types based on their integer value, facilitating the random generation of pieces in the factory method.
+        * @param grid The shape of the tetromino represented as a 2D boolean array.
+        * @param color The color associated with the tetromino type.
+        * @param intValue A unique identifier for the tetromino type.
      */
-    private void setPivotPos() {
-        pivotPos[0] = position[0] + pivotGridCord[0];
-        pivotPos[1] = position[1] + pivotGridCord[1];
-    }
-
-    private void calcNextPivotCord(DirectionFlag flag) {
-        switch (flag) {
-            case ROTATE_R -> {
-                nextPivotGridCord[0] = grid[0].length - pivotGridCord[1] - 1;
-                nextPivotGridCord[1] = pivotGridCord[0];
-            }
-            case ROTATE_L -> {
-                nextPivotGridCord[0] = pivotGridCord[1];
-                nextPivotGridCord[1] = grid.length - pivotGridCord[0] - 1;
-            }
-        }
-    }
-
-    private void createNextPos(boolean[][] newGrid) {
-        nextPos[0] = pivotPos[0] - nextPivotGridCord[0];
-        nextPos[1] = pivotPos[1] - nextPivotGridCord[1];
-    }
-
-    public void applyNewPosition() {
-        position[0] = nextPos[0];
-        position[1] = nextPos[1];
-    }
-
-
     enum TETROMINO_TYPE {
 
         I(new boolean[][]{
-                {true, true, true, true}, {false, false, false, false}},
-                Color.CYAN, 0, new int[]{2, 0}),
+            {false, false, false, false},
+            {true, true, true, true},
+            {false, false, false, false},
+            {false, false, false, false}
+        },
+                Color.CYAN, 0),
         J(new boolean[][]{
-                {true, false, false},
-                {true, true, true}},
-                Color.BLUE, 1, new int[]{1, 1}),
+            {true, false, false},
+            {true, true, true},
+            {false, false, false}
+        },
+                Color.BLUE, 1),
         L(new boolean[][]{
-                {false, false, true},
-                {true, true, true}},
-                Color.ORANGE, 2, new int[]{1, 1}),
-
+            {false, false, true},
+            {true, true, true},
+            {false, false, false}
+        },
+                Color.ORANGE, 2),
         O(new boolean[][]{
-                {true, true},
-                {true, true}},
-                Color.YELLOW, 3, new int[]{1, 1}),
-
+            {true, true},
+            {true, true}
+        },
+                Color.YELLOW, 3),
         S(new boolean[][]{
-                {false, true, true},
-                {true, true, false}},
-                Color.GREEN, 4, new int[]{1, 1}),
-
+            {false, true, true},
+            {true, true, false},
+            {false, false, false}
+        },
+                Color.GREEN, 4),
         T(new boolean[][]{
-                {false, true, false},
-                {true, true, true}
-        }, Color.MAGENTA, 5, new int[]{1, 1}),
-
+            {false, true, false},
+            {true, true, true},
+            {false, false, false}
+        }, Color.MAGENTA, 5),
         Z(new boolean[][]{
-                {true, true, false},
-                {false, true, true}
-        }, Color.RED, 6, new int[]{1, 1}),
-        ;
+            {true, true, false},
+            {false, true, true},
+            {false, false, false}
+        }, Color.RED, 6);
 
         private final Color color;
         private final boolean[][] grid;
         private final int intValue;
-        private final int[] PivotGridCord;
 
-        TETROMINO_TYPE(boolean[][] grid, Color color, int intValue, int[] pivotGridCord) {
+        TETROMINO_TYPE(boolean[][] grid, Color color, int intValue) {
             this.color = color;
             this.grid = grid;
             this.intValue = intValue;
-            this.PivotGridCord = pivotGridCord;
         }
-
 
         private static final Map<Integer, TETROMINO_TYPE> map = new HashMap<>();
 

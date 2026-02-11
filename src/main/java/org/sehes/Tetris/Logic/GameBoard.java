@@ -116,9 +116,9 @@ public class GameBoard {
         boolean[][] nextGrid = currentTetromino.rotate(flag);
 
         // Check if the rotation would cause a collision
-        if (checkCollisions(nextGrid, currentTetromino.getNextPos(), flag)) {
+        if (checkCollisions(nextGrid, currentTetromino.getPosition(), flag)) {
             currentTetromino.setGrid(nextGrid);
-            currentTetromino.applyNewPosition();
+            //currentTetromino.applyNewPosition();
         }
         System.out.println("afterPosition: " + Arrays.toString(currentTetromino.getPosition()));
     }
