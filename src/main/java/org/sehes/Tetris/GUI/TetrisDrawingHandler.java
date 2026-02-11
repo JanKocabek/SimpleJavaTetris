@@ -2,20 +2,19 @@ package org.sehes.tetris.gui;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 
 import org.sehes.tetris.logic.GameBoard;
 import org.sehes.tetris.logic.Tetromino;
 
 public class TetrisDrawingHandler {
-    //size of one cell of GameBoard grid
-    private final static GameBoard board = GameBoard.getInstance();
 
-    private final static int CWIDTH = TetrisCanvas.getInstance().getWidth();
-    private final static int CHEIGHT = TetrisCanvas.getInstance().getHeight();
-    private final static int COL = 10;//number of cell in row (columns)
-    private final static int ROWS = 20;//number of cell in column (rows)
-    private final static int SIZETetromino = board.getGRIDUNIT();
+    //size of one cell of GameBoard grid
+    private static final GameBoard board = GameBoard.getInstance();
+    private static final int COL = 10;//number of cell in row (columns)
+    private static final int ROWS = 20;//number of cell in column (rows)
+    private static final int SIZETetromino = board.getGRIDUNIT();
 
     private TetrisDrawingHandler() {
 
@@ -27,14 +26,17 @@ public class TetrisDrawingHandler {
     }
 
     public static void drawGrid(Graphics2D g2d) {
+        final Rectangle drawingArea = g2d.getClipBounds();
+        final int width = drawingArea.width;
+        final int height = drawingArea.height;
+
         g2d.setColor(Color.YELLOW);
         for (int i = 1; i < COL; i++) {
-            g2d.drawLine(SIZETetromino * i, 0, SIZETetromino * i, CHEIGHT);
+            g2d.drawLine(SIZETetromino * i, 0, SIZETetromino * i, height);
         }
         for (int i = 1; i < ROWS; i++) {
-            g2d.drawLine(0, SIZETetromino * i, CWIDTH, SIZETetromino * i);
+            g2d.drawLine(0, SIZETetromino * i, width, SIZETetromino * i);
         }
-
     }
 
     public static void drawGame(Graphics2D g2d) {
@@ -69,7 +71,6 @@ public class TetrisDrawingHandler {
             }
         }
     }
-
 
     public static void repaint() {
         TetrisCanvas.getInstance().repaint();
