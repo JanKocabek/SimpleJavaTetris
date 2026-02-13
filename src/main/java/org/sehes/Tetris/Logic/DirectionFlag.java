@@ -15,10 +15,18 @@ public enum DirectionFlag {
         this.dY = dY;
     }
 
+    /**
+     * Returns the change in the x-coordinate (column) for the given direction flag. For example, for LEFT it returns -1, for RIGHT it returns 1, and for DOWN it returns 0.
+     * @return
+     */
     public int getX() {
         return dX;
     }
 
+    /**
+     * Returns the change in the y-coordinate (row) for the given direction flag. For example, for DOWN it returns 1, for LEFT and RIGHT it returns 0.
+     * @return
+     */
     public int getY() {
         return dY;
     }

@@ -9,9 +9,18 @@ import java.util.Map;
 
 import javax.swing.Timer;
 
-import org.sehes.tetris.gui.TetrisCanvas;
 import org.sehes.tetris.gui.TetrisDrawingHandler;
 
+/*
+DISCLAIMER:
+RATHER USE posCol AND posRow FOR POSITION VARIABLES!!!!
+In the game board and tetromino representation, the x is  left to right (columns), y is top to bottom (rows)
+but 2D arrays are represented as [y][x] that is [row][column] so be careful when programming!!!!!
+This class currently handles both the game board state management and the game loop timing.
+In future iterations, it is advisable to separate these concerns into distinct classes:
+- GameBoard: Responsible solely for managing the state of the game board, including piece placement, collision detection, and line clearing.
+- GameManager: Oversees the game loop, timing, and overall game state transitions (e.g., starting, pausing, ending the game).
+ */
 public class GameBoard {
 
     public enum BlockContent {
@@ -47,9 +56,7 @@ public class GameBoard {
         }
     }
 
-    private final int HEIGHT = TetrisCanvas.getInstance().getHeight();
-    private final int WIDTH = TetrisCanvas.getInstance().getWidth();
-    private final int MOVE = 30;//how much pix are the rectangles move
+    //private final int MOVE = 30;//how much pix are the rectangles move
     private final int GRIDUNIT = 30;
     private final int ROWS = 21;
     private final int COLUMN = 10;// size of one grid block
@@ -100,7 +107,7 @@ public class GameBoard {
         if (this.currentTetromino == null) {
             return false;
         }
-        if (checkCollisions(currentTetromino, flag)) {
+        if (canMove(currentTetromino.getGrid(), currentTetromino.getPosition(), flag)) {
             currentTetromino.move(flag);
             TetrisDrawingHandler.repaint();
             return true;
@@ -108,19 +115,33 @@ public class GameBoard {
         return false;
     }
 
+    /**
+     * This method is responsible for rotating the current tetromino in the
+     * specified direction (right or left). It first checks if there is a
+     * current tetromino to rotate. If there isn't, it simply returns without
+     * doing anything. Then, it calculates the next grid configuration of the
+     * tetromino after rotation using the rotate method of the Tetromino class.
+     * Before applying the rotation, it checks for potential collisions that
+     * might occur due to the new grid configuration using the checkCollisions
+     * method. If there are no collisions, it updates the tetromino's grid to
+     * the new rotated configuration. Finally, it prints the position of the
+     * tetromino before and after rotation for debugging purposes
+     *
+     * @param flag The direction in which to rotate the tetromino (e.g.,
+     * ROTATE_R for right rotation, ROTATE_L for left rotation)
+     */
     public void rotatePiece(DirectionFlag flag) {
         if (this.currentTetromino == null) {
             return;
         }
-        System.out.println("beforePosition: " + Arrays.toString(currentTetromino.getPosition()));
-        boolean[][] nextGrid = currentTetromino.rotate(flag);
 
-        // Check if the rotation would cause a collision
-        if (checkCollisions(nextGrid, currentTetromino.getPosition(), flag)) {
+        System.out.println("beforePosition: " + Arrays.toString(currentTetromino.getPosition()));// Debugging output to show the position before rotation
+        boolean[][] nextGrid = currentTetromino.rotate(flag);
+        if (canRotate(nextGrid, flag)) {
             currentTetromino.setGrid(nextGrid);
-            //currentTetromino.applyNewPosition();
         }
-        System.out.println("afterPosition: " + Arrays.toString(currentTetromino.getPosition()));
+
+        System.out.println("afterPosition: " + Arrays.toString(currentTetromino.getPosition()));// Debugging output to show the position after rotation
     }
 
     /* to here */
@@ -131,16 +152,20 @@ public class GameBoard {
      * @param flag which direction are the tetromino supposed to move
      * @return true if collision not happened
      */
-    private boolean checkCollisions(Tetromino tetromino, DirectionFlag flag) {
-        int newX = tetromino.getPosition()[0] + flag.getX();
-        int newY = tetromino.getPosition()[1] + flag.getY();
-        if (!checkBoundaries(this.getCurrentTetromino(), flag)) {
+    private boolean canMove(boolean[][] tetrominoGrid, int[] position, DirectionFlag flag) {
+        if (tetrominoGrid == null || flag == null) {
             return false;
         }
-        for (int row = 0; row < tetromino.getGrid().length; row++) {
-            for (int column = 0; column < tetromino.getGrid()[row].length; column++) {
-                if (tetromino.getGrid()[row][column]
-                        && this.board[newY + row][newX + column] != BlockContent.EMPTY) {
+        int columns = 0; //but in tetromino is flag.getX()
+        int rows = 1; //but in tetromino is flag.getY()
+        int[] newPosition = {position[columns] + flag.getX(), position[rows] + flag.getY()};
+        if (!checkBoundaries(tetrominoGrid, newPosition)) {
+            return false;
+        }
+        for (int gridR = 0; gridR < tetrominoGrid.length; gridR++) {
+            for (int gridC = 0; gridC < tetrominoGrid[gridR].length; gridC++) {
+                if ((tetrominoGrid[gridR][gridC])
+                        && (this.board[newPosition[rows] + gridR][newPosition[columns] + gridC] != BlockContent.EMPTY)) {
                     return false;
                 }
             }
@@ -148,17 +173,30 @@ public class GameBoard {
         return true;
     }
 
-    private boolean checkCollisions(boolean[][] tetrominoGrid, int[] position, DirectionFlag flag) {
-        int newX = position[0] + flag.getX();
-        int newY = position[1] + flag.getY();
-
-        if (!checkBoundaries(getCurrentTetromino(), flag)) {
+    /**
+     * this method check if the position after rotating a piece is in the
+     * gameBoardBoundaries and not occupied by another piece
+     *
+     * @param tetrominoGrid the grid of the tetromino after rotation
+     * @param flag which direction are the tetromino supposed to rotate
+     * @return true if collision not happened and the position is in the
+     * gameBoard boundaries
+     */
+    private boolean canRotate(boolean[][] tetrominoGrid, DirectionFlag flag) {
+        if (tetrominoGrid == null || flag == null) {
             return false;
         }
+        int[] position = currentTetromino.getPosition();
+        if (!checkBoundaries(tetrominoGrid, position)) {
+            return false;
+        }
+        int x = position[0];
+        int y = position[1];
 
-        for (int row = 0; row < tetrominoGrid.length; row++) {
-            for (int column = 0; column < tetrominoGrid[row].length; column++) {
-                if (tetrominoGrid[row][column] && this.board[newY + row][newX + column] != BlockContent.EMPTY) {
+        for (int gridR = 0; gridR < tetrominoGrid.length; gridR++) {
+            for (int gridC = 0; gridC < tetrominoGrid[gridR].length; gridC++) {
+                if ((tetrominoGrid[gridR][gridC])
+                        && (this.board[y + gridR][x + gridC] != BlockContent.EMPTY)) {
                     return false;
                 }
             }
@@ -168,23 +206,29 @@ public class GameBoard {
 
     /**
      * this method check if the position after moving a piece is in the
-     * gameBoardBoundaries
+     * gameBoardBoundaries and not occupied by another piece
      *
-     *
-     * @param flag which direction are the tetromino supposed to move
+     * @param tetrominoGrid the grid of the tetromino after moving/rotating
+     * @param newPosition the position of the tetromino after moving /
+     * rotating(doesn't change)
+     * @param flag which direction are the tetromino supposed to move/rotate
      * @return true if the final position is in the gameBoard boundaries
      */
-    private boolean checkBoundaries(Tetromino tetromino, DirectionFlag flag) {
-        /* positions after move*/
- /* 0,0 -> 0+dx,0+dy*/
-        int Y = tetromino.getPosition()[1]; // Fixed: Y should be position[1], not position[0]
-        int newPositionX = tetromino.getPosition()[0] + flag.getX();
-        int newPositionY = tetromino.getPosition()[1] + flag.getY();
-        int newUpperRightX = newPositionX + tetromino.getGrid()[0].length - 1;
-        int newBottomLeftY = newPositionY + tetromino.getGrid().length - 1;
-        return newPositionX >= 0
-                && newUpperRightX < this.board[Y].length
-                && newBottomLeftY < this.board.length;
+    private boolean checkBoundaries(boolean[][] tetrominoGrid, int[] newPosition) {
+        int colPos = newPosition[0];//current column
+        int rowPos = newPosition[1];//current row
+        for (int gridR = 0; gridR < tetrominoGrid.length; gridR++) {
+            for (int gridC = 0; gridC < tetrominoGrid[gridR].length; gridC++) {
+                if ((tetrominoGrid[gridR][gridC])
+                        && (colPos + gridC < 0
+                        || colPos + gridC >= board[0].length
+                        || rowPos + gridR >= board.length
+                        || rowPos + gridR < 0)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private void addBlockToBoard(Tetromino tetromino) {
@@ -207,6 +251,7 @@ public class GameBoard {
 
     private class MainLoopListener implements ActionListener {
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             if (currentTetromino == null) {
                 getNewTetromino();

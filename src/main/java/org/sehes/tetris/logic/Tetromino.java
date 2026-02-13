@@ -11,11 +11,11 @@ import org.sehes.tetris.logic.util.MatrixTransformations;
 public class Tetromino {
 
     private static final int SIZEREC = 30;
-    private static final int[] STARTPOS = {4, 0};/*X left to right, Y up to bottom will be center block*/
+    private static final int[] STARTPOS = {4, 0};/*X column, Y row*/
     private static final Random random = new Random();
     private final Color color;
-    private final int[] position;
-    private boolean[][] grid;
+    private final int[] position;//X column, Y row
+    private  boolean[][] grid;
 
     public static Tetromino tetrominoFactory() {
         int tetrominoType = random.nextInt(7);
@@ -48,10 +48,22 @@ public class Tetromino {
         return grid;
     }
 
+    /**
+     * Returns the current position of the tetromino as an array of integers.
+     * The first element is the X coordinate (column), and the second is the Y coordinate (row).
+     * @return The position of the tetromino as [X, Y].
+     */
     public int[] getPosition() {
         return position;
     }
 
+    /**
+     * Sets the grid of the tetromino to a new 2D boolean array. This method is
+     * used to update the tetromino's grid after rotation or other
+     * transformations.
+     *
+     * @param grid The new grid representation of the tetromino.
+     */
     public void setGrid(boolean[][] grid) {
         this.grid = grid;
     }
@@ -64,12 +76,12 @@ public class Tetromino {
     /**
      * Rotates the tetromino grid based on the direction flag
      * <p>
-     * The logic follows these steps: 1. Calculate the absolute world position
-     * of the "pivot" block (the center of rotation). 2. Perform the matrix
-     * rotation (Transpose + Swap). 3. Calculate where the pivot block ended up
-     * inside the new rotated grid. 4. Adjust the Tetromino's top-left position
-     * so that the pivot block remains at the same world coordinates.
-     *
+     * The method first transposes the grid to switch rows and columns. Then,
+     * depending on the rotation direction (right or left), it either swaps
+     * columns (for right rotation) or swaps rows (for left rotation) to achieve
+     * the correct orientation of the tetromino after rotation.
+     * <p>
+     * @param grid The current grid representation of the tetromino
      * @param flag Direction of rotation (ROTATE_R or ROTATE_L)
      * @return The rotated grid
      */
