@@ -241,7 +241,7 @@ public class GameBoard {
         for (int row = 0; row < tetromino.getGrid().length; row++) {
             for (int column = 0; column < tetromino.getGrid()[row].length; column++) {
                 if (tetromino.getGrid()[row][column]) {
-                    this.board[posRow + row][posCol + column] = this.board[posRow + row][posCol + column].fromColor(tetromino.getColor());
+                    this.board[posRow + row][posCol + column] = BlockContent.fromColor(tetromino.getColor());
                 }
             }
         }
