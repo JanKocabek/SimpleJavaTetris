@@ -16,8 +16,9 @@ public class Tetromino {
     private  boolean[][] grid;
 
     public static Tetromino tetrominoFactory() {
-        int tetrominoType = random.nextInt(7);
-        return new Tetromino(TETROMINO_TYPE.get(tetrominoType));
+        TETROMINO_TYPE[] values = TETROMINO_TYPE.values();
+        int tetrominoType = random.nextInt(values.length);
+        return new Tetromino(values[tetrominoType]);
     }
 
     private Tetromino(TETROMINO_TYPE type) {
