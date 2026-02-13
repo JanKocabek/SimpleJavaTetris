@@ -72,7 +72,7 @@ public class MatrixTest {
     @Test
     public void testSwapColumnsSingleRowMatrix() {
         boolean[][] input = {
-                {true, false, true}
+                {true, true, false}
         };
         boolean[][] expected = {
                 {false, true, true}
@@ -129,8 +129,8 @@ public class MatrixTest {
     public void testSwapRowsSingleColumnMatrix() {
         boolean[][] input = {
                 {true},
-                {false},
-                {true}
+                {true},
+                {false}
         };
         boolean[][] expected = {
                 {false},
