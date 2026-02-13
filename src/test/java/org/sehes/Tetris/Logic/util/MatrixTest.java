@@ -58,4 +58,20 @@ public class MatrixTest {
         assertArrayEquals(expected, input);
 
     }
+    @Test
+    public void testSwapRows() {
+        boolean[][] input = {
+                {true, false},
+                {false, true},
+                {false, true}
+        };
+        boolean[][] expected = {
+                {false, true},
+                {false, true},
+                {true, false}
+        };
+        MatrixTransformations.swapRows(input);
+        assertArrayEquals(expected, input);
+
+    }
 }
