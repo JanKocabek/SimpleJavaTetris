@@ -1,5 +1,5 @@
 # Java-swing Tetris
-current progress is it for now in tthis branch
+Current progress for this branch is as follows:
 
 ## Description
 This is my first attempt at creating a real game to improve my Java and (OOP) skills. 
