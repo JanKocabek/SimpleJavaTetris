@@ -65,6 +65,9 @@ public class GameBoard {
          * block is empty and doesn't have a color.
          */
         public static BlockContent fromColor(Color color) {
+            if (color == null) {
+                return EMPTY;
+            }
             return map.get(color);
         }
     }
