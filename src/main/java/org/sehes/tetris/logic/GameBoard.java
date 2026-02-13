@@ -141,7 +141,7 @@ public class GameBoard {
 
         System.out.println("beforePosition: " + Arrays.toString(currentTetromino.getPosition()));// Debugging output to show the position before rotation
         boolean[][] nextGrid = currentTetromino.rotate(flag);
-        if (canRotate(nextGrid, flag)) {
+        if (canRotate(nextGrid)) {
             currentTetromino.setGrid(nextGrid);
         }
 
@@ -182,12 +182,11 @@ public class GameBoard {
      * gameBoardBoundaries and not occupied by another piece
      *
      * @param tetrominoGrid the grid of the tetromino after rotation
-     * @param flag which direction are the tetromino supposed to rotate
      * @return true if collision not happened and the position is in the
      * gameBoard boundaries
      */
-    private boolean canRotate(boolean[][] tetrominoGrid, DirectionFlag flag) {
-        if (tetrominoGrid == null || flag == null) {
+    private boolean canRotate(boolean[][] tetrominoGrid) {
+        if (tetrominoGrid == null || currentTetromino == null) {
             return false;
         }
         int[] position = currentTetromino.getPosition();
