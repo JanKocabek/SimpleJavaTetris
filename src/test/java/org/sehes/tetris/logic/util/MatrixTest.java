@@ -58,6 +58,90 @@ public class MatrixTest {
         assertArrayEquals(expected, input);
 
     }
+
+    @Test
+    public void testSwapColumnsEmptyMatrix() {
+        boolean[][] input = {};
+        boolean[][] expected = {};
+
+        MatrixTransformations.swapColumns(input);
+
+        assertArrayEquals(expected, input);
+    }
+
+    @Test
+    public void testSwapColumnsSingleRowMatrix() {
+        boolean[][] input = {
+                {true, false, true}
+        };
+        boolean[][] expected = {
+                {false, true, true}
+        };
+
+        MatrixTransformations.swapColumns(input);
+
+        assertArrayEquals(expected, input);
+    }
+
+    @Test
+    public void testSwapColumnsSingleColumnMatrix() {
+        boolean[][] input = {
+                {true},
+                {false},
+                {true}
+        };
+        boolean[][] expected = {
+                {true},
+                {false},
+                {true}
+        };
+
+        MatrixTransformations.swapColumns(input);
+
+        assertArrayEquals(expected, input);
+    }
+
+    @Test
+    public void testSwapRowsEmptyMatrix() {
+        boolean[][] input = {};
+        boolean[][] expected = {};
+
+        MatrixTransformations.swapRows(input);
+
+        assertArrayEquals(expected, input);
+    }
+
+    @Test
+    public void testSwapRowsSingleRowMatrix() {
+        boolean[][] input = {
+                {true, false, true}
+        };
+        boolean[][] expected = {
+                {true, false, true}
+        };
+
+        MatrixTransformations.swapRows(input);
+
+        assertArrayEquals(expected, input);
+    }
+
+    @Test
+    public void testSwapRowsSingleColumnMatrix() {
+        boolean[][] input = {
+                {true},
+                {false},
+                {true}
+        };
+        boolean[][] expected = {
+                {false},
+                {true},
+                {true}
+        };
+
+        MatrixTransformations.swapRows(input);
+
+        assertArrayEquals(expected, input);
+    }
     @Test
     public void testSwapRows() {
         boolean[][] input = {
