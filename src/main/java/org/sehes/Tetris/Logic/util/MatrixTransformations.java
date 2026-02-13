@@ -32,13 +32,12 @@ public class MatrixTransformations {
         }
         int startCol = 0;
         int endCol = grid[0].length - 1 - startCol;
-        for (; startCol < endCol; startCol++) {
-            for (int row = 0; row < grid.length; row++) {
-                boolean tmp = grid[row][startCol];
-                grid[row][startCol] = grid[row][endCol];
-                grid[row][endCol] = tmp;
+        for (; startCol < endCol; startCol++, endCol--) {
+            for (boolean[] row : grid) {
+                boolean tmp = row[startCol];
+                row[startCol] = row[endCol];
+                row[endCol] = tmp;
             }
-            endCol--;
         }
     }
 
@@ -48,13 +47,12 @@ public class MatrixTransformations {
         }
         int startRow = 0;
         int endRow = grid.length - 1 - startRow;
-        for (; startRow < endRow; startRow++) {
+        for (; startRow < endRow; startRow++, endRow--) {
             for (int col = 0; col < grid[0].length; col++) {
                 boolean tmp = grid[startRow][col];
                 grid[startRow][col] = grid[endRow][col];
                 grid[endRow][col] = tmp;
             }
-            endRow--;
         }
     }
 }
