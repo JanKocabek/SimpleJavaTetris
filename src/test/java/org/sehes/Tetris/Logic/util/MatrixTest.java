@@ -63,10 +63,10 @@ public class MatrixTest {
         boolean[][] input = {
                 {true, false},
                 {false, true},
-                {false, true}
+                {false, false}
         };
         boolean[][] expected = {
-                {false, true},
+                {false, false},
                 {false, true},
                 {true, false}
         };
