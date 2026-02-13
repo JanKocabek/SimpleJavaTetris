@@ -1,8 +1,9 @@
 package org.sehes.test;
 
-import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import javax.swing.Timer;
 
 public class GameLoop {
     private static final int TIMER_DELAY = 1000; // 1 second delay
@@ -33,7 +34,7 @@ public class GameLoop {
         try {
             Thread.sleep(TIMER_DELAY * DURATION); // Keep the main thread alive for the duration
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            e.printStackTrace(System.err);
         }
     }
 }

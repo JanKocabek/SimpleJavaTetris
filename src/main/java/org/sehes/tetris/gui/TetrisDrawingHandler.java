@@ -10,11 +10,11 @@ import org.sehes.tetris.logic.Tetromino;
 
 public class TetrisDrawingHandler {
 
-    //size of one cell of GameBoard grid
     private static final GameBoard board = GameBoard.getInstance();
     private static final int COL = 10;//number of cell in row (columns)
     private static final int ROWS = 20;//number of cell in column (rows)
-    private static final int SIZETetromino = board.getGRIDUNIT();
+    //size of one cell of GameBoard grid, also the size of one block of tetromino
+    private static final int SIZETetromino = board.getGRIDUNIT();//latter uncuple this from GameBoard and make it a constant here, but for now it is fine
 
     private TetrisDrawingHandler() {
 
