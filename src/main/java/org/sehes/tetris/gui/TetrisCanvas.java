@@ -6,7 +6,7 @@ import java.awt.Graphics2D;
 
 import javax.swing.JPanel;
 
-import org.sehes.tetris.logic.KeyListener;
+import org.sehes.tetris.logic.TetrisKeyInputHandler;
 
 public class TetrisCanvas extends JPanel {
 
@@ -24,7 +24,7 @@ public class TetrisCanvas extends JPanel {
         setVisible(true);
         setBackground(Color.BLACK);
         this.setFocusable(true);
-        this.addKeyListener(new KeyListener());
+        this.addKeyListener(new TetrisKeyInputHandler());
     }
 
     @Override
