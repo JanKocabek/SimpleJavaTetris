@@ -6,15 +6,12 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 
 import org.sehes.tetris.logic.GameBoard;
+import org.sehes.tetris.logic.GameParameters;
 import org.sehes.tetris.logic.Tetromino;
 
 public class TetrisDrawingHandler {
 
     private static final GameBoard board = GameBoard.getInstance();
-    private static final int COL = 10;//number of cell in row (columns)
-    private static final int ROWS = 20;//number of cell in column (rows)
-    //size of one cell of GameBoard grid, also the size of one block of tetromino
-    private static final int SIZETetromino = board.getGRIDUNIT();//latter uncuple this from GameBoard and make it a constant here, but for now it is fine
 
     private TetrisDrawingHandler() {
 
@@ -31,11 +28,11 @@ public class TetrisDrawingHandler {
         final int height = drawingArea.height;
 
         g2d.setColor(Color.YELLOW);
-        for (int i = 1; i < COL; i++) {
-            g2d.drawLine(SIZETetromino * i, 0, SIZETetromino * i, height);
+        for (int i = 1; i < GameParameters.COLUMNS; i++) {
+            g2d.drawLine(GameParameters.BLOCK_SIZE * i, 0, GameParameters.BLOCK_SIZE * i, height);
         }
-        for (int i = 1; i < ROWS; i++) {
-            g2d.drawLine(0, SIZETetromino * i, width, SIZETetromino * i);
+        for (int i = 1; i < GameParameters.ROWS; i++) {
+            g2d.drawLine(0, GameParameters.BLOCK_SIZE * i, width, GameParameters.BLOCK_SIZE * i);
         }
     }
 
@@ -45,9 +42,9 @@ public class TetrisDrawingHandler {
             for (int col = grid[row].length - 1; col >= 0; col--) {
                 if (grid[row][col] != GameBoard.BlockContent.EMPTY) {
                     g2d.setColor(grid[row][col].getColor());
-                    int x = (col) * SIZETetromino;
-                    int y = (row - 1) * SIZETetromino;
-                    g2d.fillRect(x, y, SIZETetromino, SIZETetromino);
+                    int x = (col) * GameParameters.BLOCK_SIZE;
+                    int y = (row - 1) * GameParameters.BLOCK_SIZE;
+                    g2d.fillRect(x, y, GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE);
                 }
             }
         }
@@ -62,11 +59,10 @@ public class TetrisDrawingHandler {
         boolean[][] grid = t.getGrid();
         int x = t.getXCoord();
         int y = t.getYCoord();
-        int size = t.getSIZEREC();
         for (int row = 0; row < grid.length; row++) {
             for (int column = 0; column < grid[row].length; column++) {
                 if (grid[row][column]) {
-                    g2d.fillRect(x + column * size, y + row * size, size, size);
+                    g2d.fillRect(x + column * GameParameters.BLOCK_SIZE, y + row * GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE);
                 }
             }
         }

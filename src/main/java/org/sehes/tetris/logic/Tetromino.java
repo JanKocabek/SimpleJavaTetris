@@ -10,8 +10,6 @@ import org.sehes.tetris.logic.util.MatrixTransformations;
 
 public class Tetromino {
 
-    private static final int SIZEREC = 30;
-    private static final int[] STARTPOS = {4, 0};/*X column, Y row*/
     private static final Random random = new Random();
     private final Color color;
     private final int[] position;//X column, Y row
@@ -25,23 +23,20 @@ public class Tetromino {
     private Tetromino(TETROMINO_TYPE type) {
         color = type.color;
         grid = type.grid;
-        position = Arrays.copyOf(STARTPOS, STARTPOS.length);
+        position = Arrays.copyOf(GameParameters.STARTING_POS, GameParameters.STARTING_POS.length);
     }
 
     public Color getColor() {
         return color;
     }
 
-    public int getSIZEREC() {
-        return SIZEREC;
-    }
 
     public int getXCoord() {
-        return position[0] * SIZEREC;
+        return position[0] * GameParameters.BLOCK_SIZE;
     }
 
     public int getYCoord() {
-        return (position[1] - 1) * SIZEREC;
+        return (position[1] - 1) * GameParameters.BLOCK_SIZE;
     }
 
     public boolean[][] getGrid() {
