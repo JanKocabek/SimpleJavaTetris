@@ -44,6 +44,7 @@ public class GameBoard {
         }
 
         private static final Map<Color, BlockContent> map = new HashMap<>();
+
         static {
             for (BlockContent type : BlockContent.values()) {
                 map.put(type.color, type);
@@ -51,19 +52,26 @@ public class GameBoard {
         }
 
         /**
-         * This method takes a Color object from tetromino and returns the corresponding BlockContent enum value. It uses a static map to efficiently look up the BlockContent based on the provided Color. If the color is not found in the map, it will return null, which can be handled appropriately in the calling code.
-         * @param color The Color object for which to find the corresponding BlockContent enum value.
-         * @return The BlockContent enum value corresponding to the provided Color, or null if the color is not found in the map.means that the block is empty and doesn't have a color.
+         * This method takes a Color object from tetromino and returns the
+         * corresponding BlockContent enum value. It uses a static map to
+         * efficiently look up the BlockContent based on the provided Color. If
+         * the color is not found in the map, it will return null, which can be
+         * handled appropriately in the calling code.
+         *
+         * @param color The Color object for which to find the corresponding
+         * BlockContent enum value.
+         * @return The BlockContent enum value corresponding to the provided
+         * Color, or null if the color is not found in the map.means that the
+         * block is empty and doesn't have a color.
          */
         public static BlockContent fromColor(Color color) {
             return map.get(color);
         }
-    }   
+    }
 
     private static GameBoard instance;
     private Tetromino currentTetromino;
     private final BlockContent[][] board;
-    private final int delay = 1600;
     private final Timer gameLoopTimer;
 
     public static GameBoard getInstance() {
@@ -76,7 +84,7 @@ public class GameBoard {
     private GameBoard() {
         board = new BlockContent[GameParameters.ROWS][GameParameters.COLUMNS];
         fillBoard();
-        gameLoopTimer = new Timer(delay, gameLoopListener);
+        gameLoopTimer = new Timer(GameParameters.GAME_SPEED, gameLoopListener);
     }
 
     private void fillBoard() {
