@@ -76,7 +76,6 @@ public class Tetromino {
      * columns (for right rotation) or swaps rows (for left rotation) to achieve
      * the correct orientation of the tetromino after rotation.
      * <p>
-     * @param grid The current grid representation of the tetromino
      * @param flag Direction of rotation (ROTATE_R or ROTATE_L)
      * @return The rotated grid
      */

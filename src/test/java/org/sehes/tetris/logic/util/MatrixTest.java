@@ -1,9 +1,10 @@
 package org.sehes.tetris.logic.util;
 
-import static org.junit.Assert.assertArrayEquals;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import org.junit.jupiter.api.Test;
 
-public class MatrixTest {
+
+class MatrixTest {
 
     @Test
     public void testTranspose() {
