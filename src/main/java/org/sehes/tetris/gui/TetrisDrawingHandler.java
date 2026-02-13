@@ -31,7 +31,7 @@ public class TetrisDrawingHandler {
         for (int i = 1; i < GameParameters.COLUMNS; i++) {
             g2d.drawLine(GameParameters.BLOCK_SIZE * i, 0, GameParameters.BLOCK_SIZE * i, height);
         }
-        for (int i = 1; i < GameParameters.ROWS; i++) {
+        for (int i = 1; i < GameParameters.VISIBLE_ROWS; i++) {
             g2d.drawLine(0, GameParameters.BLOCK_SIZE * i, width, GameParameters.BLOCK_SIZE * i);
         }
     }
@@ -43,7 +43,7 @@ public class TetrisDrawingHandler {
                 if (grid[row][col] != GameBoard.BlockContent.EMPTY) {
                     g2d.setColor(grid[row][col].getColor());
                     int x = (col) * GameParameters.BLOCK_SIZE;
-                    int y = (row - 1) * GameParameters.BLOCK_SIZE;
+                    int y = (row - GameParameters.ROW_OFFSET) * GameParameters.BLOCK_SIZE;
                     g2d.fillRect(x, y, GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE);
                 }
             }

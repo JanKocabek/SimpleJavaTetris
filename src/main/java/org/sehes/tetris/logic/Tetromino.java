@@ -36,7 +36,7 @@ public class Tetromino {
     }
 
     public int getYCoord() {
-        return (position[1] - 1) * GameParameters.BLOCK_SIZE;
+        return (position[1] - GameParameters.ROW_OFFSET) * GameParameters.BLOCK_SIZE;
     }
 
     public boolean[][] getGrid() {

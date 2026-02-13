@@ -13,5 +13,6 @@ public final class GameParameters {
     public static final int STARTING_COL = 4;//the column where new tetromino
     public static final int GAME_SPEED = 500;//the speed of the game, in milliseconds, the lower the faster
     public static final int[] STARTING_POS = {STARTING_COL, STARTING_ROW};
+    public static final int ROW_OFFSET = ROWS - VISIBLE_ROWS;//the number of rows that are not visible to player, used for calculating the position of tetromino on the game board
 
 }
