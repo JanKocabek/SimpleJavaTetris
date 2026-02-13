@@ -15,7 +15,7 @@ This is my first attempt at creating a real game to improve my Java and (OOP) sk
 |                                               |  ✔ How to catch keystrokes                 |   
 | Put all parts of the code in the right order  |  ✔ Learning how to draw shapes             |
 |                                               |  ✔ How to keep track of all pieces         |
-|                                               |     that are already placed on desks       | 
+|                                               |     that are already placed on the board   | 
 |                                               |     - tracking tetrominoes                 |
 |                                               |                                            |
 ```
