@@ -10,7 +10,7 @@ This is my first attempt at creating a real game to improve my Java and (OOP) sk
 ## Roadmap
 | Current Goals                                 | Finished Steps                             |
 |-----------------------------------------------|--------------------------------------------|
-|   -adding SRS system to be able rotate        |  ✔ fixing rotation                         |
+|   - adding SRS system to be able to rotate    |  ✔ fixing rotation                         |
 |  as in ofical guideline with wall kick        |  ✔ implement all tetrominos                |
 |                                               |  ✔ Moving and redrawing things in JPanel   |
 |                                               |  ✔ Catching collisions                     |
