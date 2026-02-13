@@ -1,21 +1,25 @@
 # Java-swing Tetris
+
 Current progress for this branch is as follows:
 
 ## Description
-This is my first attempt at creating a real game to improve my Java and (OOP) skills. 
+
+This is my first attempt at creating a real game to improve my Java and (OOP) skills.
+
 ```
 ## Roadmap
 | Current Goals                                 | Finished Steps                             |
-|-----------------------------------------------|--------------------------------------------| 
-|                                               |  ✔ implement all tetrominos                |
-| fixing rotation                               |  ✔ Moving and redrawing things in JPanel   |
-| probably redoing rotation  and movement system|  ✔ Catching collisions                     |
-|                from scratch                   |  ✔ Simple timer                            |
+|-----------------------------------------------|--------------------------------------------|
+|   -adding SRS system to be able rotate        |  ✔ fixing rotation                         |
+|  as in ofical guideline with wall kick        |  ✔ implement all tetrominos                |
+|                                               |  ✔ Moving and redrawing things in JPanel   |
+|                                               |  ✔ Catching collisions                     |
+|                                               |  ✔ Simple timer                            |
 | - tracking lines and so on                    |  ✔ drawing things after start of the game  |
-|                                               |  ✔ How to catch keystrokes                 |   
+|                                               |  ✔ How to catch keystrokes                 |
 | Put all parts of the code in the right order  |  ✔ Learning how to draw shapes             |
 |                                               |  ✔ How to keep track of all pieces         |
-|                                               |     that are already placed on the board   | 
+|                                               |     that are already placed on the board   |
 |                                               |     - tracking tetrominoes                 |
 |                                               |                                            |
 ```
