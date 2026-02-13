@@ -60,10 +60,6 @@ public class GameBoard {
         }
     }   
 
-    //private final int MOVE = 30;//how much pix are the rectangles move
-    private final int GRIDUNIT = 30;
-    private final int ROWS = 21;
-    private final int COLUMN = 10;// size of one grid block
     private static GameBoard instance;
     private Tetromino currentTetromino;
     private final BlockContent[][] board;
@@ -78,7 +74,7 @@ public class GameBoard {
     }
 
     private GameBoard() {
-        board = new BlockContent[ROWS][COLUMN];
+        board = new BlockContent[GameParameters.ROWS][GameParameters.COLUMNS];
         fillBoard();
         gameLoopTimer = new Timer(delay, gameLoopListener);
     }
@@ -88,11 +84,6 @@ public class GameBoard {
             Arrays.fill(blockContents, BlockContent.EMPTY);
         }
     }
-
-    public int getGRIDUNIT() {
-        return GRIDUNIT;
-    }
-
 
     /* these methods will be in finally in GameManager class probably*/
     public Tetromino getCurrentTetromino() {
