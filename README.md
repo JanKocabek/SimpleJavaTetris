@@ -9,7 +9,7 @@ This is my first attempt at creating a real game to improve my Java and (OOP) sk
 |-----------------------------------------------|--------------------------------------------| 
 |                                               |  ✔ implement all tetrominos                |
 | fixing rotation                               |  ✔ Moving and redrawing things in JPanel   |
-| probably redoing rotation  and movment sytsem |  ✔ Catching collisions                     |
+| probably redoing rotation  and movement system|  ✔ Catching collisions                     |
 |                from scratch                   |  ✔ Simple timer                            |
 | - tracking lines and so on                    |  ✔ drawing things after start of the game  |
 |                                               |  ✔ How to catch keystrokes                 |   
