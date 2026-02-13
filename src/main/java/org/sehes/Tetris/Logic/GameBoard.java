@@ -44,17 +44,21 @@ public class GameBoard {
         }
 
         private static final Map<Color, BlockContent> map = new HashMap<>();
-
         static {
             for (BlockContent type : BlockContent.values()) {
                 map.put(type.color, type);
             }
         }
 
-        public BlockContent setColor(Color color) {
+        /**
+         * This method takes a Color object from tetromino and returns the corresponding BlockContent enum value. It uses a static map to efficiently look up the BlockContent based on the provided Color. If the color is not found in the map, it will return null, which can be handled appropriately in the calling code.
+         * @param color The Color object for which to find the corresponding BlockContent enum value.
+         * @return The BlockContent enum value corresponding to the provided Color, or null if the color is not found in the map.means that the block is empty and doesn't have a color.
+         */
+        public static BlockContent fromColor(Color color) {
             return map.get(color);
         }
-    }
+    }   
 
     //private final int MOVE = 30;//how much pix are the rectangles move
     private final int GRIDUNIT = 30;
@@ -232,12 +236,12 @@ public class GameBoard {
     }
 
     private void addBlockToBoard(Tetromino tetromino) {
-        int X = tetromino.getPosition()[0];
-        int Y = tetromino.getPosition()[1];
+        int posCol = tetromino.getPosition()[0];
+        int posRow = tetromino.getPosition()[1];
         for (int row = 0; row < tetromino.getGrid().length; row++) {
             for (int column = 0; column < tetromino.getGrid()[row].length; column++) {
                 if (tetromino.getGrid()[row][column]) {
-                    this.board[Y + row][X + column] = this.board[Y + row][X + column].setColor(tetromino.getColor());
+                    this.board[posRow + row][posCol + column] = this.board[posRow + row][posCol + column].fromColor(tetromino.getColor());
                 }
             }
         }
