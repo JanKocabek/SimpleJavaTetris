@@ -1,5 +1,5 @@
 # Java-swing Tetris
-current progress is for now in testing branch
+The latest function development version is in develop branch
 
 ## Description
 This is my first attempt at creating a real game to learn Object-Oriented Programming (OOP) and Java. 
