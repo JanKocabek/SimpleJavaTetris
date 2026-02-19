@@ -1,7 +1,7 @@
 package org.sehes.tetris.logic;
 
 import java.awt.Color;
-import java.util.Arrays;
+import java.awt.Point;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -12,32 +12,23 @@ public class Tetromino {
 
     private static final Random random = new Random();
     private final Color color;
-    private final int[] position;//X column, Y row
-    private  boolean[][] grid;
+    private final Point position;//X column, Y row
+    private boolean[][] grid;
 
-    public static Tetromino tetrominoFactory() {
+    public static Tetromino tetrominoFactory(Point position) {
         TETROMINO_TYPE[] values = TETROMINO_TYPE.values();
         int tetrominoType = random.nextInt(values.length);
-        return new Tetromino(values[tetrominoType]);
+        return new Tetromino(values[tetrominoType], position);
     }
 
-    private Tetromino(TETROMINO_TYPE type) {
+    private Tetromino(TETROMINO_TYPE type, Point position) {
         color = type.color;
         grid = type.grid;
-        position = Arrays.copyOf(GameParameters.STARTING_POS, GameParameters.STARTING_POS.length);
+        this.position = position;
     }
 
     public Color getColor() {
         return color;
-    }
-
-
-    public int getXCoord() {
-        return position[0] * GameParameters.BLOCK_SIZE;
-    }
-
-    public int getYCoord() {
-        return (position[1] - GameParameters.ROW_OFFSET) * GameParameters.BLOCK_SIZE;
     }
 
     public boolean[][] getGrid() {
@@ -46,10 +37,12 @@ public class Tetromino {
 
     /**
      * Returns the current position of the tetromino as an array of integers.
-     * The first element is the X coordinate (column), and the second is the Y coordinate (row).
+     * The first element is the X coordinate (column), and the second is the Y
+     * coordinate (row).
+     *
      * @return The position of the tetromino as [X, Y].
      */
-    public int[] getPosition() {
+    public Point getPosition() {
         return position;
     }
 
@@ -65,8 +58,11 @@ public class Tetromino {
     }
 
     public void move(DirectionFlag flag) {
-        position[0] += flag.getX();
-        position[1] += flag.getY();
+        if (flag == null) {
+            return;
+        }
+        position.x += flag.getX();
+        position.y += flag.getY();
     }
 
     /**

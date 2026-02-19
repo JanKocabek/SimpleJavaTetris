@@ -9,11 +9,15 @@ public final class GameParameters {
     public static final int COLUMNS = 10;//number of cell in row (columns)
     public static final int ROWS = 22;//number of cell in column (rows)
     public static final int VISIBLE_ROWS = 20;//number of rows that are visible to player, the top 2 rows are for spawning new tetromino and are not visible to player
-    public static final int STARTING_ROW = 0;//the row where new tetromino will spawn
-    public static final int STARTING_COL = 4;//the column where new tetromino
     public static final int GAME_SPEED = 1600;//the speed of the game, in milliseconds, the lower the faster
-    protected static final int[] STARTING_POS = {STARTING_COL, STARTING_ROW};
-    public static final int ROW_OFFSET = ROWS - VISIBLE_ROWS;//the number of rows that are not visible to player, used for calculating the position of tetromino on the game board
-
+    public static final int HIDDEN_ROWS = ROWS - VISIBLE_ROWS;//the number of rows that are not visible to player, used for calculating the position of tetromino on the game board
     //
+    //**
+    //GUI parameters  */
+    public static final int WINDOW_WIDTH = 600;
+    public static final int WINDOW_HEIGHT = 800;
+    public static final int CANVAS_WIDTH = WINDOW_WIDTH / 2;
+    public static final int CANVAS_HEIGHT = WINDOW_HEIGHT - 200;
+    public static final int CANVAS_X = WINDOW_WIDTH / 4;
+    public static final int CANVAS_Y = 100;
 }

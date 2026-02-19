@@ -2,6 +2,7 @@ package org.sehes.tetris.gui;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 
@@ -11,18 +12,12 @@ import org.sehes.tetris.logic.Tetromino;
 
 public class TetrisDrawingHandler {
 
-    private static final GameBoard board = GameBoard.getInstance();
-
-    private TetrisDrawingHandler() {
-
-    }
-
-    public static void initialize(Graphics2D g2d) {
+    public void initialize(Graphics2D g2d) {
         RenderingHints hints = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setRenderingHints(hints);
     }
 
-    public static void drawGrid(Graphics2D g2d) {
+    public void drawGrid(Graphics2D g2d) {
         final Rectangle drawingArea = g2d.getClipBounds();
         final int width = drawingArea.width;
         final int height = drawingArea.height;
@@ -36,39 +31,38 @@ public class TetrisDrawingHandler {
         }
     }
 
-    public static void drawGame(Graphics2D g2d) {
-        GameBoard.BlockContent[][] grid = TetrisDrawingHandler.board.getBoard();
-        for (int row = grid.length - 1; row >= 0; row--) {
-            for (int col = grid[row].length - 1; col >= 0; col--) {
-                if (grid[row][col] != GameBoard.BlockContent.EMPTY) {
-                    g2d.setColor(grid[row][col].getColor());
+    public void tetromino(Graphics2D g2d, GameBoard.BlockContent[][] board, Tetromino tetromino) {
+        for (int row = board.length - 1; row >= 0; row--) {
+            for (int col = board[row].length - 1; col >= 0; col--) {
+                if (board[row][col] != GameBoard.BlockContent.EMPTY) {
+                    g2d.setColor(board[row][col].getColor());
                     int x = (col) * GameParameters.BLOCK_SIZE;
-                    int y = (row - GameParameters.ROW_OFFSET) * GameParameters.BLOCK_SIZE;
+                    int y = (row - GameParameters.HIDDEN_ROWS) * GameParameters.BLOCK_SIZE;
                     g2d.fillRect(x, y, GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE);
                 }
             }
         }
-        if (board.getCurrentTetromino() != null) {
-            drawCurrentTetromino(g2d);
+        if (tetromino != null) {
+            drawCurrentTetromino(g2d, tetromino);
         }
     }
 
-    private static void drawCurrentTetromino(Graphics2D g2d) {
-        Tetromino t = board.getCurrentTetromino();
+    private void drawCurrentTetromino(Graphics2D g2d, Tetromino t) {
         g2d.setColor(t.getColor());
         boolean[][] grid = t.getGrid();
-        int x = t.getXCoord();
-        int y = t.getYCoord();
+        Point position = calculateTetrominoPosition(t);
         for (int row = 0; row < grid.length; row++) {
             for (int column = 0; column < grid[row].length; column++) {
                 if (grid[row][column]) {
-                    g2d.fillRect(x + column * GameParameters.BLOCK_SIZE, y + row * GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE);
+                    g2d.fillRect(position.x + column * GameParameters.BLOCK_SIZE, position.y + row * GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE);
                 }
             }
         }
     }
 
-    public static void repaint() {
-        TetrisCanvas.getInstance().repaint();
+    private Point calculateTetrominoPosition(Tetromino t) {
+        int x = t.getPosition().x * GameParameters.BLOCK_SIZE;
+        int y = (t.getPosition().y - GameParameters.HIDDEN_ROWS) * GameParameters.BLOCK_SIZE;
+        return new Point(x, y);
     }
 }

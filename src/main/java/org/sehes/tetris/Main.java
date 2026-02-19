@@ -1,13 +1,14 @@
 package org.sehes.tetris;
 
-import javax.swing.SwingUtilities;
-
-import org.sehes.tetris.gui.GameWindow;
+import org.sehes.tetris.controller.GameManager;
 
 public class Main {
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(GameWindow::getInstance);
+
+        GameManager gameManager = new GameManager();
+        gameManager.startApp();
+        
     }
 
 }

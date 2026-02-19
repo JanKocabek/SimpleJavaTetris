@@ -7,40 +7,37 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 public class GameWindow extends JFrame {
-    private static GameWindow instance;
-    private final int WIDTH = 600;
-    private final int HEIGHT = 800;
-    private final int CWIDTH = WIDTH / 2;
-    private final int CHEIGHT = HEIGHT - 200;
-    private final int CANVASX = WIDTH / 4;
-    private final int CANVASY = 100;
-    private final TetrisCanvas tetrisCanvas;
 
-    public static GameWindow getInstance() {
-        if (instance == null) {
-            instance = new GameWindow();
-        }
-        return instance;
-    }
+    private final int canvasW;
+    private final int canvasH;
+    private final int canvasX; //the x coordinate of the top left corner of the canvas
+    private final int canvasY; //the y coordinate of the top left corner of the canvas
+    private TetrisCanvas tetrisCanvas = null;
 
     //private final FlowLayout layout = new FlowLayout();/if we added manager later
-    private GameWindow() {
-        //basic setting for a window
+    public GameWindow(int width, int height) {
         super("Tetris");
+        this.canvasW = width / 2;
+        this.canvasH = height - 200;
+        this.canvasX = width / 4;
+        this.canvasY = 100;
+        //basic setting for a window
         getContentPane().setBackground(Color.WHITE);
-        getContentPane().setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        getContentPane().setPreferredSize(new Dimension(width, height));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(null);
-        //adding my custom Jpanel
-        tetrisCanvas = TetrisCanvas.getInstance();
-        tetrisCanvas.setBounds(CANVASX, CANVASY, CWIDTH, CHEIGHT);
-        add(tetrisCanvas);
-        pack();//setting all size how I set
-        setResizable(false);
-        setVisible(true);
-        SwingUtilities.invokeLater(tetrisCanvas::requestFocusInWindow);//ensure for focus on my Jpanel
-
-
     }
 
+    public void setCanvas(TetrisCanvas canvas) {
+        if (this.tetrisCanvas != null) {
+            remove(this.tetrisCanvas);
+        }
+        this.tetrisCanvas = canvas;
+        tetrisCanvas.setBounds(canvasX, canvasY, canvasW, canvasH);
+        add(tetrisCanvas);
+        pack();
+        setResizable(false);
+        setVisible(true);
+        SwingUtilities.invokeLater(tetrisCanvas::requestFocusInWindow);
+    }
 }

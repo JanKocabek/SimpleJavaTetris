@@ -1,15 +1,10 @@
 package org.sehes.tetris.logic;
 
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.Point;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.swing.Timer;
-
-import org.sehes.tetris.gui.TetrisDrawingHandler;
 
 /*
 DISCLAIMER:
@@ -71,23 +66,14 @@ public class GameBoard {
             return map.get(color);
         }
     }
-
-    private static GameBoard instance;
     private Tetromino currentTetromino;
     private final BlockContent[][] board;
-    private final Timer gameLoopTimer;
+    private static final int STARTING_ROW = 0;//the row where new tetromino will spawn
+    private static final int STARTING_COL = 4;//the column where new tetromino
 
-    public static GameBoard getInstance() {
-        if (instance == null) {
-            instance = new GameBoard();
-        }
-        return instance;
-    }
-
-    private GameBoard() {
+    public GameBoard() {
         board = new BlockContent[GameParameters.ROWS][GameParameters.COLUMNS];
         fillBoard();
-        gameLoopTimer = new Timer(GameParameters.GAME_SPEED, gameLoopListener);
     }
 
     private void fillBoard() {
@@ -96,26 +82,25 @@ public class GameBoard {
         }
     }
 
-    /* these methods will be in finally in GameManager class probably*/
     public Tetromino getCurrentTetromino() {
         return currentTetromino;
     }
 
-    public BlockContent[][] getBoard() {
+    public BlockContent[][] getGrid() {
         return board;
     }
 
-    private void getNewTetromino() {
-        currentTetromino = Tetromino.tetrominoFactory();
+    public void setNewTetromino() {
+        Point startingPosition = new Point(STARTING_COL, STARTING_ROW);
+        currentTetromino = Tetromino.tetrominoFactory(startingPosition);
     }
 
-    public boolean movePiece(DirectionFlag flag) {
+    public boolean tryMovePiece(DirectionFlag flag) {
         if (this.currentTetromino == null) {
             return false;
         }
         if (canMove(currentTetromino.getGrid(), currentTetromino.getPosition(), flag)) {
             currentTetromino.move(flag);
-            TetrisDrawingHandler.repaint();
             return true;
         }
         return false;
@@ -136,21 +121,21 @@ public class GameBoard {
      * @param flag The direction in which to rotate the tetromino (e.g.,
      * ROTATE_R for right rotation, ROTATE_L for left rotation)
      */
-    public void rotatePiece(DirectionFlag flag) {
+    public boolean tryRotatePiece(DirectionFlag flag) {
         if (this.currentTetromino == null) {
-            return;
+            return false;
         }
 
-        System.out.println("beforePosition: " + Arrays.toString(currentTetromino.getPosition()));// Debugging output to show the position before rotation
+        System.out.println("beforePosition: " + currentTetromino.getPosition().toString());// Debugging output to show the position before rotation
         boolean[][] nextGrid = currentTetromino.rotate(flag);
-        if (canRotate(nextGrid)) {
-            currentTetromino.setGrid(nextGrid);
+        if (!canRotate(nextGrid)) {
+            return false;
         }
-
-        System.out.println("afterPosition: " + Arrays.toString(currentTetromino.getPosition()));// Debugging output to show the position after rotation
+        currentTetromino.setGrid(nextGrid);
+        System.out.println("afterPosition: " + currentTetromino.getPosition().toString());// Debugging output to show the position after rotation
+        return true;
     }
 
-    /* to here */
     /**
      * compare if a new position of tetromino isn't occupied, both are
      * represented as 2D boolean array tetromino position [column][row]
@@ -158,20 +143,18 @@ public class GameBoard {
      * @param flag which direction are the tetromino supposed to move
      * @return true if collision not happened
      */
-    private boolean canMove(boolean[][] tetrominoGrid, int[] position, DirectionFlag flag) {
+    private boolean canMove(boolean[][] tetrominoGrid, Point position, DirectionFlag flag) {
         if (tetrominoGrid == null || flag == null) {
             return false;
         }
-        int columns = 0; //but in tetromino is flag.getX()
-        int rows = 1; //but in tetromino is flag.getY()
-        int[] newPosition = {position[columns] + flag.getX(), position[rows] + flag.getY()};
+        Point newPosition = new Point(position.x + flag.getX(), position.y + flag.getY());
         if (!checkBoundaries(tetrominoGrid, newPosition)) {
             return false;
         }
         for (int gridR = 0; gridR < tetrominoGrid.length; gridR++) {
             for (int gridC = 0; gridC < tetrominoGrid[gridR].length; gridC++) {
                 if ((tetrominoGrid[gridR][gridC])
-                        && (this.board[newPosition[rows] + gridR][newPosition[columns] + gridC] != BlockContent.EMPTY)) {
+                        && (this.board[newPosition.y + gridR][newPosition.x + gridC] != BlockContent.EMPTY)) {
                     return false;
                 }
             }
@@ -195,13 +178,10 @@ public class GameBoard {
         if (!checkBoundaries(tetrominoGrid, position)) {
             return false;
         }
-        int x = position[0];
-        int y = position[1];
-
         for (int gridR = 0; gridR < tetrominoGrid.length; gridR++) {
             for (int gridC = 0; gridC < tetrominoGrid[gridR].length; gridC++) {
                 if ((tetrominoGrid[gridR][gridC])
-                        && (this.board[y + gridR][x + gridC] != BlockContent.EMPTY)) {
+                        && (this.board[position.y + gridR][position.x + gridC] != BlockContent.EMPTY)) {
                     return false;
                 }
             }
@@ -214,21 +194,20 @@ public class GameBoard {
      * gameBoardBoundaries and not occupied by another piece
      *
      * @param tetrominoGrid the grid of the tetromino after moving/rotating
-     * @param newPosition the position of the tetromino after moving /
+     * @param position the position of the tetromino after moving /
      * rotating(doesn't change)
      * @param flag which direction are the tetromino supposed to move/rotate
      * @return true if the final position is in the gameBoard boundaries
      */
-    private boolean checkBoundaries(boolean[][] tetrominoGrid, int[] newPosition) {
-        int colPos = newPosition[0];//current column
-        int rowPos = newPosition[1];//current row
+    private boolean checkBoundaries(boolean[][] tetrominoGrid, Point position) {
+
         for (int gridR = 0; gridR < tetrominoGrid.length; gridR++) {
             for (int gridC = 0; gridC < tetrominoGrid[gridR].length; gridC++) {
                 if ((tetrominoGrid[gridR][gridC])
-                        && (colPos + gridC < 0
-                        || colPos + gridC >= board[0].length
-                        || rowPos + gridR >= board.length
-                        || rowPos + gridR < 0)) {
+                        && (position.x + gridC < 0
+                        || position.x + gridC >= board[0].length
+                        || position.y + gridR >= board.length
+                        || position.y + gridR < 0)) {
                     return false;
                 }
             }
@@ -236,34 +215,17 @@ public class GameBoard {
         return true;
     }
 
-    private void addBlockToBoard(Tetromino tetromino) {
-        int posCol = tetromino.getPosition()[0];
-        int posRow = tetromino.getPosition()[1];
-        for (int row = 0; row < tetromino.getGrid().length; row++) {
-            for (int column = 0; column < tetromino.getGrid()[row].length; column++) {
-                if (tetromino.getGrid()[row][column]) {
-                    this.board[posRow + row][posCol + column] = BlockContent.fromColor(tetromino.getColor());
-                }
-            }
+    public void addBlockToBoard() {
+        if (currentTetromino == null) {
+            throw new IllegalStateException("No current tetromino to add to the board.");
         }
-    }
-
-    ActionListener gameLoopListener = new MainLoopListener();
-
-    public void startGame() {
-        gameLoopTimer.start();
-    }
-
-    private class MainLoopListener implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (currentTetromino == null) {
-                getNewTetromino();
-            }
-            if (!movePiece(DirectionFlag.DOWN)) {
-                addBlockToBoard(currentTetromino);
-                getNewTetromino();
+        int posCol = currentTetromino.getPosition().x;
+        int posRow = currentTetromino.getPosition().y;
+        for (int row = 0; row < currentTetromino.getGrid().length; row++) {
+            for (int column = 0; column < currentTetromino.getGrid()[row].length; column++) {
+                if (currentTetromino.getGrid()[row][column]) {
+                    this.board[posRow + row][posCol + column] = BlockContent.fromColor(currentTetromino.getColor());
+                }
             }
         }
     }
