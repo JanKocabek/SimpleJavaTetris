@@ -174,7 +174,7 @@ public class GameBoard {
         if (tetrominoGrid == null || currentTetromino == null) {
             return false;
         }
-        int[] position = currentTetromino.getPosition();
+        Point position = currentTetromino.getPosition();
         if (!checkBoundaries(tetrominoGrid, position)) {
             return false;
         }
