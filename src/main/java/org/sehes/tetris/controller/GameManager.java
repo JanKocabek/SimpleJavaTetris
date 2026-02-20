@@ -67,6 +67,7 @@ public class GameManager {
     public void startGame() {
         if (gameState == GameState.INITIALIZE || gameState == GameState.GAME_OVER) {
             gameBoard = new GameBoard(); // Reset the game board for a new game
+            gameBoard.setNewTetromino(); // Set the first piece on the board
             gameLoopTimer.start();
             gameState = GameState.PLAYING;
         }
@@ -135,9 +136,6 @@ public class GameManager {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (gameBoard.getCurrentTetromino() == null) {
-                gameBoard.setNewTetromino();
-            }
             if (gameBoard.tryMovePiece(DirectionFlag.DOWN)) {
                 tetrisCanvas.repaintCanvas();
             } else {
