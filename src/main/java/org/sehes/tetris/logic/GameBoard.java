@@ -62,8 +62,9 @@ public class GameBoard {
     }
     private Tetromino currentTetromino;
     private final BlockContent[][] board;
-    private static final int STARTING_ROW = 0;//the row where new tetromino will spawn
-    private static final int STARTING_COL = 4;//the column where new tetromino
+    /*make the start posiiton dynamic based on tetromino type instead of one fixed position */
+    private final Point startingPosition = new Point(4, 0);//the position where new tetromino will spawn column 4 row 0
+
 
     public GameBoard() {
         board = new BlockContent[GameParameters.ROWS][GameParameters.COLUMNS];
@@ -85,7 +86,6 @@ public class GameBoard {
     }
 
     public void setNewTetromino() {
-        Point startingPosition = new Point(STARTING_COL, STARTING_ROW);
         currentTetromino = Tetromino.tetrominoFactory(startingPosition);
     }
 
