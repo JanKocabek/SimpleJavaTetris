@@ -84,8 +84,11 @@ public class GameBoard {
         return currentTetromino;
     }
 
+    /*
+        * This method returns a deep copy of the internal 2D array representing the game board.
+     */
     public BlockContent[][] getGrid() {
-        return board;
+        return Arrays.stream(board).map(BlockContent[]::clone).toArray(BlockContent[][]::new);
     }
 
     public boolean setNewTetromino() {
