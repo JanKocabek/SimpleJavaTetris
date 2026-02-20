@@ -25,7 +25,6 @@ public class GameManager {
     // Define the possible game states
     public enum GameState {
         INITIALIZE, PLAYING, PAUSED, GAME_OVER
-
     }
 
     private GameState gameState;
@@ -34,6 +33,18 @@ public class GameManager {
     private GameBoard gameBoard;
     private Timer gameLoopTimer;
     private TetrisKeyInputHandler keyInputHandler;
+
+    public GameState getGameState() {
+        return gameState;
+    }
+
+    public TetrisCanvas getCanvas() {
+        return tetrisCanvas;
+    }
+
+    public GameBoard getBoard() {
+        return gameBoard;
+    }
 
     /**
      * Starts the Tetris application by initializing the game state, creating
@@ -65,24 +76,18 @@ public class GameManager {
         * This method can only be called if the game is in the INITIALIZE or GAME_OVER state to prevent starting a new game while one is already in progress.
      */
     public void startGame() {
-        if (gameState == GameState.INITIALIZE || gameState == GameState.GAME_OVER) {
-            gameBoard = new GameBoard(); // Reset the game board for a new game
-            gameBoard.setNewTetromino(); // Set the first piece on the board
-            gameLoopTimer.start();
-            gameState = GameState.PLAYING;
+        if (gameState != GameState.INITIALIZE && gameState != GameState.GAME_OVER) {
+            return; // Prevent starting a new game if one is already in progress
         }
-    }
-
-    public GameState getGameState() {
-        return gameState;
-    }
-
-    public TetrisCanvas getCanvas() {
-        return tetrisCanvas;
-    }
-
-    public GameBoard getBoard() {
-        return gameBoard;
+        gameBoard = new GameBoard(); // Reset the game board for a new game
+        gameBoard.setNewTetromino(); // Set the first piece on the board
+        if (gameState == GameState.INITIALIZE) {
+            gameLoopTimer.start();
+        } else {
+            gameLoopTimer.restart();
+        }
+        tetrisCanvas.repaintCanvas();
+        gameState = GameState.PLAYING;
     }
 
     /**
