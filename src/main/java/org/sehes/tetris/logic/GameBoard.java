@@ -56,14 +56,10 @@ public class GameBoard {
          * @param color The Color object for which to find the corresponding
          * BlockContent enum value.
          * @return The BlockContent enum value corresponding to the provided
-         * Color, or EMPTY value if the color is not found in the map. EMPTY means that the
-         * block is empty and doesn't have a color.
+         * Color, or EMPTY value if the color is not found in the map. EMPTY means that there is no block in that position on the game board.
          */
         public static BlockContent fromColor(Color color) {
-            if (color == null) {
-                return EMPTY;
-            }
-            return map.get(color);
+            return map.getOrDefault(color, EMPTY);
         }
     }
     private Tetromino currentTetromino;
@@ -174,7 +170,7 @@ public class GameBoard {
         if (tetrominoGrid == null || currentTetromino == null) {
             return false;
         }
-        Point position = currentTetromino.getPosition();
+        Point position =  currentTetromino.getPosition();
         if (!checkBoundaries(tetrominoGrid, position)) {
             return false;
         }
@@ -238,5 +234,36 @@ public class GameBoard {
                 }
             }
         }
+    }
+
+    /**
+     * This method checks for completed lines on the game board and clears them if found. It iterates through each row of the board and uses the checkLine method to determine if a line is full (i.e., contains no EMPTY blocks). If a full line is detected, it sets all blocks in that row to EMPTY and shifts all rows above it down by one. The method returns true if at least one line was cleared, allowing the game logic to update the score.
+     * @return
+     */
+    public boolean checkAndClearLines() {
+        boolean lineCleared = false;
+        for (int row = 0; row < board.length; row++) {
+            if (checkLine(board[row])) {
+                lineCleared = true;
+                Arrays.fill(board[row], BlockContent.EMPTY);
+                if (row > 0) {
+                    for (int r = row; r > 0; r--) {
+                        System.arraycopy(board[r - 1], 0, board[r], 0, board[r].length);
+                    }
+                }
+            }
+        }
+        return lineCleared;
+    }
+
+    public boolean checkLine(BlockContent[] boardRow) {
+        boolean isLineFull = true;
+        for (BlockContent cell : boardRow) {
+            if (cell == BlockContent.EMPTY) {
+                isLineFull = false;
+                break;
+            }
+        }
+        return isLineFull;
     }
 }
