@@ -36,7 +36,7 @@ public class TetrisDrawingHandler {
         }
     }
 
-    public void tetromino(Graphics2D g2d, GameBoard.BlockContent[][] board, Tetromino tetromino) {
+    public void drawBoardState(Graphics2D g2d, GameBoard.BlockContent[][] board) {
         for (int row = board.length - 1; row >= 0; row--) {
             for (int col = board[row].length - 1; col >= 0; col--) {
                 if (board[row][col] != GameBoard.BlockContent.EMPTY) {
@@ -47,12 +47,12 @@ public class TetrisDrawingHandler {
                 }
             }
         }
-        if (tetromino != null) {
-            drawCurrentTetromino(g2d, tetromino);
-        }
     }
 
-    private void drawCurrentTetromino(Graphics2D g2d, Tetromino t) {
+    public void drawCurrentTetromino(Graphics2D g2d, Tetromino t) {
+        if (t == null) {
+            return;
+        }
         g2d.setColor(t.getColor());
         boolean[][] grid = t.getGrid();
         Point position = calculateTetrominoPosition(t);

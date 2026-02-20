@@ -46,6 +46,9 @@ public class GameWindow extends JFrame {
         this.tetrisCanvas = canvas;
         tetrisCanvas.setBounds(canvasX, canvasY, canvasW, canvasH);
         add(tetrisCanvas);
+    }
+
+    public void postInitialize() {
         pack();
         setResizable(false);
         setVisible(true);

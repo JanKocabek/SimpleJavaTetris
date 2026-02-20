@@ -43,15 +43,20 @@ public class GameManager {
     public void startApp() {
         this.gameState = GameState.INITIALIZE;
         SwingUtilities.invokeLater(() -> {
-            this.gameWindow = new GameWindow(GameParameters.WINDOW_WIDTH, GameParameters.WINDOW_HEIGHT);
-            this.tetrisCanvas = new TetrisCanvas(new TetrisDrawingHandler(), this);
-            gameWindow.setCanvas(tetrisCanvas);
-            this.gameBoard = new GameBoard();//remove this later when we have a better way to initialize the game board
-            this.keyInputHandler = new TetrisKeyInputHandler(this);
-            tetrisCanvas.addKeyListener(keyInputHandler);
             ActionListener gameLoopListener = new MainLoopListener();
             gameLoopTimer = new Timer(GameParameters.GAME_SPEED, gameLoopListener);
+            this.gameBoard = new GameBoard();//remove this later when we have a better way to initialize the game board
+            initializeGameWindow();
         });
+    }
+
+    private void initializeGameWindow() {
+        this.gameWindow = new GameWindow(GameParameters.WINDOW_WIDTH, GameParameters.WINDOW_HEIGHT);
+        this.tetrisCanvas = new TetrisCanvas(new TetrisDrawingHandler(), this);
+        this.keyInputHandler = new TetrisKeyInputHandler(this);
+        tetrisCanvas.addKeyListener(keyInputHandler);
+        gameWindow.setCanvas(tetrisCanvas);
+        gameWindow.postInitialize();
     }
 
     /* 
@@ -80,11 +85,12 @@ public class GameManager {
     }
 
     /**
-    * Try to move the current piece in the specified direction.
-     If the move is successful, repaint the canvas to reflect the new position of the piece.
-    * @param direction The direction to move the piece (e.g., LEFT, RIGHT, DOWN).
+     * Try to move the current piece in the specified direction. If the move is
+     * successful, repaint the canvas to reflect the new position of the piece.
+     *
+     * @param direction The direction to move the piece (e.g., LEFT, RIGHT,
+     * DOWN).
      */
-
     public void movePiece(DirectionFlag direction) {
         if (gameBoard.tryMovePiece(direction)) {
             tetrisCanvas.repaintCanvas();
@@ -92,10 +98,12 @@ public class GameManager {
     }
 
     /**
-     * Try to rotate the current piece in the specified direction.
-     * If the rotation is successful, repaint the canvas to reflect the new orientation of the piece.
+     * Try to rotate the current piece in the specified direction. If the
+     * rotation is successful, repaint the canvas to reflect the new orientation
+     * of the piece.
+     *
      * @param direction The direction to rotate the piece (CLOCKWISE, COUN
- */
+     */
     public void rotatePiece(DirectionFlag direction) {
         if (gameBoard.tryRotatePiece(direction)) {
             tetrisCanvas.repaintCanvas();
@@ -117,7 +125,6 @@ public class GameManager {
     }
 
     // Inner class to handle the main game loop, which is triggered by the Timer.
-    
     private class MainLoopListener implements ActionListener {
 
         @Override
