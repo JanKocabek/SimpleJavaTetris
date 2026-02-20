@@ -46,7 +46,7 @@ public class GameManager {
             this.gameWindow = new GameWindow(GameParameters.WINDOW_WIDTH, GameParameters.WINDOW_HEIGHT);
             this.tetrisCanvas = new TetrisCanvas(new TetrisDrawingHandler(), this);
             gameWindow.setCanvas(tetrisCanvas);
-            // this.gameBoard = new GameBoard();//remove this later when we have a better way to initialize the game board
+            this.gameBoard = new GameBoard();//remove this later when we have a better way to initialize the game board
             this.keyInputHandler = new TetrisKeyInputHandler(this);
             tetrisCanvas.addKeyListener(keyInputHandler);
             ActionListener gameLoopListener = new MainLoopListener();

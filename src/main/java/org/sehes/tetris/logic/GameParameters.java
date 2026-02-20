@@ -19,8 +19,4 @@ public final class GameParameters {
     //GUI parameters  */
     public static final int WINDOW_WIDTH = 600;
     public static final int WINDOW_HEIGHT = 800;
-    public static final int CANVAS_WIDTH = WINDOW_WIDTH / 2;
-    public static final int CANVAS_HEIGHT = WINDOW_HEIGHT - 200;
-    public static final int CANVAS_X = WINDOW_WIDTH / 4;
-    public static final int CANVAS_Y = 100;
 }
