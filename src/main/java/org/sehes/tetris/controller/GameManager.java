@@ -145,8 +145,12 @@ public class GameManager {
                 if (gameBoard.checkAndClearLines()) {
                     tetrisCanvas.repaintCanvas();
                 }
-                gameBoard.setNewTetromino();
-                tetrisCanvas.repaintCanvas();
+                if (gameBoard.setNewTetromino()) {
+                    tetrisCanvas.repaintCanvas();
+                } else {
+                    gameState = GameState.GAME_OVER;
+                    gameLoopTimer.stop();
+                }
             }
         }
     }

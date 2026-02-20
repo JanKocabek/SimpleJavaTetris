@@ -53,10 +53,12 @@ public class GameBoard {
          * corresponding BlockContent enum value. It uses a static map to
          * efficiently look up the BlockContent based on the provided Color. If
          * the color is not found in the map, it will return EMPTY.
+         *
          * @param color The Color object for which to find the corresponding
          * BlockContent enum value.
          * @return The BlockContent enum value corresponding to the provided
-         * Color, or EMPTY value if the color is not found in the map. EMPTY means that there is no block in that position on the game board.
+         * Color, or EMPTY value if the color is not found in the map. EMPTY
+         * means that there is no block in that position on the game board.
          */
         public static BlockContent fromColor(Color color) {
             return map.getOrDefault(color, EMPTY);
@@ -86,8 +88,9 @@ public class GameBoard {
         return board;
     }
 
-    public void setNewTetromino() {
+    public boolean setNewTetromino() {
         currentTetromino = Tetromino.tetrominoFactory(startingPosition);
+        return !isCollisionDetected(currentTetromino.getGrid(), currentTetromino.getPosition());
     }
 
     public boolean tryMovePiece(DirectionFlag flag) {
@@ -147,15 +150,39 @@ public class GameBoard {
         if (!checkBoundaries(tetrominoGrid, newPosition)) {
             return false;
         }
+        return !isCollisionDetected(tetrominoGrid, newPosition);
+    }
+
+    /**
+     * this method checks if the new position of the tetromino after moving or
+     * rotating is occupied by another piece on the game board. It iterates
+     * through the grid of the tetromino and checks if any of the blocks in the
+     * grid are true (indicating that there is a block in that position) and if
+     * the corresponding position on the game board is not EMPTY. If such a
+     * condition is found, it means that there is a collision, and the method
+     * returns true. If no collisions are detected after checking all blocks in
+     * the tetromino grid, the method returns false, indicating that the move or
+     * rotation is valid and can be performed without overlapping another piece
+     * on the board
+     *
+     * @param tetrominoGrid the grid of the tetromino after moving or rotating,
+     * represented as a 2D boolean array where true indicates the presence of a
+     * block in that position
+     * @param newPosition the new position of the tetromino after moving or
+     * rotating, represented as a Point object with x and y coordinates
+     * corresponding to the column and row on the game board, respectively
+     * @return
+     */
+    private boolean isCollisionDetected(boolean[][] tetrominoGrid, Point newPosition) {
         for (int gridR = 0; gridR < tetrominoGrid.length; gridR++) {
             for (int gridC = 0; gridC < tetrominoGrid[gridR].length; gridC++) {
                 if ((tetrominoGrid[gridR][gridC])
                         && (this.board[newPosition.y + gridR][newPosition.x + gridC] != BlockContent.EMPTY)) {
-                    return false;
+                    return true;
                 }
             }
         }
-        return true;
+        return false;
     }
 
     /**
@@ -170,26 +197,22 @@ public class GameBoard {
         if (tetrominoGrid == null || currentTetromino == null) {
             return false;
         }
-        Point position =  currentTetromino.getPosition();
+        Point position = currentTetromino.getPosition();
         if (!checkBoundaries(tetrominoGrid, position)) {
             return false;
         }
-        for (int gridR = 0; gridR < tetrominoGrid.length; gridR++) {
-            for (int gridC = 0; gridC < tetrominoGrid[gridR].length; gridC++) {
-                if ((tetrominoGrid[gridR][gridC])
-                        && (this.board[position.y + gridR][position.x + gridC] != BlockContent.EMPTY)) {
-                    return false;
-                }
-            }
+        if (isCollisionDetected(tetrominoGrid, position)) {
+            return false;
         }
         return true;
     }
 
     /**
      * this method check if the position after moving a piece is in the
-     * gameBoardBoundaries and not occupied by another piece
+     * gameBoardBoundaries.
      *
-     * @param tetrominoGrid the final grid of the tetromino after moving/rotating
+     * @param tetrominoGrid the final grid of the tetromino after
+     * moving/rotating
      * @param position the destined position of the tetromino after moving /
      * rotating(doesn't change it)
      * @return true if the final position is in the gameBoard boundaries
@@ -237,7 +260,14 @@ public class GameBoard {
     }
 
     /**
-     * This method checks for completed lines on the game board and clears them if found. It iterates through each row of the board and uses the checkLine method to determine if a line is full (i.e., contains no EMPTY blocks). If a full line is detected, it sets all blocks in that row to EMPTY and shifts all rows above it down by one. The method returns true if at least one line was cleared, allowing the game logic to update the score.
+     * This method checks for completed lines on the game board and clears them
+     * if found. It iterates through each row of the board and uses the
+     * checkLine method to determine if a line is full (i.e., contains no EMPTY
+     * blocks). If a full line is detected, it sets all blocks in that row to
+     * EMPTY and shifts all rows above it down by one. The method returns true
+     * if at least one line was cleared, allowing the game logic to update the
+     * score.
+     *
      * @return
      */
     public boolean checkAndClearLines() {
