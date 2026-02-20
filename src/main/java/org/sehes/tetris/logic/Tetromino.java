@@ -31,10 +31,10 @@ public class Tetromino {
         return new Tetromino(values[tetrominoType], position);
     }
 
-    private Tetromino(TETROMINO_TYPE type, Point position) {
+    private Tetromino(TETROMINO_TYPE type, Point spawnPosition) {
         color = type.color;
         grid = type.grid;
-        this.position = new Point(position); // Create a new Point to avoid external modification
+        this.position = new Point(spawnPosition); // Create a new Point to avoid external modification
     }
 
     public Color getColor() {
