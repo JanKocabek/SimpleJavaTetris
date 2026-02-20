@@ -130,6 +130,7 @@ public class GameManager {
             } else {
                 gameBoard.addBlockToBoard();
                 gameBoard.setNewTetromino();
+                tetrisCanvas.repaintCanvas();
             }
         }
     }
