@@ -10,6 +10,11 @@ import org.sehes.tetris.logic.GameBoard;
 import org.sehes.tetris.logic.GameParameters;
 import org.sehes.tetris.logic.Tetromino;
 
+/**
+ * The TetrisDrawingHandler class is responsible for rendering the game state onto the screen.
+ * It provides methods to initialize the graphics context, draw the game grid, and render the current Tetromino piece based on the game board's state.
+ *  The drawing handler interacts with the GameManager to retrieve necessary information about the game state and ensures that the visual representation of the game is accurate and up to date.
+ */
 public class TetrisDrawingHandler {
 
     public void initialize(Graphics2D g2d) {

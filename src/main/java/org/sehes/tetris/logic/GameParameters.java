@@ -1,5 +1,8 @@
 package org.sehes.tetris.logic;
 
+/**
+ * The GameParameters class is a utility class that defines various constants used throughout the Tetris game. These constants include parameters for game mechanics such as movement speed, block size, and the dimensions of the game board, as well as GUI-related parameters for window and canvas dimensions. By centralizing these values in a single class, it allows for easy configuration and maintenance of the game's settings, ensuring consistency across different components of the application.
+ */
 public final class GameParameters {
 
     private GameParameters() {

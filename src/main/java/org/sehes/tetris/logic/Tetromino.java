@@ -8,6 +8,9 @@ import java.util.Random;
 
 import org.sehes.tetris.logic.util.MatrixTransformations;
 
+/**
+ The Tetromino class represents the individual Tetris pieces in the game. Each Tetromino has a specific shape defined by a 2D boolean grid, a color for rendering, and a position on the game board. The class provides methods for moving and rotating the Tetromino, as well as a factory method for generating random Tetromino pieces. The inner enum TETROMINO_TYPE defines the seven standard Tetris pieces (I, J, L, O, S, T, Z), each with its own shape and color. The Tetromino class interacts with the GameBoard to manage the current piece's state and position during gameplay.
+ */
 public class Tetromino {
 
     private static final Random random = new Random();

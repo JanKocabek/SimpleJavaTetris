@@ -6,15 +6,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-/*
-DISCLAIMER:
-RATHER USE posCol AND posRow FOR POSITION VARIABLES!!!!
-In the game board and tetromino representation, the x is  left to right (columns), y is top to bottom (rows)
-but 2D arrays are represented as [y][x] that is [row][column] so be careful when programming!!!!!
-This class currently handles both the game board state management and the game loop timing.
-In future iterations, it is advisable to separate these concerns into distinct classes:
-- GameBoard: Responsible solely for managing the state of the game board, including piece placement, collision detection, and line clearing.
-- GameManager: Oversees the game loop, timing, and overall game state transitions (e.g., starting, pausing, ending the game).
+/**
+ * The GameBoard class represents the game board in a Tetris game. It manages the state of the board, including the current Tetromino piece and the grid of blocks. The class provides methods for moving and rotating the current Tetromino, checking for collisions, and adding the Tetromino to the board when it can no longer move. It also defines an inner enum BlockContent to represent the different types of blocks on the board, each associated with a specific color. The GameBoard interacts with other components of the game, such as the GameManager and TetrisCanvas, to update the game state and render the visual representation of the board.
+ * 
  */
 public class GameBoard {
 
@@ -137,11 +131,13 @@ public class GameBoard {
     }
 
     /**
-     * compare if a new position of tetromino isn't occupied, both are
+     * compare if a new position of tetromino grid isn't occupied, both are
      * represented as 2D boolean array tetromino position [column][row]
-     *
-     * @param flag which direction are the tetromino supposed to move
-     * @return true if collision not happened
+     *@param tetrominoGrid the grid of the tetromino after moving
+     * @param position the position of the tetromino before moving
+     * @param flag which direction are the tetromino supposed to move determines the new position of the tetromino
+     * after moving
+     * @return true if collision not happened and the position is in the gameBoard boundaries
      */
     private boolean canMove(boolean[][] tetrominoGrid, Point position, DirectionFlag flag) {
         if (tetrominoGrid == null || flag == null) {
@@ -215,6 +211,9 @@ public class GameBoard {
         return true;
     }
 
+    /**
+     * this method is responsible for adding the current tetromino to the game board when it can no longer move down. It iterates through the grid of the current tetromino and updates the corresponding positions on the game board with the appropriate BlockContent based on the color of the tetromino. This effectively "locks" the tetromino in place on the board, allowing the elimination of completed lines and the spawning of a new tetromino to occur in subsequent game logic. It also checks if there is a current tetromino to add before attempting to update the board, throwing an IllegalStateException if there isn't one.
+     */
     public void addBlockToBoard() {
         if (currentTetromino == null) {
             throw new IllegalStateException("No current tetromino to add to the board.");
