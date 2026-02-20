@@ -92,7 +92,10 @@ public class GameManager {
      * DOWN).
      */
     public void movePiece(DirectionFlag direction) {
-        if (gameBoard.tryMovePiece(direction) && gameState == GameState.PLAYING) {
+        if (gameState != GameState.PLAYING) {
+            return;
+        }
+        if (gameBoard.tryMovePiece(direction)) {
             tetrisCanvas.repaintCanvas();
         }
     }
@@ -105,7 +108,10 @@ public class GameManager {
      * @param direction The direction to rotate the piece (CLOCKWISE, COUN
      */
     public void rotatePiece(DirectionFlag direction) {
-        if (gameBoard.tryRotatePiece(direction) && gameState == GameState.PLAYING) {
+        if (gameState != GameState.PLAYING) {
+            return;
+        }
+        if (gameBoard.tryRotatePiece(direction)) {
             tetrisCanvas.repaintCanvas();
         }
     }
