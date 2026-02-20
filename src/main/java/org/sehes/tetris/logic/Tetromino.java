@@ -27,7 +27,7 @@ public class Tetromino {
     private Tetromino(TETROMINO_TYPE type, Point position) {
         color = type.color;
         grid = type.grid;
-        this.position = position;
+        this.position = new Point(position); // Create a new Point to avoid external modification
     }
 
     public Color getColor() {
