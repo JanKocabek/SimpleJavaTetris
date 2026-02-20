@@ -92,7 +92,7 @@ public class GameManager {
      * DOWN).
      */
     public void movePiece(DirectionFlag direction) {
-        if (gameBoard.tryMovePiece(direction)) {
+        if (gameBoard.tryMovePiece(direction) && gameState == GameState.PLAYING) {
             tetrisCanvas.repaintCanvas();
         }
     }
@@ -105,7 +105,7 @@ public class GameManager {
      * @param direction The direction to rotate the piece (CLOCKWISE, COUN
      */
     public void rotatePiece(DirectionFlag direction) {
-        if (gameBoard.tryRotatePiece(direction)) {
+        if (gameBoard.tryRotatePiece(direction) && gameState == GameState.PLAYING) {
             tetrisCanvas.repaintCanvas();
         }
     }
@@ -136,6 +136,9 @@ public class GameManager {
                 tetrisCanvas.repaintCanvas();
             } else {
                 gameBoard.addBlockToBoard();
+                if (gameBoard.checkAndClearLines()) {
+                    tetrisCanvas.repaintCanvas();
+                }
                 gameBoard.setNewTetromino();
                 tetrisCanvas.repaintCanvas();
             }
