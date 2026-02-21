@@ -91,9 +91,13 @@ public class GameBoard {
         return Arrays.stream(board).map(BlockContent[]::clone).toArray(BlockContent[][]::new);
     }
 
-    public boolean setNewTetromino() {
-        currentTetromino = Tetromino.tetrominoFactory(startingPosition);
-        return !isCollisionDetected(currentTetromino.getGrid(), currentTetromino.getPosition());
+    public boolean trySetNewTetromino() {
+        final Tetromino newTetromino = Tetromino.tetrominoFactory(startingPosition);
+        if (isCollisionDetected(newTetromino.getGrid(), newTetromino.getPosition())) {
+            return false;
+        }
+        this.currentTetromino = newTetromino;
+        return true;
     }
 
     public boolean tryMovePiece(DirectionFlag flag) {
