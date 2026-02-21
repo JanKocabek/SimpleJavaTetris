@@ -141,21 +141,15 @@ public class GameManager {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (gameBoard.tryMovePiece(DirectionFlag.DOWN)) {
-                tetrisCanvas.repaintCanvas();
-            } else {
+            if (!gameBoard.tryMovePiece(DirectionFlag.DOWN)) {
                 gameBoard.addBlockToBoard();
-                tetrisCanvas.repaintCanvas();
-                if (gameBoard.checkAndClearLines()) {
-                    tetrisCanvas.repaintCanvas();
-                }
-                if (gameBoard.trySetNewTetromino()) {
-                    tetrisCanvas.repaintCanvas();
-                } else {
+                gameBoard.checkAndClearLines();
+                if (!gameBoard.trySetNewTetromino()) {
                     gameState = GameState.GAME_OVER;
                     gameLoopTimer.stop();
                 }
             }
+            tetrisCanvas.repaintCanvas();
         }
     }
 }
