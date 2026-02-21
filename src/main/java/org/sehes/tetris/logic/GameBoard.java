@@ -208,10 +208,7 @@ public class GameBoard {
         if (!checkBoundaries(tetrominoGrid, position)) {
             return false;
         }
-        if (isCollisionDetected(tetrominoGrid, position)) {
-            return false;
-        }
-        return true;
+        return !isCollisionDetected(tetrominoGrid, position);
     }
 
     /**
@@ -282,15 +279,18 @@ public class GameBoard {
         for (int row = 0; row < board.length; row++) {
             if (checkLine(board[row])) {
                 lineCleared = true;
-                Arrays.fill(board[row], BlockContent.EMPTY);
-                if (row > 0) {
-                    for (int r = row; r > 0; r--) {
-                        System.arraycopy(board[r - 1], 0, board[r], 0, board[r].length);
-                    }
-                }
+                shiftLinesDown(row);
+                Arrays.fill(board[0], BlockContent.EMPTY);
+                row--; // Check the same row again after shifting down
             }
         }
         return lineCleared;
+    }
+
+    private void shiftLinesDown(int currentRow) {
+        for (int r = currentRow; r > 0; r--) {
+            System.arraycopy(board[r - 1], 0, board[r], 0, board[r].length);
+        }
     }
 
     public boolean checkLine(BlockContent[] boardRow) {
