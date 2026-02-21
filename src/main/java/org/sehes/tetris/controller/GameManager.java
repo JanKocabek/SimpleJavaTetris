@@ -80,7 +80,7 @@ public class GameManager {
             return; // Prevent starting a new game if one is already in progress
         }
         gameBoard = new GameBoard(); // Reset the game board for a new game
-        gameBoard.setNewTetromino(); // Set the first piece on the board
+        gameBoard.trySetNewTetromino(); // Set the first piece on the board
         if (gameState == GameState.INITIALIZE) {
             gameLoopTimer.start();
         } else {
@@ -148,7 +148,7 @@ public class GameManager {
                 if (gameBoard.checkAndClearLines()) {
                     tetrisCanvas.repaintCanvas();
                 }
-                if (gameBoard.setNewTetromino()) {
+                if (gameBoard.trySetNewTetromino()) {
                     tetrisCanvas.repaintCanvas();
                 } else {
                     gameState = GameState.GAME_OVER;
