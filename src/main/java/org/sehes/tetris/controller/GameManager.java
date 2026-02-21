@@ -145,6 +145,7 @@ public class GameManager {
                 tetrisCanvas.repaintCanvas();
             } else {
                 gameBoard.addBlockToBoard();
+                tetrisCanvas.repaintCanvas();
                 if (gameBoard.checkAndClearLines()) {
                     tetrisCanvas.repaintCanvas();
                 }
