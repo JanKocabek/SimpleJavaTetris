@@ -1,4 +1,4 @@
-package org.sehes.tetris.logic.util;
+package org.sehes.tetris.model.util;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import org.junit.jupiter.api.Test;
