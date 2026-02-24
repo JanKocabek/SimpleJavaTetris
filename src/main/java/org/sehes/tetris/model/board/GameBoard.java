@@ -41,6 +41,9 @@ public class GameBoard implements IBoardView {
 
     public boolean trySetNewTetromino() {
         final Tetromino newTetromino = Tetromino.tetrominoFactory(startingPosition);
+        if (!checkBoundaries(newTetromino.getGrid(), startingPosition)) {
+            return false;
+        }
         if (isCollisionDetected(newTetromino.getGrid(), newTetromino.getPosition())) {
             return false;
         }
