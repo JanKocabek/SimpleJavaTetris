@@ -46,11 +46,10 @@ public class Tetromino {
     }
 
     /**
-     * Returns the current position of the tetromino as an array of integers.
-     * The first element is the X coordinate (column), and the second is the Y
-     * coordinate (row).
+     * Returns the current position of the tetromino as an immutable Point object.
+     * The X is the column coordinate, and the second is the Y row coordinate.
      *
-     * @return The position of the tetromino as [X, Y].
+     * @return  A new Point object representing the current position of the tetromino.
      */
     public Point getPosition() {
     return new Point(position);
