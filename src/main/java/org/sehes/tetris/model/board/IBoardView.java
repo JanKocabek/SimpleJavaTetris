@@ -6,6 +6,6 @@ public interface IBoardView {
 
     int getHeight();
 
-    BlockContent getBlockContent(int x, int y);
+    BlockContent getBlockContent(int row, int column);
 
 }

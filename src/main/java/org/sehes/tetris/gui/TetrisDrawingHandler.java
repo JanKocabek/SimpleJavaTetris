@@ -40,7 +40,7 @@ public class TetrisDrawingHandler {
     public void drawBoardState(Graphics2D g2d, IBoardView boardView) {
         for (int row = boardView.getHeight() - 1; row >= 0; row--) {
             for (int col = boardView.getWidth() - 1; col >= 0; col--) {
-                BlockContent content = boardView.getBlockContent(col, row);
+                BlockContent content = boardView.getBlockContent(row, col);
                 if (content != BlockContent.EMPTY) {
                     g2d.setColor(content.getColor());
                     int x = (col) * GameParameters.BLOCK_SIZE;
