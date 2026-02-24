@@ -139,17 +139,6 @@ public class GameBoard implements IBoardView {
         return lineCleared;
     }
 
-    public boolean checkLine(BlockContent[] boardRow) {
-        boolean isLineFull = true;
-        for (BlockContent cell : boardRow) {
-            if (cell == BlockContent.EMPTY) {
-                isLineFull = false;
-                break;
-            }
-        }
-        return isLineFull;
-    }
-
     @Override
     public int getWidth() {
         return board[0].length;
@@ -166,6 +155,17 @@ public class GameBoard implements IBoardView {
             throw new IndexOutOfBoundsException("Coordinates are out of bounds.");
         }
         return board[row][column];
+    }
+
+    private boolean checkLine(BlockContent[] boardRow) {
+        boolean isLineFull = true;
+        for (BlockContent cell : boardRow) {
+            if (cell == BlockContent.EMPTY) {
+                isLineFull = false;
+                break;
+            }
+        }
+        return isLineFull;
     }
 
     private void fillBoard() {
