@@ -19,7 +19,7 @@ import org.sehes.tetris.model.Tetromino;
  * the visual representation of the board.
  *
  */
-public class GameBoard implements IBoardView {
+public class GameBoard {
 
     private Tetromino currentTetromino;
     private final BlockContent[][] board;
@@ -33,10 +33,6 @@ public class GameBoard implements IBoardView {
 
     public Tetromino getCurrentTetromino() {
         return currentTetromino;
-    }
-
-    public IBoardView getBoardView() {
-        return this;
     }
 
     public boolean trySetNewTetromino() {
@@ -139,22 +135,26 @@ public class GameBoard implements IBoardView {
         return lineCleared;
     }
 
-    @Override
-    public int getWidth() {
-        return board[0].length;
-    }
+    public IBoardView getBoardView() {
+        return new IBoardView() {
+            @Override
+            public int getWidth() {
+                return board[0].length;
+            }
 
-    @Override
-    public int getHeight() {
-        return board.length;
-    }
+            @Override
+            public int getHeight() {
+                return board.length;
+            }
 
-    @Override
-    public BlockContent getBlockContent(int row, int column) {
-        if (row < 0 || row >= board.length || column < 0 || column >= board[row].length) {
-            throw new IndexOutOfBoundsException("Coordinates are out of bounds.");
-        }
-        return board[row][column];
+            @Override
+            public BlockContent getBlockContent(int row, int column) {
+                if (row < 0 || row >= board.length || column < 0 || column >= board[row].length) {
+                    throw new IndexOutOfBoundsException("Coordinates are out of bounds.");
+                }
+                return board[row][column];
+            }
+        };
     }
 
     private boolean checkLine(BlockContent[] boardRow) {
