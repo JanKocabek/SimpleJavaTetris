@@ -55,7 +55,6 @@ public class GameManager {
         SwingUtilities.invokeLater(() -> {
             ActionListener gameLoopListener = new MainLoopListener();
             gameLoopTimer = new Timer(GameParameters.GAME_SPEED, gameLoopListener);
-            this.gameBoard = new GameBoard();//remove this later when we have a better way to initialize the game board
             initializeGameWindow();
         });
     }
