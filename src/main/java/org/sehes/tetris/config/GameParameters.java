@@ -1,4 +1,4 @@
-package org.sehes.tetris.logic;
+package org.sehes.tetris.config;
 
 import java.awt.Point;
 
@@ -22,7 +22,7 @@ public final class GameParameters {
     public static final int VISIBLE_ROWS = 20;//number of rows that are visible to player, the top 2 rows are for spawning new tetromino and are not visible to player
     public static final int GAME_SPEED = 1600;//the speed of the game, in milliseconds, the lower the faster
     public static final int HIDDEN_ROWS = ROWS - VISIBLE_ROWS;//the number of rows that are not visible to player, used for calculating the position of tetromino on the game board
-    protected static final Point SPAWN_POINT = new Point(COLUMNS / 2 - 1, 0);//the point where new tetromino spawns, it is in the middle of the top row of the game board
+    public  static final Point SPAWN_POINT = new Point(COLUMNS / 2 - 1, 0);//the point where new tetromino spawns, it is in the middle of the top row of the game board
     //GUI parameters  */
     public static final int WINDOW_WIDTH = 600;
     public static final int WINDOW_HEIGHT = 800;

@@ -6,13 +6,12 @@ import java.awt.event.ActionListener;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
+import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.gui.GameWindow;
 import org.sehes.tetris.gui.TetrisCanvas;
 import org.sehes.tetris.gui.TetrisDrawingHandler;
-import org.sehes.tetris.logic.DirectionFlag;
-import org.sehes.tetris.logic.GameBoard;
-import org.sehes.tetris.logic.GameParameters;
-import org.sehes.tetris.logic.TetrisKeyInputHandler;
+import org.sehes.tetris.model.DirectionFlag;
+import org.sehes.tetris.model.board.GameBoard;
 
 /**
  * The GameManager class is responsible for managing the overall game state,

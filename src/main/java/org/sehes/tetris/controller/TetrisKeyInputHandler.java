@@ -1,9 +1,9 @@
-package org.sehes.tetris.logic;
+package org.sehes.tetris.controller;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-import org.sehes.tetris.controller.GameManager;
+import org.sehes.tetris.model.DirectionFlag;
 
 /*
     * The TetrisKeyInputHandler class is responsible for handling keyboard input during the Tetris game. It extends KeyAdapter and overrides the keyPressed method to respond to specific key events based on the current state of the game. Depending on whether the game is initializing, playing, paused, or over, it processes different key inputs to control the game flow, such as starting the game, moving or rotating the Tetromino pieces, pausing or resuming the game. This class interacts with the GameManager to update the game state accordingly based on user input.

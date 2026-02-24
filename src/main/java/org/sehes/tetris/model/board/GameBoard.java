@@ -1,10 +1,11 @@
-package org.sehes.tetris.logic;
+package org.sehes.tetris.model.board;
 
-import java.awt.Color;
 import java.awt.Point;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+
+import org.sehes.tetris.config.GameParameters;
+import org.sehes.tetris.model.DirectionFlag;
+import org.sehes.tetris.model.Tetromino;
 
 /**
  * The GameBoard class represents the game board in a Tetris game. It manages
@@ -18,52 +19,8 @@ import java.util.Map;
  * the visual representation of the board.
  *
  */
-public class GameBoard {
+public class GameBoard implements IBoardView {
 
-    public enum BlockContent {
-        CYAN(Color.CYAN),
-        YELLOW(Color.YELLOW),
-        GREEN(Color.GREEN),
-        BLUE(Color.BLUE),
-        ORANGE(Color.ORANGE),
-        RED(Color.RED),
-        MAGENTA(Color.MAGENTA),
-        EMPTY(null);
-
-        private final Color color;
-
-        BlockContent(Color color) {
-            this.color = color;
-        }
-
-        public Color getColor() {
-            return color;
-        }
-
-        private static final Map<Color, BlockContent> map = new HashMap<>();
-
-        static {
-            for (BlockContent type : BlockContent.values()) {
-                map.put(type.color, type);
-            }
-        }
-
-        /**
-         * This method takes a Color object from tetromino and returns the
-         * corresponding BlockContent enum value. It uses a static map to
-         * efficiently look up the BlockContent based on the provided Color. If
-         * the color is not found in the map, it will return EMPTY.
-         *
-         * @param color The Color object for which to find the corresponding
-         * BlockContent enum value.
-         * @return The BlockContent enum value corresponding to the provided
-         * Color, or EMPTY value if the color is not found in the map. EMPTY
-         * means that there is no block in that position on the game board.
-         */
-        public static BlockContent fromColor(Color color) {
-            return map.getOrDefault(color, EMPTY);
-        }
-    }
     private Tetromino currentTetromino;
     private final BlockContent[][] board;
     /*make the start posiiton dynamic based on tetromino type instead of one fixed position */
@@ -74,21 +31,12 @@ public class GameBoard {
         fillBoard();
     }
 
-    private void fillBoard() {
-        for (BlockContent[] blockContents : board) {
-            Arrays.fill(blockContents, BlockContent.EMPTY);
-        }
-    }
-
     public Tetromino getCurrentTetromino() {
         return currentTetromino;
     }
 
-    /*
-        * This method returns a deep copy of the internal 2D array representing the game board.
-     */
-    public BlockContent[][] getGrid() {
-        return Arrays.stream(board).map(BlockContent[]::clone).toArray(BlockContent[][]::new);
+    public IBoardView getBoardView() {
+        return this;
     }
 
     public boolean trySetNewTetromino() {
@@ -136,6 +84,91 @@ public class GameBoard {
         }
         currentTetromino.setGrid(nextGrid);
         return true;
+    }
+
+    /**
+     * this method is responsible for adding the current tetromino to the game
+     * board when it can no longer move down. It iterates through the grid of
+     * the current tetromino and updates the corresponding positions on the game
+     * board with the appropriate BlockContent based on the color of the
+     * tetromino. This effectively "locks" the tetromino in place on the board,
+     * allowing the elimination of completed lines and the spawning of a new
+     * tetromino to occur in subsequent game logic. It also checks if there is a
+     * current tetromino to add before attempting to update the board, throwing
+     * an IllegalStateException if there isn't one.
+     */
+    public void addBlockToBoard() {
+        if (currentTetromino == null) {
+            throw new IllegalStateException("No current tetromino to add to the board.");
+        }
+        int posCol = currentTetromino.getPosition().x;
+        int posRow = currentTetromino.getPosition().y;
+        for (int row = 0; row < currentTetromino.getGrid().length; row++) {
+            for (int column = 0; column < currentTetromino.getGrid()[row].length; column++) {
+                if (currentTetromino.getGrid()[row][column]) {
+                    this.board[posRow + row][posCol + column] = BlockContent.fromColor(currentTetromino.getColor());
+                }
+            }
+        }
+    }
+
+    /**
+     * This method checks for completed lines on the game board and clears them
+     * if found. It iterates through each row of the board and uses the
+     * checkLine method to determine if a line is full (i.e., contains no EMPTY
+     * blocks). If a full line is detected, it sets all blocks in that row to
+     * EMPTY and shifts all rows above it down by one. The method returns true
+     * if at least one line was cleared, allowing the game logic to update the
+     * score.
+     *
+     * @return
+     */
+    public boolean checkAndClearLines() {
+        boolean lineCleared = false;
+        for (int row = 0; row < board.length; row++) {
+            if (checkLine(board[row])) {
+                lineCleared = true;
+                shiftLinesDown(row);
+                Arrays.fill(board[0], BlockContent.EMPTY);
+                row--; // Check the same row again after shifting down
+            }
+        }
+        return lineCleared;
+    }
+
+    public boolean checkLine(BlockContent[] boardRow) {
+        boolean isLineFull = true;
+        for (BlockContent cell : boardRow) {
+            if (cell == BlockContent.EMPTY) {
+                isLineFull = false;
+                break;
+            }
+        }
+        return isLineFull;
+    }
+
+    @Override
+    public int getWidth() {
+        return board[0].length;
+    }
+
+    @Override
+    public int getHeight() {
+        return board.length;
+    }
+
+    @Override
+    public BlockContent getBlockContent(int row, int column) {
+        if (row < 0 || row >= board.length || column < 0 || column >= board[row].length) {
+            throw new IndexOutOfBoundsException("Coordinates are out of bounds.");
+        }
+        return board[row][column];
+    }
+
+    private void fillBoard() {
+        for (BlockContent[] blockContents : board) {
+            Arrays.fill(blockContents, BlockContent.EMPTY);
+        }
     }
 
     /**
@@ -237,70 +270,10 @@ public class GameBoard {
         return true;
     }
 
-    /**
-     * this method is responsible for adding the current tetromino to the game
-     * board when it can no longer move down. It iterates through the grid of
-     * the current tetromino and updates the corresponding positions on the game
-     * board with the appropriate BlockContent based on the color of the
-     * tetromino. This effectively "locks" the tetromino in place on the board,
-     * allowing the elimination of completed lines and the spawning of a new
-     * tetromino to occur in subsequent game logic. It also checks if there is a
-     * current tetromino to add before attempting to update the board, throwing
-     * an IllegalStateException if there isn't one.
-     */
-    public void addBlockToBoard() {
-        if (currentTetromino == null) {
-            throw new IllegalStateException("No current tetromino to add to the board.");
-        }
-        int posCol = currentTetromino.getPosition().x;
-        int posRow = currentTetromino.getPosition().y;
-        for (int row = 0; row < currentTetromino.getGrid().length; row++) {
-            for (int column = 0; column < currentTetromino.getGrid()[row].length; column++) {
-                if (currentTetromino.getGrid()[row][column]) {
-                    this.board[posRow + row][posCol + column] = BlockContent.fromColor(currentTetromino.getColor());
-                }
-            }
-        }
-    }
-
-    /**
-     * This method checks for completed lines on the game board and clears them
-     * if found. It iterates through each row of the board and uses the
-     * checkLine method to determine if a line is full (i.e., contains no EMPTY
-     * blocks). If a full line is detected, it sets all blocks in that row to
-     * EMPTY and shifts all rows above it down by one. The method returns true
-     * if at least one line was cleared, allowing the game logic to update the
-     * score.
-     *
-     * @return
-     */
-    public boolean checkAndClearLines() {
-        boolean lineCleared = false;
-        for (int row = 0; row < board.length; row++) {
-            if (checkLine(board[row])) {
-                lineCleared = true;
-                shiftLinesDown(row);
-                Arrays.fill(board[0], BlockContent.EMPTY);
-                row--; // Check the same row again after shifting down
-            }
-        }
-        return lineCleared;
-    }
-
     private void shiftLinesDown(int currentRow) {
         for (int r = currentRow; r > 0; r--) {
             System.arraycopy(board[r - 1], 0, board[r], 0, board[r].length);
         }
     }
 
-    public boolean checkLine(BlockContent[] boardRow) {
-        boolean isLineFull = true;
-        for (BlockContent cell : boardRow) {
-            if (cell == BlockContent.EMPTY) {
-                isLineFull = false;
-                break;
-            }
-        }
-        return isLineFull;
-    }
 }

@@ -1,4 +1,4 @@
-package org.sehes.tetris.logic;
+package org.sehes.tetris.model;
 
 import java.awt.Color;
 import java.awt.Point;
@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import org.sehes.tetris.logic.util.MatrixTransformations;
+import org.sehes.tetris.model.util.MatrixTransformations;
 
 /**
  * The Tetromino class represents the individual Tetris pieces in the game. Each

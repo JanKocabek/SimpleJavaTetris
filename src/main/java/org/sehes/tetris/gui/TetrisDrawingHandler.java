@@ -6,9 +6,10 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 
-import org.sehes.tetris.logic.GameBoard;
-import org.sehes.tetris.logic.GameParameters;
-import org.sehes.tetris.logic.Tetromino;
+import org.sehes.tetris.config.GameParameters;
+import org.sehes.tetris.model.Tetromino;
+import org.sehes.tetris.model.board.BlockContent;
+import org.sehes.tetris.model.board.IBoardView;
 
 /**
  * The TetrisDrawingHandler class is responsible for rendering the game state onto the screen.
@@ -36,11 +37,12 @@ public class TetrisDrawingHandler {
         }
     }
 
-    public void drawBoardState(Graphics2D g2d, GameBoard.BlockContent[][] board) {
-        for (int row = board.length - 1; row >= 0; row--) {
-            for (int col = board[row].length - 1; col >= 0; col--) {
-                if (board[row][col] != GameBoard.BlockContent.EMPTY) {
-                    g2d.setColor(board[row][col].getColor());
+    public void drawBoardState(Graphics2D g2d, IBoardView boardView) {
+        for (int row = boardView.getHeight() - 1; row >= 0; row--) {
+            for (int col = boardView.getWidth() - 1; col >= 0; col--) {
+                BlockContent content = boardView.getBlockContent(col, row);
+                if (content != BlockContent.EMPTY) {
+                    g2d.setColor(content.getColor());
                     int x = (col) * GameParameters.BLOCK_SIZE;
                     int y = (row - GameParameters.HIDDEN_ROWS) * GameParameters.BLOCK_SIZE;
                     g2d.fillRect(x, y, GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE);
