@@ -19,9 +19,10 @@ public class GuiFactory {
 
     private static MainPane assemblyMainPane(final GameContainer container, ScoreUI scoreUI) {
         final MainPane pane = new MainPane(new GridBagLayout());
-        GridBagConstraints gbcContain = makeGBC(GridBagConstraints.BOTH, 0.75, 1, 0, 0);
+        GridBagConstraints gbcContain = makeGBC(GridBagConstraints.BOTH, 1, 1, 0, 0);
         pane.add(container, gbcContain);
-        GridBagConstraints gbcScore = makeGBC(GridBagConstraints.HORIZONTAL, 0.25, 0, 1, 0);
+        GridBagConstraints gbcScore = makeGBC(GridBagConstraints.HORIZONTAL, 0, 0, 1, 0);
+        gbcScore.anchor = GridBagConstraints.NORTHWEST;
         pane.add(scoreUI, gbcScore);
         return pane;
     }

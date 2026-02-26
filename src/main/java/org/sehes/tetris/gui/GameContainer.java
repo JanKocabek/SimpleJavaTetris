@@ -1,6 +1,7 @@
 package org.sehes.tetris.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -16,5 +17,6 @@ public class GameContainer extends JPanel {
         setOpaque(true);
         setLayout(layout);
         setBorder(border);
+        setBackground(Color.WHITE);
     }
 }
