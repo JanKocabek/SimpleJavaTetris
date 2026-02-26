@@ -6,7 +6,7 @@ import javax.swing.JPanel;
 public class GameWindow extends JFrame {
 
     private final TetrisCanvas canvas;
-    private final ScoreUI scoreUI;
+    private final ScorePanel scoreUI;
 
     //private final FlowLayout layout = new FlowLayout();/if we added manager later
     /**
@@ -19,7 +19,7 @@ public class GameWindow extends JFrame {
      * @param height The height of the game window.
      *
      */
-    GameWindow(JPanel contentPane,TetrisCanvas canvas, ScoreUI scoreUI) {
+    GameWindow(JPanel contentPane,TetrisCanvas canvas, ScorePanel scoreUI) {
         super("Tetris");
         setContentPane(contentPane);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -31,7 +31,7 @@ public class GameWindow extends JFrame {
         return canvas;
     }
 
-    public ScoreUI getScoreUI() {
+    public ScorePanel getScoreUI() {
         return scoreUI;
     }
 }
