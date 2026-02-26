@@ -35,10 +35,6 @@ public class GameManager {
     private Timer gameLoopTimer;
     private ScoreUI scoreUI;
 
-   
-
-
-
     public GameState getGameState() {
         return gameState;
     }
@@ -82,7 +78,7 @@ public class GameManager {
     }
 
 
-    /* 
+    /**
         * Starts the game by resetting the game board and starting the game loop timer.
         * Sets the game state to PLAYING.
         * This method can only be called if the game is in the INITIALIZE or GAME_OVER state to prevent starting a new game while one is already in progress.
