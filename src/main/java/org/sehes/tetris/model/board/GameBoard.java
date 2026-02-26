@@ -181,8 +181,15 @@ public class GameBoard {
         return lineCleared;
     }
 
+    /**
+     * Updates the score based on the number of lines cleared.
+     * The scoring system is as follows:
+     * - 1 line cleared: 100 points
+     * - 2 lines cleared: 300 points
+     * - 3 lines cleared: 500 points
+     * - 4 lines cleared: 800 points
+     */
     private void updateScore(int linesCleared) {
-        // Example scoring system: 100 points for 1 line, 300 for 2 lines, etc.
         switch (linesCleared) {
             case 1 ->
                 score += 100;
@@ -192,9 +199,6 @@ public class GameBoard {
                 score += 500;
             case 4 ->
                 score += 800;
-            default ->{
-                System.err.println("Invalid number of lines cleared: " + linesCleared);
-            }
         }
     }
 
