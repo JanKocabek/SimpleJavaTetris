@@ -5,8 +5,8 @@ import javax.swing.JPanel;
 
 public class GameWindow extends JFrame {
 
-    private TetrisCanvas canvas;
-    private ScoreUI scoreUI;
+    private final TetrisCanvas canvas;
+    private final ScoreUI scoreUI;
 
     //private final FlowLayout layout = new FlowLayout();/if we added manager later
     /**
