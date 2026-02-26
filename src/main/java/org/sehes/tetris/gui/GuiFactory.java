@@ -19,7 +19,6 @@ public class GuiFactory {
 
     private static MainPane assemblyMainPane(final GameContainer container, ScorePanel scoreP) {
         final MainPane pane = new MainPane(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
         GridBagConstraints gbcContain = makeGBC(GridBagConstraints.BOTH, 1, 1, 0, 0);
         pane.add(container, gbcContain);
         GridBagConstraints gbcScore = makeGBC(GridBagConstraints.HORIZONTAL, 0, 0, 1, 0);
