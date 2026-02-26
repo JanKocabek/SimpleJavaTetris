@@ -9,15 +9,20 @@ import org.sehes.tetris.model.Tetromino;
 
 /**
  * The GameBoard class represents the game board in a Tetris game. It manages
- * the state of the board, including the current Tetromino piece and the grid of
- * blocks. The class provides methods for moving and rotating the current
- * Tetromino, checking for collisions, and adding the Tetromino to the board
- * when it can no longer move. It also defines an inner enum BlockContent to
- * represent the different types of blocks on the board, each associated with a
- * specific color. The GameBoard interacts with other components of the game,
- * such as the GameManager and TetrisCanvas, to update the game state and render
- * the visual representation of the board.
+ * the current tetromino, the state of the board, and provides methods for
+ * moving, rotating, and adding tetrominoes to the board, as well as checking
+ * for completed lines and clearing them. The class also provides a view of the
+ * board through the IBoardView interface.
+ * <p>
+ * The GameBoard class is responsible for maintaining the game state and
+ * ensuring that all operations on the board are valid according to the rules of
+ * Tetris. It checks for collisions, boundaries, and line completions to provide
+ * a seamless gaming experience.
  *
+ * @author Sehes
+ * @version 0.5
+ * @see Tetromino
+ * @see IBoardView
  */
 public class GameBoard {
 
@@ -25,14 +30,38 @@ public class GameBoard {
     private final BlockContent[][] board;
     /*make the start posiiton dynamic based on tetromino type instead of one fixed position */
     private final Point startingPosition = new Point(GameParameters.SPAWN_POINT);//the position where new tetromino will spawn column 4 row 0
+    private final IBoardView boardView;
 
     public GameBoard() {
         board = new BlockContent[GameParameters.ROWS][GameParameters.COLUMNS];
         fillBoard();
+        this.boardView = new IBoardView() {
+            @Override
+            public int getWidth() {
+                return board[0].length;
+            }
+
+            @Override
+            public int getHeight() {
+                return board.length;
+            }
+
+            @Override
+            public BlockContent getBlockContent(final int row, final int column) {
+                if (row < 0 || row >= board.length || column < 0 || column >= board[row].length) {
+                    throw new IndexOutOfBoundsException("Coordinates are out of bounds.");
+                }
+                return board[row][column];
+            }
+        };
     }
 
     public Tetromino getCurrentTetromino() {
         return currentTetromino;
+    }
+
+    public IBoardView getBoardView() {
+        return boardView;
     }
 
     public boolean trySetNewTetromino() {
@@ -132,28 +161,6 @@ public class GameBoard {
             }
         }
         return lineCleared;
-    }
-
-    public IBoardView getBoardView() {
-        return new IBoardView() {
-            @Override
-            public int getWidth() {
-                return board[0].length;
-            }
-
-            @Override
-            public int getHeight() {
-                return board.length;
-            }
-
-            @Override
-            public BlockContent getBlockContent(final int row, final int column) {
-                if (row < 0 || row >= board.length || column < 0 || column >= board[row].length) {
-                    throw new IndexOutOfBoundsException("Coordinates are out of bounds.");
-                }
-                return board[row][column];
-            }
-        };
     }
 
     private boolean checkLine(final BlockContent[] boardRow) {
