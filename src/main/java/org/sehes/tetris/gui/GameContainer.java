@@ -11,8 +11,8 @@ public class GameContainer extends JPanel {
 
     GameContainer() {
         super();
-        final int borderSize = 50;
-        final Border border = BorderFactory.createEmptyBorder(0, borderSize, 0, borderSize);
+        final int borderSize = 25;
+        final Border border = BorderFactory.createEmptyBorder(10, borderSize, 0, borderSize);
         final BorderLayout layout = new BorderLayout();
         setOpaque(true);
         setLayout(layout);
