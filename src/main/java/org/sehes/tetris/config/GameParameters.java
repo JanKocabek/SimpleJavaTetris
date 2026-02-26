@@ -23,12 +23,4 @@ public final class GameParameters {
     public static final int GAME_SPEED = 1600;//the speed of the game, in milliseconds, the lower the faster
     public static final int HIDDEN_ROWS = ROWS - VISIBLE_ROWS;//the number of rows that are not visible to player, used for calculating the position of tetromino on the game board
     public static final Point SPAWN_POINT = new Point(COLUMNS / 2 - 1, 0);//the point where new tetromino spawns, it is in the middle of the top row of the game board
-    //GUI parameters  */
-  //  public static final int WINDOW_WIDTH = 600;
-  //  public static final int WINDOW_HEIGHT = 800;
-    private static final int CANVAS_TOP_MARGIN = 100;
-    private static final int CANVAS_BOTTOM_MARGIN = 100;
-    public static final int CANVAS_HEIGHT_MARGIN = CANVAS_TOP_MARGIN + CANVAS_BOTTOM_MARGIN;
-    public static final int CANVAS_Y_OFFSET = 100;
-
 }
