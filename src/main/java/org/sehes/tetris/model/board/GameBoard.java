@@ -47,7 +47,7 @@ public class GameBoard {
         return true;
     }
 
-    public boolean tryMovePiece(DirectionFlag flag) {
+    public boolean tryMovePiece(final DirectionFlag flag) {
         if (this.currentTetromino == null) {
             return false;
         }
@@ -73,11 +73,11 @@ public class GameBoard {
      * @param flag The direction in which to rotate the tetromino (e.g.,
      * ROTATE_R for right rotation, ROTATE_L for left rotation)
      */
-    public boolean tryRotatePiece(DirectionFlag flag) {
+    public boolean tryRotatePiece(final DirectionFlag flag) {
         if (this.currentTetromino == null) {
             return false;
         }
-        boolean[][] nextGrid = currentTetromino.rotate(flag);
+        final boolean[][] nextGrid = currentTetromino.rotate(flag);
         if (!canRotate(nextGrid)) {
             return false;
         }
@@ -100,12 +100,11 @@ public class GameBoard {
         if (currentTetromino == null) {
             throw new IllegalStateException("No current tetromino to add to the board.");
         }
-        int posCol = currentTetromino.getPosition().x;
-        int posRow = currentTetromino.getPosition().y;
+        final Point position = currentTetromino.getPosition();
         for (int row = 0; row < currentTetromino.getGrid().length; row++) {
             for (int column = 0; column < currentTetromino.getGrid()[row].length; column++) {
                 if (currentTetromino.getGrid()[row][column]) {
-                    this.board[posRow + row][posCol + column] = BlockContent.fromColor(currentTetromino.getColor());
+                    this.board[position.y + row][position.x + column] = BlockContent.fromColor(currentTetromino.getColor());
                 }
             }
         }
@@ -148,7 +147,7 @@ public class GameBoard {
             }
 
             @Override
-            public BlockContent getBlockContent(int row, int column) {
+            public BlockContent getBlockContent(final int row, final int column) {
                 if (row < 0 || row >= board.length || column < 0 || column >= board[row].length) {
                     throw new IndexOutOfBoundsException("Coordinates are out of bounds.");
                 }
@@ -157,9 +156,9 @@ public class GameBoard {
         };
     }
 
-    private boolean checkLine(BlockContent[] boardRow) {
+    private boolean checkLine(final BlockContent[] boardRow) {
         boolean isLineFull = true;
-        for (BlockContent cell : boardRow) {
+        for (final BlockContent cell : boardRow) {
             if (cell == BlockContent.EMPTY) {
                 isLineFull = false;
                 break;
@@ -169,7 +168,7 @@ public class GameBoard {
     }
 
     private void fillBoard() {
-        for (BlockContent[] blockContents : board) {
+        for (final BlockContent[] blockContents : board) {
             Arrays.fill(blockContents, BlockContent.EMPTY);
         }
     }
@@ -185,11 +184,11 @@ public class GameBoard {
      * @return true if collision not happened and the position is in the
      * gameBoard boundaries
      */
-    private boolean canMove(boolean[][] tetrominoGrid, Point position, DirectionFlag flag) {
+    private boolean canMove(final boolean[][] tetrominoGrid, final Point position, final DirectionFlag flag) {
         if (tetrominoGrid == null || flag == null) {
             return false;
         }
-        Point newPosition = new Point(position.x + flag.getX(), position.y + flag.getY());
+        final Point newPosition = new Point(position.x + flag.getX(), position.y + flag.getY());
         if (!checkBoundaries(tetrominoGrid, newPosition)) {
             return false;
         }
@@ -216,7 +215,7 @@ public class GameBoard {
      * corresponding to the column and row on the game board, respectively
      * @return
      */
-    private boolean isCollisionDetected(boolean[][] tetrominoGrid, Point newPosition) {
+    private boolean isCollisionDetected(final boolean[][] tetrominoGrid, final Point newPosition) {
         for (int gridR = 0; gridR < tetrominoGrid.length; gridR++) {
             for (int gridC = 0; gridC < tetrominoGrid[gridR].length; gridC++) {
                 if ((tetrominoGrid[gridR][gridC])
@@ -236,11 +235,11 @@ public class GameBoard {
      * @return true if collision not happened and the position is in the
      * gameBoard boundaries
      */
-    private boolean canRotate(boolean[][] tetrominoGrid) {
+    private boolean canRotate(final boolean[][] tetrominoGrid) {
         if (tetrominoGrid == null || currentTetromino == null) {
             return false;
         }
-        Point position = currentTetromino.getPosition();
+        final Point position = currentTetromino.getPosition();
         if (!checkBoundaries(tetrominoGrid, position)) {
             return false;
         }
@@ -257,7 +256,7 @@ public class GameBoard {
      * rotating(doesn't change it)
      * @return true if the final position is in the gameBoard boundaries
      */
-    private boolean checkBoundaries(boolean[][] tetrominoGrid, Point position) {
+    private boolean checkBoundaries(final boolean[][] tetrominoGrid, final Point position) {
 
         for (int gridR = 0; gridR < tetrominoGrid.length; gridR++) {
             for (int gridC = 0; gridC < tetrominoGrid[gridR].length; gridC++) {
@@ -273,7 +272,7 @@ public class GameBoard {
         return true;
     }
 
-    private void shiftLinesDown(int currentRow) {
+    private void shiftLinesDown(final int currentRow) {
         for (int r = currentRow; r > 0; r--) {
             System.arraycopy(board[r - 1], 0, board[r], 0, board[r].length);
         }
