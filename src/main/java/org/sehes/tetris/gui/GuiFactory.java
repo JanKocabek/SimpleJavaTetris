@@ -11,19 +11,19 @@ public class GuiFactory {
 
     public static GameWindow createGUI(final GameManager gameManager, final TetrisDrawingHandler drawingHandler, final TetrisKeyInputHandler keyInputHandler) {
         final TetrisCanvas canvas = assemblyCanvas(drawingHandler, keyInputHandler, gameManager);
-        final ScoreUI scoreUI = assemblyScoreUI();
+        final ScorePanel scoreUI = assemblyScoreUI();
         final GameContainer gameContainer = assembleyGameContainer(canvas);
         final MainPane mainPane = assemblyMainPane(gameContainer, scoreUI);
         return new GameWindow(mainPane, canvas, scoreUI);
     }
 
-    private static MainPane assemblyMainPane(final GameContainer container, ScoreUI scoreUI) {
+    private static MainPane assemblyMainPane(final GameContainer container, ScorePanel scoreP) {
         final MainPane pane = new MainPane(new GridBagLayout());
         GridBagConstraints gbcContain = makeGBC(GridBagConstraints.BOTH, 1, 1, 0, 0);
         pane.add(container, gbcContain);
         GridBagConstraints gbcScore = makeGBC(GridBagConstraints.HORIZONTAL, 0, 0, 1, 0);
         gbcScore.anchor = GridBagConstraints.NORTHWEST;
-        pane.add(scoreUI, gbcScore);
+        pane.add(scoreP, gbcScore);
         return pane;
     }
 
@@ -76,8 +76,8 @@ public class GuiFactory {
         return canvas;
     }
 
-    private static ScoreUI assemblyScoreUI() {
-        return new ScoreUI();
+    private static ScorePanel assemblyScoreUI() {
+        return new ScorePanel();
     }
 
     private GuiFactory() {

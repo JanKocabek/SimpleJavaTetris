@@ -9,7 +9,7 @@ import javax.swing.Timer;
 import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.gui.GameWindow;
 import org.sehes.tetris.gui.GuiFactory;
-import org.sehes.tetris.gui.ScoreUI;
+import org.sehes.tetris.gui.ScorePanel;
 import org.sehes.tetris.gui.TetrisCanvas;
 import org.sehes.tetris.gui.TetrisDrawingHandler;
 import org.sehes.tetris.model.DirectionFlag;
@@ -33,7 +33,7 @@ public class GameManager {
     private TetrisCanvas tetrisCanvas;
     private GameBoard gameBoard;
     private Timer gameLoopTimer;
-    private ScoreUI scoreUI;
+    private ScorePanel scoreUI;
 
 
     
