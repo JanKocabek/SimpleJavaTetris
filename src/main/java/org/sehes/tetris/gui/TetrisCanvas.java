@@ -1,11 +1,13 @@
 package org.sehes.tetris.gui;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 import javax.swing.JPanel;
 
+import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.controller.GameManager;
 
 /**
@@ -23,6 +25,9 @@ public class TetrisCanvas extends JPanel {
     private final TetrisDrawingHandler drawingHandler;
 
     TetrisCanvas(TetrisDrawingHandler drawingHandler, GameManager gameManager) {
+        Dimension prefSize = new Dimension(GameParameters.BLOCK_SIZE * GameParameters.COLUMNS, GameParameters.BLOCK_SIZE * GameParameters.VISIBLE_ROWS);
+        this.setPreferredSize(prefSize);
+        this.setMinimumSize(prefSize);
         this.drawingHandler = drawingHandler;
         this.gameManager = gameManager;
         setBackground(Color.BLACK);

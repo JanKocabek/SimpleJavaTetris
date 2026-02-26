@@ -1,16 +1,63 @@
 package org.sehes.tetris.gui;
 
-import org.sehes.tetris.config.GameParameters;
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+
 import org.sehes.tetris.controller.GameManager;
 import org.sehes.tetris.controller.TetrisKeyInputHandler;
 
 public class GuiFactory {
 
     public static GameWindow createGUI(final GameManager gameManager, final TetrisDrawingHandler drawingHandler, final TetrisKeyInputHandler keyInputHandler) {
-        final GameWindow window = new GameWindow(GameParameters.WINDOW_WIDTH, GameParameters.WINDOW_HEIGHT);
-        final TetrisCanvas canvas = new TetrisCanvas(drawingHandler, gameManager);
-        setCanvas(canvas, keyInputHandler, window);
-        return window;
+        final TetrisCanvas canvas = assemblyCanvas(drawingHandler, keyInputHandler, gameManager);
+        final ScorePanel scoreUI = assemblyScoreUI();
+        final GameContainer gameContainer = assemblyGameContainer(canvas);
+        final MainPane mainPane = assemblyMainPane(gameContainer, scoreUI);
+        return new GameWindow(mainPane, canvas, scoreUI);
+    }
+
+    private static MainPane assemblyMainPane(final GameContainer container, ScorePanel scoreP) {
+        final MainPane pane = new MainPane(new GridBagLayout());
+        GridBagConstraints gbcContain = makeGBC(GridBagConstraints.BOTH, 1, 1, 0, 0);
+        pane.add(container, gbcContain);
+        GridBagConstraints gbcScore = makeGBC(GridBagConstraints.HORIZONTAL, 0, 0, 1, 0);
+        gbcScore.anchor = GridBagConstraints.NORTHWEST;
+        pane.add(scoreP, gbcScore);
+        return pane;
+    }
+
+    /**
+     * Utility method to create GridBagConstraints with specified parameters.
+     *
+     * @param fill The fill mode for the component; one of the
+     *             {@link java.awt.GridBagConstraints#NONE},
+     *             {@link java.awt.GridBagConstraints#HORIZONTAL},
+     *             {@link java.awt.GridBagConstraints#VERTICAL}, or
+     *             {@link java.awt.GridBagConstraints#BOTH} constants.
+     * @param weightx The weight for the x-axis, determining how extra space is
+     * distributed.
+     * @param weighty The weight for the y-axis, determining how extra space is
+     * distributed.
+     * @param gridx The grid x-coordinate for the component.
+     * @param gridy The grid y-coordinate for the component.
+     * @return A GridBagConstraints object configured with the specified
+     * parameters
+     */
+    private static GridBagConstraints makeGBC(final int fill, final double weightx, final double weighty, final int gridx, final int gridy) {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = fill;
+        gbc.gridx = gridx;
+        gbc.gridy = gridy;
+        gbc.weightx = weightx;
+        gbc.weighty = weighty;
+        return gbc;
+    }
+
+    private static GameContainer assemblyGameContainer(TetrisCanvas canvas) {
+        final GameContainer container = new GameContainer();
+        container.add(canvas, BorderLayout.CENTER);
+        return container;
     }
 
     /**
@@ -22,15 +69,18 @@ public class GuiFactory {
      *
      * @param canvas The TetrisCanvas to be set as the current canvas for the
      * game.
+     * @param keyInputHandler The TetrisKeyInputHandler responsible for handling
+     * keyboard input for the game.
+     * @param window The GameWindow to which the canvas will be added.
      */
-    private static void setCanvas(final TetrisCanvas canvas, final TetrisKeyInputHandler keyInputHandler, final GameWindow window) {
-        final int canvasW = GameParameters.WINDOW_WIDTH / 2;
-        final int canvasH = GameParameters.WINDOW_HEIGHT - GameParameters.CANVAS_HEIGHT_MARGIN;//
-        final int canvasX = GameParameters.WINDOW_WIDTH / 4;
-        final int canvasY = GameParameters.CANVAS_Y_OFFSET;
-        canvas.setBounds(canvasX, canvasY, canvasW, canvasH);
+    private static TetrisCanvas assemblyCanvas(final TetrisDrawingHandler drawingHandler, final TetrisKeyInputHandler keyInputHandler, final GameManager gm) {
+        final TetrisCanvas canvas = new TetrisCanvas(drawingHandler, gm);
         canvas.addKeyListener(keyInputHandler);
-        window.setCanvas(canvas);
+        return canvas;
+    }
+
+    private static ScorePanel assemblyScoreUI() {
+        return new ScorePanel();
     }
 
     private GuiFactory() {

@@ -1,13 +1,12 @@
 package org.sehes.tetris.gui;
 
-import java.awt.Color;
-import java.awt.Dimension;
-
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 public class GameWindow extends JFrame {
 
-    private TetrisCanvas canvas;
+    private final TetrisCanvas canvas;
+    private final ScorePanel scoreUI;
 
     //private final FlowLayout layout = new FlowLayout();/if we added manager later
     /**
@@ -20,21 +19,19 @@ public class GameWindow extends JFrame {
      * @param height The height of the game window.
      *
      */
-    GameWindow(int width, int height) {
+    GameWindow(JPanel contentPane,TetrisCanvas canvas, ScorePanel scoreUI) {
         super("Tetris");
-        //basic setting for a window
-        getContentPane().setBackground(Color.WHITE);
-        getContentPane().setPreferredSize(new Dimension(width, height));
+        setContentPane(contentPane);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLayout(null);
+        this.canvas = canvas;
+        this.scoreUI = scoreUI;
     }
 
     public TetrisCanvas getCanvas() {
         return canvas;
     }
 
-    void setCanvas(TetrisCanvas canvas) {
-        this.canvas = canvas;
-        this.add(canvas);
+    public ScorePanel getScoreUI() {
+        return scoreUI;
     }
 }

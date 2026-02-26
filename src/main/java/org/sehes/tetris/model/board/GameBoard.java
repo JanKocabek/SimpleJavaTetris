@@ -31,9 +31,11 @@ public class GameBoard {
     /*make the start posiiton dynamic based on tetromino type instead of one fixed position */
     private final Point startingPosition = new Point(GameParameters.SPAWN_POINT);//the position where new tetromino will spawn column 4 row 0
     private final IBoardView boardView;
+    private int score;
 
     public GameBoard() {
         board = new BlockContent[GameParameters.ROWS][GameParameters.COLUMNS];
+        score = 0;
         fillBoard();
         this.boardView = new IBoardView() {
             @Override
@@ -54,6 +56,10 @@ public class GameBoard {
                 return board[row][column];
             }
         };
+    }
+
+    public int getScore() {
+        return score;
     }
 
     public Tetromino getCurrentTetromino() {
@@ -159,15 +165,41 @@ public class GameBoard {
      */
     public boolean checkAndClearLines() {
         boolean lineCleared = false;
+        int linesClearedCount = 0;
         for (int row = 0; row < board.length; row++) {
             if (checkLine(board[row])) {
                 lineCleared = true;
                 shiftLinesDown(row);
                 Arrays.fill(board[0], BlockContent.EMPTY);
                 row--; // Check the same row again after shifting down
+                linesClearedCount++;
             }
         }
+        if (lineCleared) {
+            updateScore(linesClearedCount);
+        }
         return lineCleared;
+    }
+
+    /**
+     * Updates the score based on the number of lines cleared.
+     * The scoring system is as follows:
+     * - 1 line cleared: 100 points
+     * - 2 lines cleared: 300 points
+     * - 3 lines cleared: 500 points
+     * - 4 lines cleared: 800 points
+     */
+    private void updateScore(int linesCleared) {
+        switch (linesCleared) {
+            case 1 ->
+                score += 100;
+            case 2 ->
+                score += 300;
+            case 3 ->
+                score += 500;
+            case 4 ->
+                score += 800;
+        }
     }
 
     private boolean checkLine(final BlockContent[] boardRow) {
