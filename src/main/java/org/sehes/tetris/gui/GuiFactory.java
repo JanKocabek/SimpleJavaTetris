@@ -12,13 +12,14 @@ public class GuiFactory {
     public static GameWindow createGUI(final GameManager gameManager, final TetrisDrawingHandler drawingHandler, final TetrisKeyInputHandler keyInputHandler) {
         final TetrisCanvas canvas = assemblyCanvas(drawingHandler, keyInputHandler, gameManager);
         final ScorePanel scoreUI = assemblyScoreUI();
-        final GameContainer gameContainer = assembleyGameContainer(canvas);
+        final GameContainer gameContainer = assemblyGameContainer(canvas);
         final MainPane mainPane = assemblyMainPane(gameContainer, scoreUI);
         return new GameWindow(mainPane, canvas, scoreUI);
     }
 
     private static MainPane assemblyMainPane(final GameContainer container, ScorePanel scoreP) {
         final MainPane pane = new MainPane(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
         GridBagConstraints gbcContain = makeGBC(GridBagConstraints.BOTH, 1, 1, 0, 0);
         pane.add(container, gbcContain);
         GridBagConstraints gbcScore = makeGBC(GridBagConstraints.HORIZONTAL, 0, 0, 1, 0);
@@ -30,8 +31,11 @@ public class GuiFactory {
     /**
      * Utility method to create GridBagConstraints with specified parameters.
      *
-     * @param type The fill type for the constraints (e.g.,
-     * GridBagConstraints.VERTICAL).
+     * @param fill The fill mode for the component; one of the
+     *             {@link java.awt.GridBagConstraints#NONE},
+     *             {@link java.awt.GridBagConstraints#HORIZONTAL},
+     *             {@link java.awt.GridBagConstraints#VERTICAL}, or
+     *             {@link java.awt.GridBagConstraints#BOTH} constants.
      * @param weightx The weight for the x-axis, determining how extra space is
      * distributed.
      * @param weighty The weight for the y-axis, determining how extra space is
@@ -41,9 +45,9 @@ public class GuiFactory {
      * @return A GridBagConstraints object configured with the specified
      * parameters
      */
-    private static GridBagConstraints makeGBC(final int type, final double weightx, final double weighty, final int gridx, final int gridy) {
+    private static GridBagConstraints makeGBC(final int fill, final double weightx, final double weighty, final int gridx, final int gridy) {
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = type;
+        gbc.fill = fill;
         gbc.gridx = gridx;
         gbc.gridy = gridy;
         gbc.weightx = weightx;
@@ -51,7 +55,7 @@ public class GuiFactory {
         return gbc;
     }
 
-    private static GameContainer assembleyGameContainer(TetrisCanvas canvas) {
+    private static GameContainer assemblyGameContainer(TetrisCanvas canvas) {
         final GameContainer container = new GameContainer();
         container.add(canvas, BorderLayout.CENTER);
         return container;
