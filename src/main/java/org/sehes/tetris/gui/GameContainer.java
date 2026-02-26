@@ -9,10 +9,15 @@ import javax.swing.border.Border;
 
 public class GameContainer extends JPanel {
 
+    private static final int RIGHT_BORDER_SIZE = 10;
+    private static final int TOP_BORDER_SIZE = 10;
+    private static final int LEFT_BORDER_SIZE = 20;
+    private static final int BOTTOM_BORDER_SIZE = 10;
+
     GameContainer() {
         super();
-        final int borderSize = 25;
-        final Border border = BorderFactory.createEmptyBorder(10, borderSize, 0, borderSize);
+
+        final Border border = BorderFactory.createEmptyBorder(TOP_BORDER_SIZE, LEFT_BORDER_SIZE, BOTTOM_BORDER_SIZE, RIGHT_BORDER_SIZE);
         final BorderLayout layout = new BorderLayout();
         setOpaque(true);
         setLayout(layout);
