@@ -22,11 +22,9 @@ public class TetrisCanvas extends JPanel {
     private final GameManager gameManager;
     private final TetrisDrawingHandler drawingHandler;
 
-    public TetrisCanvas(TetrisDrawingHandler drawingHandler, GameManager gameManager) {
+    TetrisCanvas(TetrisDrawingHandler drawingHandler, GameManager gameManager) {
         this.drawingHandler = drawingHandler;
         this.gameManager = gameManager;
-        setLayout(null);
-        setVisible(true);
         setBackground(Color.BLACK);
         this.setFocusable(true);
     }

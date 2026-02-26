@@ -8,6 +8,7 @@ import javax.swing.Timer;
 
 import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.gui.GameWindow;
+import org.sehes.tetris.gui.GuiFactory;
 import org.sehes.tetris.gui.TetrisCanvas;
 import org.sehes.tetris.gui.TetrisDrawingHandler;
 import org.sehes.tetris.model.DirectionFlag;
@@ -31,7 +32,7 @@ public class GameManager {
     private TetrisCanvas tetrisCanvas;
     private GameBoard gameBoard;
     private Timer gameLoopTimer;
-    private TetrisKeyInputHandler keyInputHandler;
+    
 
     public GameState getGameState() {
         return gameState;
@@ -60,13 +61,19 @@ public class GameManager {
     }
 
     private void initializeGameWindow() {
-        this.gameWindow = new GameWindow(GameParameters.WINDOW_WIDTH, GameParameters.WINDOW_HEIGHT);
-        this.tetrisCanvas = new TetrisCanvas(new TetrisDrawingHandler(), this);
-        this.keyInputHandler = new TetrisKeyInputHandler(this);
-        tetrisCanvas.addKeyListener(keyInputHandler);
-        gameWindow.setCanvas(tetrisCanvas);
-        gameWindow.postInitialize();
+        TetrisKeyInputHandler keyInputHandler;
+        keyInputHandler = new TetrisKeyInputHandler(this);
+        this.gameWindow = GuiFactory.createGUI(this, new TetrisDrawingHandler(), keyInputHandler);
+        this.tetrisCanvas = gameWindow.getCanvas();
+        showGui();
     }
+    private  void showGui() {
+        gameWindow.pack();
+        gameWindow.setResizable(false);
+        gameWindow.setVisible(true);
+        SwingUtilities.invokeLater(tetrisCanvas::requestFocusInWindow);//request focus for the canvas to receive key events
+    }
+
 
     /* 
         * Starts the game by resetting the game board and starting the game loop timer.
