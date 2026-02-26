@@ -9,6 +9,20 @@ import org.sehes.tetris.controller.TetrisKeyInputHandler;
 
 public class GuiFactory {
 
+    /**
+     * Creates the main game window and assembles all the necessary components
+     * for the Tetris game. This method initializes the game canvas, score
+     * panel, and main pane, and then combines them into a cohesive GUI.<p>
+     * The resulting GameWindow object encapsulates all these components and
+     * provides a unified interface for managing the game's GUI.
+     *
+     * @param gameManager The GameManager responsible for managing the game
+     * logic and state. comunicating with the canvas to update the game state
+     * based on user input and game events.
+     * @param drawingHandler The TetrisDrawingHandler responsible for rendering the game graphics on the canvas. It interacts with the GameManager to retrieve the current game state and draw the appropriate visuals based on that state.
+     * @param keyInputHandler The TetrisKeyInputHandler responsible for handling keyboard input from the user. It listens for key events and communicates with the GameManager to update the game state accordingly, such as moving or rotating the Tetris pieces based on user input.
+     * @return A GameWindow object that contains the assembled GUI components for the Tetris game, including the game canvas and score panel.
+     */
     public static GameWindow createGUI(final GameManager gameManager, final TetrisDrawingHandler drawingHandler, final TetrisKeyInputHandler keyInputHandler) {
         final TetrisCanvas canvas = assemblyCanvas(drawingHandler, keyInputHandler, gameManager);
         final ScorePanel scoreUI = assemblyScoreUI();
@@ -19,39 +33,32 @@ public class GuiFactory {
 
     private static MainPane assemblyMainPane(final GameContainer container, ScorePanel scoreP) {
         final MainPane pane = new MainPane(new GridBagLayout());
-        GridBagConstraints gbcContain = makeGBC(GridBagConstraints.BOTH, 1, 1, 0, 0);
+
+        GridBagConstraints gbcContain = new GridBagConstraints();
+        gbcContain.gridx = 0;
+        gbcContain.gridy = 0;
+        gbcContain.weightx = 1.0;
+        gbcContain.weighty = 1.0;
+        gbcContain.fill = GridBagConstraints.BOTH;
+        // These insets replace the EmptyBorder from GameContainer.
+        // top=10, left=20, bottom=10, right=5
+        gbcContain.insets = new java.awt.Insets(10, 20, 10, 5);
         pane.add(container, gbcContain);
-        GridBagConstraints gbcScore = makeGBC(GridBagConstraints.HORIZONTAL, 0, 0, 1, 0);
+
+        GridBagConstraints gbcScore = new GridBagConstraints();
+        gbcScore.gridx = 1;
+        gbcScore.gridy = 0;
         gbcScore.anchor = GridBagConstraints.NORTHWEST;
+        gbcScore.fill = GridBagConstraints.HORIZONTAL;
+        // Insets provide padding. A 5px left inset here + 5px right inset on the
+        // container creates a 10px gap between components.
+        int top = 10; // top padding to align with the container's top border
+        int left = 5; // left padding to create space between the container and score panel
+        int bottom = 10; // bottom padding to align with the container's bottom border
+        int right = 10; // right padding to provide space on the right side of the score panel
+        gbcScore.insets = new java.awt.Insets(top, left, bottom, right);
         pane.add(scoreP, gbcScore);
         return pane;
-    }
-
-    /**
-     * Utility method to create GridBagConstraints with specified parameters.
-     *
-     * @param fill The fill mode for the component; one of the
-     *             {@link java.awt.GridBagConstraints#NONE},
-     *             {@link java.awt.GridBagConstraints#HORIZONTAL},
-     *             {@link java.awt.GridBagConstraints#VERTICAL}, or
-     *             {@link java.awt.GridBagConstraints#BOTH} constants.
-     * @param weightx The weight for the x-axis, determining how extra space is
-     * distributed.
-     * @param weighty The weight for the y-axis, determining how extra space is
-     * distributed.
-     * @param gridx The grid x-coordinate for the component.
-     * @param gridy The grid y-coordinate for the component.
-     * @return A GridBagConstraints object configured with the specified
-     * parameters
-     */
-    private static GridBagConstraints makeGBC(final int fill, final double weightx, final double weighty, final int gridx, final int gridy) {
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = fill;
-        gbc.gridx = gridx;
-        gbc.gridy = gridy;
-        gbc.weightx = weightx;
-        gbc.weighty = weighty;
-        return gbc;
     }
 
     private static GameContainer assemblyGameContainer(TetrisCanvas canvas) {
@@ -80,10 +87,9 @@ public class GuiFactory {
     }
 
     private static ScorePanel assemblyScoreUI() {
+        /*creation of ScorePanel is putted here if their be any needs of additional assembly in the future */
         return new ScorePanel();
     }
 
-    private GuiFactory() {
-        /* This utility class should not be instantiated */
-    }
+    private GuiFactory() {}
 }
