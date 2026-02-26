@@ -6,34 +6,43 @@ import java.awt.Graphics2D;
 
 import javax.swing.JPanel;
 
-import org.sehes.tetris.logic.TetrisKeyInputHandler;
+import org.sehes.tetris.controller.GameManager;
 
+/**
+ * The TetrisCanvas class is responsible for rendering the game state onto the
+ * screen. It extends JPanel and overrides the paintComponent method to draw the
+ * game grid and the current Tetromino piece. The canvas interacts with the
+ * GameManager to retrieve the current game state and update the display
+ * accordingly. It also provides a method to repaint the canvas when the game
+ * state changes, ensuring that the visual representation of the game is always
+ * up to date.
+ */
 public class TetrisCanvas extends JPanel {
 
-    private static TetrisCanvas instance;
+    private final GameManager gameManager;
+    private final TetrisDrawingHandler drawingHandler;
 
-    public static TetrisCanvas getInstance() {
-        if (instance == null) {
-            instance = new TetrisCanvas();
-        }
-        return instance;
-    }
-
-    private TetrisCanvas() {
-        setLayout(null);
-        setVisible(true);
+    TetrisCanvas(TetrisDrawingHandler drawingHandler, GameManager gameManager) {
+        this.drawingHandler = drawingHandler;
+        this.gameManager = gameManager;
         setBackground(Color.BLACK);
         this.setFocusable(true);
-        this.addKeyListener(new TetrisKeyInputHandler());
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
-        TetrisDrawingHandler.initialize(g2d);
-        TetrisDrawingHandler.drawGrid(g2d);
-        TetrisDrawingHandler.drawGame(g2d);
+        drawingHandler.initialize(g2d);
+        if (gameManager.getGameState() == GameManager.GameState.INITIALIZE) {
+            return;
+        }
+        drawingHandler.drawGrid(g2d);
+        drawingHandler.drawBoardState(g2d, gameManager.getBoard().getBoardView());
+        drawingHandler.drawCurrentTetromino(g2d, gameManager.getBoard().getCurrentTetromino());
     }
 
+    public void repaintCanvas() {
+        repaint();
+    }
 }

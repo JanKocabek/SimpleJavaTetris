@@ -1,43 +1,44 @@
-package org.sehes.tetris.logic;
+package org.sehes.tetris.model;
 
 import java.awt.Color;
-import java.util.Arrays;
+import java.awt.Point;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import org.sehes.tetris.logic.util.MatrixTransformations;
+import org.sehes.tetris.model.util.MatrixTransformations;
 
+/**
+ * The Tetromino class represents the individual Tetris pieces in the game. Each
+ * Tetromino has a specific shape defined by a 2D boolean grid, a color for
+ * rendering, and a position on the game board. The class provides methods for
+ * moving and rotating the Tetromino, as well as a factory method for generating
+ * random Tetromino pieces. The inner enum TETROMINO_TYPE defines the seven
+ * standard Tetris pieces (I, J, L, O, S, T, Z), each with its own shape and
+ * color. The Tetromino class interacts with the GameBoard to manage the current
+ * piece's state and position during gameplay.
+ */
 public class Tetromino {
 
     private static final Random random = new Random();
     private final Color color;
-    private final int[] position;//X column, Y row
-    private  boolean[][] grid;
+    private final Point position;//X column, Y row
+    private boolean[][] grid;
 
-    public static Tetromino tetrominoFactory() {
+    public static Tetromino tetrominoFactory(Point position) {
         TETROMINO_TYPE[] values = TETROMINO_TYPE.values();
         int tetrominoType = random.nextInt(values.length);
-        return new Tetromino(values[tetrominoType]);
+        return new Tetromino(values[tetrominoType], position);
     }
 
-    private Tetromino(TETROMINO_TYPE type) {
+    private Tetromino(TETROMINO_TYPE type, Point spawnPosition) {
         color = type.color;
         grid = type.grid;
-        position = Arrays.copyOf(GameParameters.STARTING_POS, GameParameters.STARTING_POS.length);
+        this.position = new Point(spawnPosition); // Create a new Point to avoid external modification
     }
 
     public Color getColor() {
         return color;
-    }
-
-
-    public int getXCoord() {
-        return position[0] * GameParameters.BLOCK_SIZE;
-    }
-
-    public int getYCoord() {
-        return (position[1] - GameParameters.ROW_OFFSET) * GameParameters.BLOCK_SIZE;
     }
 
     public boolean[][] getGrid() {
@@ -45,12 +46,13 @@ public class Tetromino {
     }
 
     /**
-     * Returns the current position of the tetromino as an array of integers.
-     * The first element is the X coordinate (column), and the second is the Y coordinate (row).
-     * @return The position of the tetromino as [X, Y].
+     * Returns the current position of the tetromino as an immutable Point object.
+     * The X is the column coordinate, and the second is the Y row coordinate.
+     *  @see Point
+     * @return   A new Point object representing the current position of the tetromino.
      */
-    public int[] getPosition() {
-        return position;
+    public Point getPosition() {
+    return new Point(position);
     }
 
     /**
@@ -65,8 +67,11 @@ public class Tetromino {
     }
 
     public void move(DirectionFlag flag) {
-        position[0] += flag.getX();
-        position[1] += flag.getY();
+        if (flag == null) {
+            return;
+        }
+        position.x += flag.getX();
+        position.y += flag.getY();
     }
 
     /**

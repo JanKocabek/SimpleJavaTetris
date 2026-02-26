@@ -1,4 +1,4 @@
-package org.sehes.tetris.logic.util;
+package org.sehes.tetris.model.util;
 
 /**
  * The MatrixTransformations class provides utility methods for manipulating 2D boolean arrays, which are used to represent the shapes of tetrominoes in the Tetris game. It includes methods for transposing a matrix, swapping columns, and swapping rows. These operations are essential for rotating the tetrominoes and adjusting their positions on the game board.

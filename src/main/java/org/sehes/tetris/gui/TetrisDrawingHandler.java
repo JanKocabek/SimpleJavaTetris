@@ -2,27 +2,28 @@ package org.sehes.tetris.gui;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 
-import org.sehes.tetris.logic.GameBoard;
-import org.sehes.tetris.logic.GameParameters;
-import org.sehes.tetris.logic.Tetromino;
+import org.sehes.tetris.config.GameParameters;
+import org.sehes.tetris.model.Tetromino;
+import org.sehes.tetris.model.board.BlockContent;
+import org.sehes.tetris.model.board.IBoardView;
 
+/**
+ * The TetrisDrawingHandler class is responsible for rendering the game state onto the screen.
+ * It provides methods to initialize the graphics context, draw the game grid, and render the current Tetromino piece based on the game board's state.
+ *  The drawing handler interacts with the GameManager to retrieve necessary information about the game state and ensures that the visual representation of the game is accurate and up to date.
+ */
 public class TetrisDrawingHandler {
 
-    private static final GameBoard board = GameBoard.getInstance();
-
-    private TetrisDrawingHandler() {
-
-    }
-
-    public static void initialize(Graphics2D g2d) {
+    public void initialize(Graphics2D g2d) {
         RenderingHints hints = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setRenderingHints(hints);
     }
 
-    public static void drawGrid(Graphics2D g2d) {
+    public void drawGrid(Graphics2D g2d) {
         final Rectangle drawingArea = g2d.getClipBounds();
         final int width = drawingArea.width;
         final int height = drawingArea.height;
@@ -36,39 +37,39 @@ public class TetrisDrawingHandler {
         }
     }
 
-    public static void drawGame(Graphics2D g2d) {
-        GameBoard.BlockContent[][] grid = TetrisDrawingHandler.board.getBoard();
-        for (int row = grid.length - 1; row >= 0; row--) {
-            for (int col = grid[row].length - 1; col >= 0; col--) {
-                if (grid[row][col] != GameBoard.BlockContent.EMPTY) {
-                    g2d.setColor(grid[row][col].getColor());
+    public void drawBoardState(Graphics2D g2d, IBoardView boardView) {
+        for (int row = boardView.getHeight() - 1; row >= 0; row--) {
+            for (int col = boardView.getWidth() - 1; col >= 0; col--) {
+                BlockContent content = boardView.getBlockContent(row, col);
+                if (content != BlockContent.EMPTY) {
+                    g2d.setColor(content.getColor());
                     int x = (col) * GameParameters.BLOCK_SIZE;
-                    int y = (row - GameParameters.ROW_OFFSET) * GameParameters.BLOCK_SIZE;
+                    int y = (row - GameParameters.HIDDEN_ROWS) * GameParameters.BLOCK_SIZE;
                     g2d.fillRect(x, y, GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE);
                 }
             }
         }
-        if (board.getCurrentTetromino() != null) {
-            drawCurrentTetromino(g2d);
-        }
     }
 
-    private static void drawCurrentTetromino(Graphics2D g2d) {
-        Tetromino t = board.getCurrentTetromino();
+    public void drawCurrentTetromino(Graphics2D g2d, Tetromino t) {
+        if (t == null) {
+            return;
+        }
         g2d.setColor(t.getColor());
         boolean[][] grid = t.getGrid();
-        int x = t.getXCoord();
-        int y = t.getYCoord();
+        Point position = calculateTetrominoPosition(t);
         for (int row = 0; row < grid.length; row++) {
             for (int column = 0; column < grid[row].length; column++) {
                 if (grid[row][column]) {
-                    g2d.fillRect(x + column * GameParameters.BLOCK_SIZE, y + row * GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE);
+                    g2d.fillRect(position.x + column * GameParameters.BLOCK_SIZE, position.y + row * GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE);
                 }
             }
         }
     }
 
-    public static void repaint() {
-        TetrisCanvas.getInstance().repaint();
+    private Point calculateTetrominoPosition(Tetromino t) {
+        int x = t.getPosition().x * GameParameters.BLOCK_SIZE;
+        int y = (t.getPosition().y - GameParameters.HIDDEN_ROWS) * GameParameters.BLOCK_SIZE;
+        return new Point(x, y);
     }
 }

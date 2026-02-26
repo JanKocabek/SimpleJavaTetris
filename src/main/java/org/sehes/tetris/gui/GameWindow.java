@@ -4,43 +4,37 @@ import java.awt.Color;
 import java.awt.Dimension;
 
 import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 
 public class GameWindow extends JFrame {
-    private static GameWindow instance;
-    private final int WIDTH = 600;
-    private final int HEIGHT = 800;
-    private final int CWIDTH = WIDTH / 2;
-    private final int CHEIGHT = HEIGHT - 200;
-    private final int CANVASX = WIDTH / 4;
-    private final int CANVASY = 100;
-    private final TetrisCanvas tetrisCanvas;
 
-    public static GameWindow getInstance() {
-        if (instance == null) {
-            instance = new GameWindow();
-        }
-        return instance;
-    }
+    private TetrisCanvas canvas;
 
     //private final FlowLayout layout = new FlowLayout();/if we added manager later
-    private GameWindow() {
-        //basic setting for a window
+    /**
+     * Constructs a new GameWindow with the specified width and height. The
+     * window is set up with a white background, a preferred size based on the
+     * provided dimensions, and a null layout. The canvas for drawing the game
+     * will be added later using the setCanvas method.
+     *
+     * @param width The width of the game window.
+     * @param height The height of the game window.
+     *
+     */
+    GameWindow(int width, int height) {
         super("Tetris");
+        //basic setting for a window
         getContentPane().setBackground(Color.WHITE);
-        getContentPane().setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        getContentPane().setPreferredSize(new Dimension(width, height));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(null);
-        //adding my custom Jpanel
-        tetrisCanvas = TetrisCanvas.getInstance();
-        tetrisCanvas.setBounds(CANVASX, CANVASY, CWIDTH, CHEIGHT);
-        add(tetrisCanvas);
-        pack();//setting all size how I set
-        setResizable(false);
-        setVisible(true);
-        SwingUtilities.invokeLater(tetrisCanvas::requestFocusInWindow);//ensure for focus on my Jpanel
-
-
     }
 
+    public TetrisCanvas getCanvas() {
+        return canvas;
+    }
+
+    void setCanvas(TetrisCanvas canvas) {
+        this.canvas = canvas;
+        this.add(canvas);
+    }
 }
