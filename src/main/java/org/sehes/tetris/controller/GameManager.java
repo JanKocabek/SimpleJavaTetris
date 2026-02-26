@@ -32,7 +32,6 @@ public class GameManager {
     private TetrisCanvas tetrisCanvas;
     private GameBoard gameBoard;
     private Timer gameLoopTimer;
-    
 
     public GameState getGameState() {
         return gameState;
@@ -67,7 +66,8 @@ public class GameManager {
         this.tetrisCanvas = gameWindow.getCanvas();
         showGui();
     }
-    private  void showGui() {
+
+    private void showGui() {
         gameWindow.pack();
         gameWindow.setResizable(false);
         gameWindow.setVisible(true);
@@ -85,18 +85,14 @@ public class GameManager {
             return; // Prevent starting a new game if one is already in progress
         }
         gameBoard = new GameBoard(); // Reset the game board for a new game
-        if( !gameBoard.trySetNewTetromino()){
-            gameState = GameState.GAME_OVER;
-            tetrisCanvas.repaintCanvas();
-            return;
-        } // Set the first piece on the board
         if (gameState == GameState.INITIALIZE) {
             gameLoopTimer.start();
         } else {
             gameLoopTimer.restart();
         }
-        tetrisCanvas.repaintCanvas();
         gameState = GameState.PLAYING;
+        gameBoard.trySetNewTetromino();
+        tetrisCanvas.repaintCanvas();
     }
 
     /**
