@@ -61,7 +61,8 @@ public class GameBoard {
     }
 
     /**
-     * This method returns the IBoardView instance that provides a <b> read-only view of the game board.</b> <br>
+     * This method returns the IBoardView instance that provides a <b> read-only
+     * view of the game board.</b> <br>
      * Dont use for the changes of the Board state or its components!!!<br>
      * The IBoardView interface allows other components of the game, such as the GUI, to access the state of the board without being able to modify it directly. This encapsulation ensures that all changes to the board state are controlled through the GameBoard class, maintaining the integrity of the game logic.
      * @return the IBoardView instance representing the current state of the game board.
