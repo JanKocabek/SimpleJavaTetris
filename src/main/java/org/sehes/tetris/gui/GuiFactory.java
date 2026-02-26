@@ -9,7 +9,9 @@ public class GuiFactory {
     public static GameWindow createGUI(final GameManager gameManager, final TetrisDrawingHandler drawingHandler, final TetrisKeyInputHandler keyInputHandler) {
         final GameWindow window = new GameWindow(GameParameters.WINDOW_WIDTH, GameParameters.WINDOW_HEIGHT);
         final TetrisCanvas canvas = new TetrisCanvas(drawingHandler, gameManager);
+        final ScoreUI scoreUI = new ScoreUI();
         setCanvas(canvas, keyInputHandler, window);
+        setScoreUI(scoreUI, window);
         return window;
     }
 
@@ -31,6 +33,15 @@ public class GuiFactory {
         canvas.setBounds(canvasX, canvasY, canvasW, canvasH);
         canvas.addKeyListener(keyInputHandler);
         window.setCanvas(canvas);
+    }
+
+    private static void setScoreUI(final ScoreUI scoreUI, final GameWindow window) {
+        final int scoreUIW = GameParameters.WINDOW_WIDTH / 8;
+        final int scoreUIH = GameParameters.WINDOW_HEIGHT / 10;
+        final int scoreUIX = (GameParameters.WINDOW_WIDTH / 4) * 2 + (GameParameters.WINDOW_WIDTH / 4)+10;
+        final int scoreUIY = GameParameters.WINDOW_HEIGHT / 10;
+        scoreUI.setBounds(scoreUIX, scoreUIY, scoreUIW, scoreUIH);
+        window.setScoreUI(scoreUI);
     }
 
     private GuiFactory() {

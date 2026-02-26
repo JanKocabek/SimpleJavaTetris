@@ -8,6 +8,7 @@ import javax.swing.JFrame;
 public class GameWindow extends JFrame {
 
     private TetrisCanvas canvas;
+    private ScoreUI scoreUI;
 
     //private final FlowLayout layout = new FlowLayout();/if we added manager later
     /**
@@ -33,8 +34,17 @@ public class GameWindow extends JFrame {
         return canvas;
     }
 
+    public ScoreUI getScoreUI() {
+        return scoreUI;
+    }
+
     void setCanvas(TetrisCanvas canvas) {
         this.canvas = canvas;
         this.add(canvas);
+    }
+
+    void setScoreUI(ScoreUI scoreUI) {
+        this.scoreUI = scoreUI;
+        this.add(scoreUI);
     }
 }

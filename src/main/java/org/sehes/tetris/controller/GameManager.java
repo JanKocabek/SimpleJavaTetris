@@ -9,6 +9,7 @@ import javax.swing.Timer;
 import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.gui.GameWindow;
 import org.sehes.tetris.gui.GuiFactory;
+import org.sehes.tetris.gui.ScoreUI;
 import org.sehes.tetris.gui.TetrisCanvas;
 import org.sehes.tetris.gui.TetrisDrawingHandler;
 import org.sehes.tetris.model.DirectionFlag;
@@ -32,6 +33,11 @@ public class GameManager {
     private TetrisCanvas tetrisCanvas;
     private GameBoard gameBoard;
     private Timer gameLoopTimer;
+    private ScoreUI scoreUI;
+
+   
+
+
 
     public GameState getGameState() {
         return gameState;
@@ -64,6 +70,7 @@ public class GameManager {
         keyInputHandler = new TetrisKeyInputHandler(this);
         this.gameWindow = GuiFactory.createGUI(this, new TetrisDrawingHandler(), keyInputHandler);
         this.tetrisCanvas = gameWindow.getCanvas();
+        this.scoreUI = gameWindow.getScoreUI();
         showGui();
     }
 
@@ -88,6 +95,7 @@ public class GameManager {
         GameState previous = gameState;
         if(gameBoard.trySetNewTetromino()) {
             gameState = GameState.PLAYING;
+            scoreUI.resetScore();
         } else {
             gameState = GameState.GAME_OVER; // If we can't set a new piece, the game is over
             return;
@@ -154,6 +162,7 @@ public class GameManager {
             if (!gameBoard.tryMovePiece(DirectionFlag.DOWN)) {
                 gameBoard.addBlockToBoard();
                 gameBoard.checkAndClearLines();
+                scoreUI.updateScore(gameBoard.getScore());
                 if (!gameBoard.trySetNewTetromino()) {
                     gameState = GameState.GAME_OVER;
                     gameLoopTimer.stop();
