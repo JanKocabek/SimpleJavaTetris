@@ -28,6 +28,7 @@ public class TetrisCanvas extends JPanel {
         Dimension prefSize = new Dimension(GameParameters.BLOCK_SIZE * GameParameters.COLUMNS, GameParameters.BLOCK_SIZE * GameParameters.VISIBLE_ROWS);
         this.setPreferredSize(prefSize);
         this.setMinimumSize(prefSize);
+        this.setMaximumSize(prefSize);
         this.drawingHandler = drawingHandler;
         this.gameManager = gameManager;
         setBackground(Color.BLACK);
