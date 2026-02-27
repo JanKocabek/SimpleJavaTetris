@@ -231,7 +231,6 @@ public class GameManager {
      * refreshed to reflect the new state. Updates the game state and refreshes
      * the information panel to reflect the new state.
      *
-     * @param newState
      */
     private void updateState(final GameState newState) {
         this.gameState = newState;
