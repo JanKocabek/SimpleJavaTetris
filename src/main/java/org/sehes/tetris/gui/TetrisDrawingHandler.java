@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.util.List;
 
 import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.model.Tetromino;
@@ -12,9 +13,12 @@ import org.sehes.tetris.model.board.BlockContent;
 import org.sehes.tetris.model.board.IBoardView;
 
 /**
- * The TetrisDrawingHandler class is responsible for rendering the game state onto the screen.
- * It provides methods to initialize the graphics context, draw the game grid, and render the current Tetromino piece based on the game board's state.
- *  The drawing handler interacts with the GameManager to retrieve necessary information about the game state and ensures that the visual representation of the game is accurate and up to date.
+ * The TetrisDrawingHandler class is responsible for rendering the game state
+ * onto the screen. It provides methods to initialize the graphics context, draw
+ * the game grid, and render the current Tetromino piece based on the game
+ * board's state. The drawing handler interacts with the GameManager to retrieve
+ * necessary information about the game state and ensures that the visual
+ * representation of the game is accurate and up to date.
  */
 public class TetrisDrawingHandler {
 
@@ -56,14 +60,10 @@ public class TetrisDrawingHandler {
             return;
         }
         g2d.setColor(t.getColor());
-        boolean[][] grid = t.getGrid();
+        List<Point> points = t.getPoints();
         Point position = calculateTetrominoPosition(t);
-        for (int row = 0; row < grid.length; row++) {
-            for (int column = 0; column < grid[row].length; column++) {
-                if (grid[row][column]) {
-                    g2d.fillRect(position.x + column * GameParameters.BLOCK_SIZE, position.y + row * GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE);
-                }
-            }
+        for (Point point : points) {
+            g2d.fillRect(position.x + (point.x * GameParameters.BLOCK_SIZE), position.y + (point.y * GameParameters.BLOCK_SIZE), GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE);
         }
     }
 
