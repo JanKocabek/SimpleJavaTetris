@@ -47,19 +47,23 @@ public class InfoPanel extends JPanel {
 
         void updateInfo(GameManager.GameState gameState) {
             switch (gameState) {
+                case INIT ->
+                    setText("game is loading wait please");
+
                 case PREPARED ->
-                    infoLabel.setText("press enter to start a new game");
+                    setText("press enter to start a new game");
 
                 case PLAYING ->
-                    infoLabel.setText("game is running");
+                    setText("game is running");
 
                 case PAUSED ->
-                    infoLabel.setText("game is paused - press enter to resume");
+                    setText("game is paused - press enter to resume");
 
                 case GAME_OVER ->
-                    infoLabel.setText("nobody can survive forever - press enter to start a new game");
+                    setText("nobody can survive forever - press enter to start a new game");
 
                 default -> {
+                    setText("UNEXPECTED MOMENT send me bug report");
                 }
 
             }
