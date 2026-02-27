@@ -49,13 +49,8 @@ public class GameManager {
                 gameBoard.checkAndClearLines();
                 scoreUI.updateScore(gameBoard.getScore());
                 if (!gameBoard.trySetNewTetromino()) {
-                    gameState = GameState.GAME_OVER;
                     gameLoopTimer.stop();
-                    infoP.updateInfo(gameState);
-                }
-                if (!gameBoard.trySetNewTetromino()) {
-                    gameState = GameState.GAME_OVER;
-                    gameLoopTimer.stop();
+                    updateState(GameState.GAME_OVER);
                 }
             }
             tetrisCanvas.repaintCanvas();
@@ -121,8 +116,7 @@ public class GameManager {
     private void resetGame() {
         gameBoard = new GameBoard();
         scoreUI.resetScore();
-        gameState = GameState.PLAYING;
-        infoP.updateInfo(gameState);
+        updateState(GameState.PLAYING);
         gameBoard.trySetNewTetromino();
         tetrisCanvas.repaintCanvas();
         gameLoopTimer.restart();
@@ -130,8 +124,7 @@ public class GameManager {
 
     private void newGame() {
         gameBoard = new GameBoard();
-        gameState = GameState.PLAYING;
-        infoP.updateInfo(gameState);
+        updateState(GameState.PLAYING);
         gameBoard.trySetNewTetromino();
         tetrisCanvas.repaintCanvas();
         gameLoopTimer.start();
@@ -173,14 +166,14 @@ public class GameManager {
     public void pauseGame() {
         if (gameState == GameState.PLAYING) {
             gameLoopTimer.stop();
-            gameState = GameState.PAUSED;
+            updateState(GameState.PAUSED);
         }
     }
 
     public void resumeGame() {
         if (gameState == GameState.PAUSED) {
             gameLoopTimer.start();
-            gameState = GameState.PLAYING;
+            updateState(GameState.PLAYING);
         }
     }
 
@@ -217,5 +210,18 @@ public class GameManager {
         gameWindow.setResizable(false);
         gameWindow.setVisible(true);
         SwingUtilities.invokeLater(tetrisCanvas::requestFocusInWindow);//request focus for the canvas to receive key events
+    }
+
+    /**
+     * !!!CALL THIS METHOD TO UPDATE THE GAME STATE!!!  NOT the gameState field directly. 
+     * @param gameState new state game is set to.
+     * this method ensures that whenever the game state is updated, the information panel is also refreshed to reflect the new state.
+     * Updates the game state and refreshes the information panel to reflect the new state.
+     * 
+     * @param newState
+     */
+    private void updateState(final GameState newState) {
+        this.gameState = newState;
+        infoP.updateInfo(gameState);
     }
 }
