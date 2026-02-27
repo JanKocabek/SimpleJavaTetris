@@ -101,7 +101,7 @@ public class GameManager {
      * the game is in the INITIALIZE or GAME_OVER state to prevent starting a
      * new game while one is already in progress.
      */
-    public void startGame() {
+    void startGame() {
         switch (gameState) {
             case PREPARED ->
                 newGame();
@@ -235,6 +235,14 @@ public class GameManager {
      */
     private void updateState(final GameState newState) {
         this.gameState = newState;
+        if (infoP == null) {
+            return;
+        }
         infoP.updateInfo(gameState);
     }
+
+    void exitGame() {
+        System.exit(0);
+    }
+
 }
