@@ -51,6 +51,11 @@ public class GameManager {
                 if (!gameBoard.trySetNewTetromino()) {
                     gameState = GameState.GAME_OVER;
                     gameLoopTimer.stop();
+                    infoP.updateInfo(gameState);
+                }
+                if (!gameBoard.trySetNewTetromino()) {
+                    gameState = GameState.GAME_OVER;
+                    gameLoopTimer.stop();
                 }
             }
             tetrisCanvas.repaintCanvas();
