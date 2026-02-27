@@ -68,7 +68,7 @@ public class GameManager {
      * configured to trigger the main game loop at a fixed interval defined by
      * GameParameters.GAME_SPEED. The game window is created on the Event
      * Dispatch Thread (EDT) to ensure thread safety when interacting with Swing
-     * components. The constructor initializes the game state to INITIALIZE and
+     * components. The constructor initializes the game state to INIT and
      * sets up the necessary components for the game, including the canvas and
      * score UI, which will be used in the main game loop to update the display
      * and score as the game progresses.
