@@ -23,7 +23,6 @@ public class InfoPanel extends JPanel {
         setOpaque(true);
         setBackground(Color.green);
         setLayout(new BorderLayout());
-        //setBorder(BorderFactory.createLineBorder(Color.black, 1));
         infoLabel = new InfoLabel();
         add(infoLabel, BorderLayout.CENTER);
     }

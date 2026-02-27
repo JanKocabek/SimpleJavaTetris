@@ -5,13 +5,8 @@ import javax.swing.JPanel;
 
 public class GameWindow extends JFrame {
 
-    //private final FlowLayout layout = new FlowLayout();/if we added manager later
     /**
      * Constructs a new GameWindow. The window is set up with a specified content pane for better organization of components, and it initializes the Tetris canvas and score panel. The window is configured to close the application when the user initiates a close action. This constructor allows for a flexible setup of the game window, enabling the integration of various components while maintaining a clear separation of concerns between the game display and the user interface elements.
-     *
-     * @param width The width of the game window.
-     * @param height The height of the game window.
-     *
      */
     GameWindow(JPanel contentPane) {
         super("Tetris");
