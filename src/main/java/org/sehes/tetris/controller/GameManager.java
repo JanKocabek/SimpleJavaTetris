@@ -28,7 +28,7 @@ public class GameManager {
 
     // Define the possible game states
     public enum GameState {
-        INITIALIZE, PLAYING, PAUSED, GAME_OVER
+        INIT, PREPARED, PLAYING, PAUSED, GAME_OVER
     }
 
     /**
@@ -49,8 +49,7 @@ public class GameManager {
                 gameBoard.checkAndClearLines();
                 scoreUI.updateScore(gameBoard.getScore());
                 if (!gameBoard.trySetNewTetromino()) {
-                    gameLoopTimer.stop();
-                    updateState(GameState.GAME_OVER);
+                    setGameOver();
                 }
             }
             tetrisCanvas.repaintCanvas();
@@ -76,7 +75,7 @@ public class GameManager {
      *
      */
     public GameManager() {
-        this.gameState = GameState.INITIALIZE;
+        this.gameState = GameState.INIT;
         SwingUtilities.invokeLater(() -> {
             final ActionListener gameLoopListener = new MainLoopListener();
             gameLoopTimer = new Timer(GameParameters.GAME_SPEED, gameLoopListener);
@@ -104,12 +103,12 @@ public class GameManager {
      */
     public void startGame() {
         switch (gameState) {
-            case INITIALIZE ->
+            case PREPARED ->
                 newGame();
             case GAME_OVER ->
                 resetGame();
-            default ->
-                throw new AssertionError();
+            default -> {
+            }
         }
     }
 
@@ -117,7 +116,10 @@ public class GameManager {
         gameBoard = new GameBoard();
         scoreUI.resetScore();
         updateState(GameState.PLAYING);
-        gameBoard.trySetNewTetromino();
+        if (!gameBoard.trySetNewTetromino()) {
+            setGameOver();
+            return;
+        }
         tetrisCanvas.repaintCanvas();
         gameLoopTimer.restart();
     }
@@ -125,10 +127,18 @@ public class GameManager {
     private void newGame() {
         gameBoard = new GameBoard();
         updateState(GameState.PLAYING);
-        gameBoard.trySetNewTetromino();
+        if (!gameBoard.trySetNewTetromino()) {
+            setGameOver();
+            return;
+        }
         tetrisCanvas.repaintCanvas();
         gameLoopTimer.start();
 
+    }
+
+    private void setGameOver() {
+        gameLoopTimer.stop();
+        updateState(GameState.GAME_OVER);
     }
 
     /**
@@ -193,7 +203,7 @@ public class GameManager {
         this.tetrisCanvas = gui.canvas();
         this.scoreUI = gui.scoreUI();
         this.infoP = gui.infoP();
-        infoP.updateInfo(gameState);
+        updateState(GameState.PREPARED);
         showGui(gui.window());
     }
 
@@ -213,11 +223,14 @@ public class GameManager {
     }
 
     /**
-     * !!!CALL THIS METHOD TO UPDATE THE GAME STATE!!!  NOT the gameState field directly. 
-     * @param gameState new state game is set to.
-     * this method ensures that whenever the game state is updated, the information panel is also refreshed to reflect the new state.
-     * Updates the game state and refreshes the information panel to reflect the new state.
-     * 
+     * !!!CALL THIS METHOD TO UPDATE THE GAME STATE!!! NOT the gameState field
+     * directly unless its necessary. then document it
+     *
+     * @param gameState new state game is set to. this method ensures that
+     * whenever the game state is updated, the information panel is also
+     * refreshed to reflect the new state. Updates the game state and refreshes
+     * the information panel to reflect the new state.
+     *
      * @param newState
      */
     private void updateState(final GameState newState) {

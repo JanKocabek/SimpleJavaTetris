@@ -47,20 +47,21 @@ public class InfoPanel extends JPanel {
 
         void updateInfo(GameManager.GameState gameState) {
             switch (gameState) {
-                case INITIALIZE -> {
+                case PREPARED ->
                     infoLabel.setText("press enter to start a new game");
-                }
-                case PLAYING -> {
+
+                case PLAYING ->
                     infoLabel.setText("game is running");
-                }
-                case PAUSED -> {
+
+                case PAUSED ->
                     infoLabel.setText("game is paused - press enter to resume");
-                }
-                case GAME_OVER -> {
+
+                case GAME_OVER ->
                     infoLabel.setText("nobody can survive forever - press enter to start a new game");
+
+                default -> {
                 }
-                default ->
-                    throw new AssertionError();
+
             }
         }
     }

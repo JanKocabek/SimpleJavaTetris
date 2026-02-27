@@ -20,7 +20,7 @@ public class TetrisKeyInputHandler extends KeyAdapter {
     public void keyPressed(KeyEvent e) {
 
         switch (gameManager.getGameState()) {
-            case INITIALIZE, GAME_OVER -> {
+            case PREPARED, GAME_OVER -> {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     gameManager.startGame();
                 }
