@@ -20,18 +20,35 @@ public class TetrisKeyInputHandler extends KeyAdapter {
     public void keyPressed(KeyEvent e) {
 
         switch (gameManager.getGameState()) {
-            case INITIALIZE, GAME_OVER -> {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    gameManager.startGame();
-                }
+            case PREPARED, GAME_OVER -> {
+                handleNotRunningGame(e);
             }
             case PLAYING ->
                 handlePlayingStateInput(e);
             case PAUSED -> {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    gameManager.resumeGame();
-                }
+                handlePausedStateInput(e);
             }
+            default -> {
+                // Do nothing for other states
+            }
+        }
+    }
+
+    private void handleNotRunningGame(KeyEvent e) {
+        switch (e.getKeyCode()) {
+            case KeyEvent.VK_ENTER ->
+                gameManager.startGame();
+            case KeyEvent.VK_ESCAPE ->
+                gameManager.exitGame();
+        }
+    }
+
+    private void handlePausedStateInput(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+            gameManager.resumeGame();
+        }
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            gameManager.exitGame();
         }
     }
 
@@ -49,8 +66,8 @@ public class TetrisKeyInputHandler extends KeyAdapter {
                 gameManager.rotatePiece(DirectionFlag.ROTATE_L);
             case KeyEvent.VK_ENTER ->
                 gameManager.pauseGame();
-            /* case KeyEvent.VK_ESCAPE ->
-                    gameManager.exitGame(); */
+            case KeyEvent.VK_ESCAPE ->
+                gameManager.exitGame();
             default -> {
                 // Do nothing for other keys
             }

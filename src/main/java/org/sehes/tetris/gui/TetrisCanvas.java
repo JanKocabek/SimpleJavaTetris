@@ -28,6 +28,7 @@ public class TetrisCanvas extends JPanel {
         Dimension prefSize = new Dimension(GameParameters.BLOCK_SIZE * GameParameters.COLUMNS, GameParameters.BLOCK_SIZE * GameParameters.VISIBLE_ROWS);
         this.setPreferredSize(prefSize);
         this.setMinimumSize(prefSize);
+        this.setMaximumSize(prefSize);
         this.drawingHandler = drawingHandler;
         this.gameManager = gameManager;
         setBackground(Color.BLACK);
@@ -39,12 +40,12 @@ public class TetrisCanvas extends JPanel {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         drawingHandler.initialize(g2d);
-        if (gameManager.getGameState() == GameManager.GameState.INITIALIZE) {
+        if (gameManager.getGameState() == GameManager.GameState.PREPARED) {
             return;
         }
         drawingHandler.drawGrid(g2d);
-        drawingHandler.drawBoardState(g2d, gameManager.getBoard().getBoardView());
-        drawingHandler.drawCurrentTetromino(g2d, gameManager.getBoard().getCurrentTetromino());
+        drawingHandler.drawBoardState(g2d, gameManager.getBoardView());
+        drawingHandler.drawCurrentTetromino(g2d, gameManager.getCurrentTetromino());
     }
 
     public void repaintCanvas() {

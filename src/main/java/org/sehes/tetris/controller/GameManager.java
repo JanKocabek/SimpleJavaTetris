@@ -9,11 +9,14 @@ import javax.swing.Timer;
 import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.gui.GameWindow;
 import org.sehes.tetris.gui.GuiFactory;
+import org.sehes.tetris.gui.InfoPanel;
 import org.sehes.tetris.gui.ScorePanel;
 import org.sehes.tetris.gui.TetrisCanvas;
 import org.sehes.tetris.gui.TetrisDrawingHandler;
 import org.sehes.tetris.model.DirectionFlag;
+import org.sehes.tetris.model.Tetromino;
 import org.sehes.tetris.model.board.GameBoard;
+import org.sehes.tetris.model.board.IBoardView;
 
 /**
  * The GameManager class is responsible for managing the overall game state,
@@ -25,26 +28,56 @@ public class GameManager {
 
     // Define the possible game states
     public enum GameState {
-        INITIALIZE, PLAYING, PAUSED, GAME_OVER
+        INIT, PREPARED, PLAYING, PAUSED, GAME_OVER
     }
 
-    private GameState gameState;
-    private GameWindow gameWindow;
-    private TetrisCanvas tetrisCanvas;
-    private GameBoard gameBoard;
-    private Timer gameLoopTimer;
-    private ScorePanel scoreUI;
-
-
-    
     /**
-     * Starts the Tetris application by initializing the game state, creating game loop timer, and setting up the game window. The game loop timer is configured to trigger the main game loop at a fixed interval defined by GameParameters.GAME_SPEED. The game window is created on the Event Dispatch Thread (EDT) to ensure thread safety when interacting with Swing components. The constructor initializes the game state to INITIALIZE and sets up the necessary components for the game, including the canvas and score UI, which will be used in the main game loop to update the display and score as the game progresses.
+     * The Main game loop listener that is triggered by the game loop timer. It
+     * attempts to move the current piece down. If the piece cannot move down,
+     * it adds the piece to the board, checks for and clears any completed
+     * lines, updates the score, and tries to set a new piece. If a new piece
+     * cannot be set, it means the game is over, so it updates the game state
+     * and stops the game loop timer. After processing the game logic, it
+     * repaints the canvas to reflect any changes in the game state.
+     */
+    private class MainLoopListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            if (!gameBoard.tryMovePiece(DirectionFlag.DOWN)) {
+                gameBoard.addBlockToBoard();
+                gameBoard.checkAndClearLines();
+                scoreUI.updateScore(gameBoard.getScore());
+                if (!gameBoard.trySetNewTetromino()) {
+                    setGameOver();
+                }
+            }
+            tetrisCanvas.repaintCanvas();
+        }
+    }
+    private GameState gameState;// Current state of the game
+    private TetrisCanvas tetrisCanvas; // Reference to the canvas for repainting
+    private GameBoard gameBoard; // reference to the game board for managing game logic
+    private Timer gameLoopTimer; // Timer for the main game loop to control the game speed
+    private ScorePanel scoreUI;// Reference to the score UI for updating the score display
+    private InfoPanel infoP;// Reference to the info panel for updating game state messages
+
+    /**
+     * Starts the Tetris application by initializing the game state, creating
+     * game loop timer, and setting up the game window. The game loop timer is
+     * configured to trigger the main game loop at a fixed interval defined by
+     * GameParameters.GAME_SPEED. The game window is created on the Event
+     * Dispatch Thread (EDT) to ensure thread safety when interacting with Swing
+     * components. The constructor initializes the game state to INIT and
+     * sets up the necessary components for the game, including the canvas and
+     * score UI, which will be used in the main game loop to update the display
+     * and score as the game progresses.
      *
      */
     public GameManager() {
-        this.gameState = GameState.INITIALIZE;
+        this.gameState = GameState.INIT;
         SwingUtilities.invokeLater(() -> {
-            ActionListener gameLoopListener = new MainLoopListener();
+            final ActionListener gameLoopListener = new MainLoopListener();
             gameLoopTimer = new Timer(GameParameters.GAME_SPEED, gameLoopListener);
             initializeGameWindow();
         });
@@ -54,34 +87,12 @@ public class GameManager {
         return gameState;
     }
 
-    public TetrisCanvas getCanvas() {
-        return tetrisCanvas;
+    public IBoardView getBoardView() {
+        return gameBoard.getBoardView();
     }
 
-    public GameBoard getBoard() {
-        return gameBoard;
-    }
-
-    /**
-     * Initializes the game window by creating an instance of GameWindow using the GuiFactory, setting up the TetrisCanvas and ScoreUI, and displaying the GUI. The method also sets up a key input handler to manage user interactions with the game. This method is called on the Event Dispatch Thread (EDT) to ensure that all Swing components are created and manipulated in a thread-safe manner. After initializing the game window, it calls showGui() to make the window visible and request focus for the canvas to receive key events.
-     */
-    private void initializeGameWindow() {
-        TetrisKeyInputHandler keyInputHandler;
-        keyInputHandler = new TetrisKeyInputHandler(this);
-        this.gameWindow = GuiFactory.createGUI(this, new TetrisDrawingHandler(), keyInputHandler);
-        this.tetrisCanvas = gameWindow.getCanvas();
-        this.scoreUI = gameWindow.getScoreUI();
-        showGui();
-    }
-
-    /**
-     * Displays the game window by packing the components, setting the window to be non-resizable, and making it visible. It also requests focus for the TetrisCanvas to ensure that it can receive key events for user input. This method is called after the game window has been initialized to show the GUI to the player and allow them to interact with the game using the keyboard.
-     */
-    private void showGui() {
-        gameWindow.pack();
-        gameWindow.setResizable(false);
-        gameWindow.setVisible(true);
-        SwingUtilities.invokeLater(tetrisCanvas::requestFocusInWindow);//request focus for the canvas to receive key events
+    public Tetromino getCurrentTetromino() {
+        return gameBoard.getCurrentTetromino();
     }
 
     /**
@@ -90,25 +101,35 @@ public class GameManager {
      * the game is in the INITIALIZE or GAME_OVER state to prevent starting a
      * new game while one is already in progress.
      */
-    public void startGame() {
-        if (gameState != GameState.INITIALIZE && gameState != GameState.GAME_OVER) {
-            return; // Prevent starting a new game if one is already in progress
+    void startGame() {
+        switch (gameState) {
+            case PREPARED -> {
+                newGame();
+                gameLoopTimer.start();
+            }
+            case GAME_OVER -> {
+                scoreUI.resetScore();
+                newGame();
+                gameLoopTimer.restart();
+            }
+            default -> {
+            }
         }
-        gameBoard = new GameBoard(); // Reset the game board for a new game
-        GameState previous = gameState;
-        if (gameBoard.trySetNewTetromino()) {
-            gameState = GameState.PLAYING;
-            scoreUI.resetScore();
-        } else {
-            gameState = GameState.GAME_OVER; // If we can't set a new piece, the game is over
+    }
+
+    private void newGame() {
+        gameBoard = new GameBoard();
+        updateState(GameState.PLAYING);
+        if (!gameBoard.trySetNewTetromino()) {
+            setGameOver();
             return;
         }
-        if (previous == GameState.INITIALIZE) {
-            gameLoopTimer.start();
-        } else {
-            gameLoopTimer.restart();
-        }
         tetrisCanvas.repaintCanvas();
+    }
+
+    private void setGameOver() {
+        gameLoopTimer.stop();
+        updateState(GameState.GAME_OVER);
     }
 
     /**
@@ -118,7 +139,7 @@ public class GameManager {
      * @param direction The direction to move the piece (e.g., LEFT, RIGHT,
      * DOWN).
      */
-    public void movePiece(DirectionFlag direction) {
+    public void movePiece(final DirectionFlag direction) {
         if (gameState != GameState.PLAYING) {
             return;
         }
@@ -134,7 +155,7 @@ public class GameManager {
      *
      * @param direction The direction to rotate the piece (CLOCKWISE, COUN
      */
-    public void rotatePiece(DirectionFlag direction) {
+    public void rotatePiece(final DirectionFlag direction) {
         if (gameState != GameState.PLAYING) {
             return;
         }
@@ -146,34 +167,73 @@ public class GameManager {
     public void pauseGame() {
         if (gameState == GameState.PLAYING) {
             gameLoopTimer.stop();
-            gameState = GameState.PAUSED;
+            updateState(GameState.PAUSED);
         }
     }
 
     public void resumeGame() {
         if (gameState == GameState.PAUSED) {
             gameLoopTimer.start();
-            gameState = GameState.PLAYING;
+            updateState(GameState.PLAYING);
         }
     }
 
     /**
-     * The Main game loop listener that is triggered by the game loop timer. It attempts to move the current piece down. If the piece cannot move down, it adds the piece to the board, checks for and clears any completed lines, updates the score, and tries to set a new piece. If a new piece cannot be set, it means the game is over, so it updates the game state and stops the game loop timer. After processing the game logic, it repaints the canvas to reflect any changes in the game state.
+     * Initializes the game window by creating an instance of GameWindow using
+     * the GuiFactory, setting up the TetrisCanvas and ScoreUI, and displaying
+     * the GUI. The method also sets up a key input handler to manage user
+     * interactions with the game. This method is called on the Event Dispatch
+     * Thread (EDT) to ensure that all Swing components are created and
+     * manipulated in a thread-safe manner. After initializing the game window,
+     * it calls showGui() to make the window visible and request focus for the
+     * canvas to receive key events.
      */
-    private class MainLoopListener implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (!gameBoard.tryMovePiece(DirectionFlag.DOWN)) {
-                gameBoard.addBlockToBoard();
-                gameBoard.checkAndClearLines();
-                scoreUI.updateScore(gameBoard.getScore());
-                if (!gameBoard.trySetNewTetromino()) {
-                    gameState = GameState.GAME_OVER;
-                    gameLoopTimer.stop();
-                }
-            }
-            tetrisCanvas.repaintCanvas();
-        }
+    private void initializeGameWindow() {
+        final TetrisKeyInputHandler keyInputHandler = new TetrisKeyInputHandler(this);
+        final GuiFactory.GuiComponents gui = GuiFactory.createGUI(this, new TetrisDrawingHandler(), keyInputHandler);
+        this.tetrisCanvas = gui.canvas();
+        this.scoreUI = gui.scoreUI();
+        this.infoP = gui.infoP();
+        updateState(GameState.PREPARED);
+        showGui(gui.window());
     }
+
+    /**
+     * Displays the game window by packing the components, setting the window to
+     * be non-resizable, and making it visible. It also requests focus for the
+     * TetrisCanvas to ensure that it can receive key events for user input.
+     * This method is called after the game window has been initialized to show
+     * the GUI to the player and allow them to interact with the game using the
+     * keyboard.
+     */
+    private void showGui(final GameWindow gameWindow) {
+        gameWindow.pack();
+        gameWindow.setResizable(false);
+        gameWindow.setVisible(true);
+        SwingUtilities.invokeLater(tetrisCanvas::requestFocusInWindow);//request focus for the canvas to receive key events
+    }
+
+    /**
+     * !!!except before UI is inicialization CALL THIS METHOD TO UPDATE THE GAME
+     * STATE!!! NOT the gameState field directly unless its necessary. then
+     * document it please
+     *
+     * @param gameState new state game is set to. this method ensures that
+     * whenever the game state is updated, the information panel is also
+     * refreshed to reflect the new state. Updates the game state and refreshes
+     * the information panel to reflect the new state.
+     *
+     */
+    private void updateState(final GameState newState) {
+        this.gameState = newState;
+        if (infoP == null) {
+            return;
+        }
+        infoP.updateInfo(gameState);
+    }
+
+    void exitGame() {
+        System.exit(0);
+    }
+
 }
