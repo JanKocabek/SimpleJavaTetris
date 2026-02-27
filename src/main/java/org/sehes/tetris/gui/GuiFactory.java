@@ -3,6 +3,7 @@ package org.sehes.tetris.gui;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 import org.sehes.tetris.controller.GameManager;
 import org.sehes.tetris.controller.TetrisKeyInputHandler;
@@ -19,50 +20,79 @@ public class GuiFactory {
      * @param gameManager The GameManager responsible for managing the game
      * logic and state. comunicating with the canvas to update the game state
      * based on user input and game events.
-     * @param drawingHandler The TetrisDrawingHandler responsible for rendering the game graphics on the canvas. It interacts with the GameManager to retrieve the current game state and draw the appropriate visuals based on that state.
-     * @param keyInputHandler The TetrisKeyInputHandler responsible for handling keyboard input from the user. It listens for key events and communicates with the GameManager to update the game state accordingly, such as moving or rotating the Tetris pieces based on user input.
-     * @return A GameWindow object that contains the assembled GUI components for the Tetris game, including the game canvas and score panel.
+     * @param drawingHandler The TetrisDrawingHandler responsible for rendering
+     * the game graphics on the canvas. It interacts with the GameManager to
+     * retrieve the current game state and draw the appropriate visuals based on
+     * that state.
+     * @param keyInputHandler The TetrisKeyInputHandler responsible for handling
+     * keyboard input from the user. It listens for key events and communicates
+     * with the GameManager to update the game state accordingly, such as moving
+     * or rotating the Tetris pieces based on user input.
+     * @return A guiComponents record that contains the assembled GUI components
+     * for the Tetris game, including the game canvas and score panel.
      */
-    public static GameWindow createGUI(final GameManager gameManager, final TetrisDrawingHandler drawingHandler, final TetrisKeyInputHandler keyInputHandler) {
+    public static GuiComponents createGUI(final GameManager gameManager, final TetrisDrawingHandler drawingHandler, final TetrisKeyInputHandler keyInputHandler) {
         final TetrisCanvas canvas = assemblyCanvas(drawingHandler, keyInputHandler, gameManager);
         final ScorePanel scoreUI = assemblyScoreUI();
         final GameContainer gameContainer = assemblyGameContainer(canvas);
-        final MainPane mainPane = assemblyMainPane(gameContainer, scoreUI);
-        return new GameWindow(mainPane, canvas, scoreUI);
+        final InfoPanel infoP = new InfoPanel();
+        final MainPane mainPane = assemblyMainPane(gameContainer, scoreUI, infoP);
+        return new GuiComponents(canvas, scoreUI, infoP, new GameWindow(mainPane));
     }
 
-    private static MainPane assemblyMainPane(final GameContainer container, ScorePanel scoreP) {
+    public record GuiComponents(TetrisCanvas canvas, ScorePanel scoreUI, InfoPanel infoP, GameWindow window) {
+
+    }
+
+    private static MainPane assemblyMainPane(final GameContainer container, ScorePanel scoreP, InfoPanel infoP) {
         final MainPane pane = new MainPane(new GridBagLayout());
 
         GridBagConstraints gbcContain = new GridBagConstraints();
         gbcContain.gridx = 0;
         gbcContain.gridy = 0;
-        gbcContain.weightx = 1.0;
-        gbcContain.weighty = 1.0;
+        gbcContain.weightx = 0.75;
+        gbcContain.weighty = 0.0;
+        gbcContain.gridwidth = 1;
+        gbcContain.anchor = GridBagConstraints.CENTER;
         gbcContain.fill = GridBagConstraints.BOTH;
         // These insets replace the EmptyBorder from GameContainer.
         // top=10, left=20, bottom=10, right=5
-        gbcContain.insets = new java.awt.Insets(10, 20, 10, 5);
+        gbcContain.insets = new Insets(12, 10, 10, 0);
         pane.add(container, gbcContain);
 
         GridBagConstraints gbcScore = new GridBagConstraints();
-        gbcScore.gridx = 1;
+        gbcScore.gridx = 1;//second column for score panel
         gbcScore.gridy = 0;
+        gbcScore.weightx = 0.25;
+        gbcScore.weighty = 0.0;
+        gbcScore.gridwidth = 1;
         gbcScore.anchor = GridBagConstraints.NORTHWEST;
-        gbcScore.fill = GridBagConstraints.HORIZONTAL;
+        gbcScore.fill = GridBagConstraints.NONE;
         // Insets provide padding. A 5px left inset here + 5px right inset on the
         // container creates a 10px gap between components.
-        int top = 10; // top padding to align with the container's top border
+        int top = 0; // top padding to align with the container's top border
         int left = 5; // left padding to create space between the container and score panel
         int bottom = 10; // bottom padding to align with the container's bottom border
         int right = 10; // right padding to provide space on the right side of the score panel
-        gbcScore.insets = new java.awt.Insets(top, left, bottom, right);
+        gbcScore.insets = new Insets(top, left, bottom, right);
         pane.add(scoreP, gbcScore);
+
+        GridBagConstraints gbcInfo = new GridBagConstraints();
+        gbcInfo.gridx = 0;
+        gbcInfo.gridy = 1;//second row for info panel
+        gbcInfo.weightx = 1.0;
+        gbcInfo.weighty = 0.0;
+        gbcInfo.gridwidth = 2;
+        gbcInfo.gridheight = 1;
+        gbcInfo.insets = new Insets(0, 0, 0, 0);
+        gbcInfo.anchor = GridBagConstraints.SOUTHWEST;
+        gbcInfo.fill = GridBagConstraints.HORIZONTAL;
+        pane.add(infoP, gbcInfo);
         return pane;
     }
 
     private static GameContainer assemblyGameContainer(TetrisCanvas canvas) {
-        final GameContainer container = new GameContainer();
+        final GameContainer container = new GameContainer(new BorderLayout());
         container.add(canvas, BorderLayout.CENTER);
         return container;
     }
@@ -91,5 +121,6 @@ public class GuiFactory {
         return new ScorePanel();
     }
 
-    private GuiFactory() {}
+    private GuiFactory() {
+    }
 }

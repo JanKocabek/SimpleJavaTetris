@@ -9,6 +9,7 @@ import javax.swing.Timer;
 import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.gui.GameWindow;
 import org.sehes.tetris.gui.GuiFactory;
+import org.sehes.tetris.gui.InfoPanel;
 import org.sehes.tetris.gui.ScorePanel;
 import org.sehes.tetris.gui.TetrisCanvas;
 import org.sehes.tetris.gui.TetrisDrawingHandler;
@@ -60,6 +61,7 @@ public class GameManager {
     private GameBoard gameBoard; // reference to the game board for managing game logic
     private Timer gameLoopTimer; // Timer for the main game loop to control the game speed
     private ScorePanel scoreUI;// Reference to the score UI for updating the score display
+    private InfoPanel infoP;// Reference to the info panel for updating game state messages
 
     /**
      * Starts the Tetris application by initializing the game state, creating
@@ -101,24 +103,34 @@ public class GameManager {
      * new game while one is already in progress.
      */
     public void startGame() {
-        if (gameState != GameState.INITIALIZE && gameState != GameState.GAME_OVER) {
-            return; // Prevent starting a new game if one is already in progress
+        switch (gameState) {
+            case INITIALIZE ->
+                newGame();
+            case GAME_OVER ->
+                resetGame();
+            default ->
+                throw new AssertionError();
         }
-        gameBoard = new GameBoard(); // Reset the game board for a new game
-        final GameState previous = gameState;
-        if (gameBoard.trySetNewTetromino()) {
-            gameState = GameState.PLAYING;
-            scoreUI.resetScore();
-        } else {
-            gameState = GameState.GAME_OVER; // If we can't set a new piece, the game is over
-            return;
-        }
-        if (previous == GameState.INITIALIZE) {
-            gameLoopTimer.start();
-        } else {
-            gameLoopTimer.restart();
-        }
+    }
+
+    private void resetGame() {
+        gameBoard = new GameBoard();
+        scoreUI.resetScore();
+        gameState = GameState.PLAYING;
+        infoP.updateInfo(gameState);
+        gameBoard.trySetNewTetromino();
         tetrisCanvas.repaintCanvas();
+        gameLoopTimer.restart();
+    }
+
+    private void newGame() {
+        gameBoard = new GameBoard();
+        gameState = GameState.PLAYING;
+        infoP.updateInfo(gameState);
+        gameBoard.trySetNewTetromino();
+        tetrisCanvas.repaintCanvas();
+        gameLoopTimer.start();
+
     }
 
     /**
@@ -179,10 +191,12 @@ public class GameManager {
      */
     private void initializeGameWindow() {
         final TetrisKeyInputHandler keyInputHandler = new TetrisKeyInputHandler(this);
-        final GameWindow gameWindow = GuiFactory.createGUI(this, new TetrisDrawingHandler(), keyInputHandler);
-        this.tetrisCanvas = gameWindow.getCanvas();
-        this.scoreUI = gameWindow.getScoreUI();
-        showGui(gameWindow);
+        final GuiFactory.GuiComponents gui = GuiFactory.createGUI(this, new TetrisDrawingHandler(), keyInputHandler);
+        this.tetrisCanvas = gui.canvas();
+        this.scoreUI = gui.scoreUI();
+        this.infoP = gui.infoP();
+        infoP.updateInfo(gameState);
+        showGui(gui.window());
     }
 
     /**
