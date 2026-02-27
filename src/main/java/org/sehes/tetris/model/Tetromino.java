@@ -2,11 +2,11 @@ package org.sehes.tetris.model;
 
 import java.awt.Color;
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
-
-import org.sehes.tetris.model.util.MatrixTransformations;
 
 /**
  * The Tetromino class represents the individual Tetris pieces in the game. Each
@@ -23,7 +23,7 @@ public class Tetromino {
     private static final Random random = new Random();
     private final Color color;
     private final Point position;//X column, Y row
-    private boolean[][] grid;
+    private List<Point> cord;
 
     public static Tetromino tetrominoFactory(Point position) {
         TETROMINO_TYPE[] values = TETROMINO_TYPE.values();
@@ -33,7 +33,7 @@ public class Tetromino {
 
     private Tetromino(TETROMINO_TYPE type, Point spawnPosition) {
         color = type.color;
-        grid = type.grid;
+        cord = type.points;
         this.position = new Point(spawnPosition); // Create a new Point to avoid external modification
     }
 
@@ -41,29 +41,21 @@ public class Tetromino {
         return color;
     }
 
-    public boolean[][] getGrid() {
-        return grid;
+    public List<Point> getPoints() {
+        return cord;
     }
 
     /**
-     * Returns the current position of the tetromino as an immutable Point object.
-     * The X is the column coordinate, and the second is the Y row coordinate.
-     *  @see Point
-     * @return   A new Point object representing the current position of the tetromino.
+     * Returns the current position of the tetromino as an immutable Point
+     * object. The X is the column coordinate, and the second is the Y row
+     * coordinate.
+     *
+     * @see Point
+     * @return A new Point object representing the current position of the
+     * tetromino.
      */
     public Point getPosition() {
-    return new Point(position);
-    }
-
-    /**
-     * Sets the grid of the tetromino to a new 2D boolean array. This method is
-     * used to update the tetromino's grid after rotation or other
-     * transformations.
-     *
-     * @param grid The new grid representation of the tetromino.
-     */
-    public void setGrid(boolean[][] grid) {
-        this.grid = grid;
+        return new Point(position);
     }
 
     public void move(DirectionFlag flag) {
@@ -85,78 +77,98 @@ public class Tetromino {
      * @param flag Direction of rotation (ROTATE_R or ROTATE_L)
      * @return The rotated grid
      */
-    public boolean[][] rotate(DirectionFlag flag) {
-        boolean[][] newGrid = MatrixTransformations.transposeMatrix(grid);
+    public List<Point> rotate(DirectionFlag flag) {
+        List<Point> newPoints = new ArrayList<>(cord);
         if (flag == DirectionFlag.ROTATE_R) {
-            MatrixTransformations.swapColumns(newGrid);
+            for (Point point : newPoints) {
+                int tmp = point.x;
+                point.x = point.y;
+                point.y = -tmp;
+            }
         } else if (flag == DirectionFlag.ROTATE_L) {
-            MatrixTransformations.swapRows(newGrid);
+            for (Point point : newPoints) {
+                int tmp = point.x;
+                point.x = -point.y;
+                point.y = tmp;
+            }
         }
-        return newGrid;
+        return newPoints;
     }
 
-    /*
-        *DISCLAMER: The Tetromino is define as N*N grid, where N is the largest dimension of the piece (e.g., 4 for I, 3 for T, etc.). This allows for a consistent rotation logic across all pieces.
-        * Enum representing the 7 standard Tetris tetromino types, each with its own shape, color, and int value for easy retrieval.
-        * Each type defines a 2D boolean grid where 'true' represents a block and
-        * 'false' represents empty space.
-        * The color field assigns a specific color to each tetromino type for rendering purposes.
-        * The intValue is a unique identifier for each tetromino type, used for easy retrieval from the map.
-        * The static block initializes a map that allows for quick lookup of tetromino types based on their integer value, facilitating the random generation of pieces in the factory method.
-        * @param grid The shape of the tetromino represented as a 2D boolean array.
-        * @param color The color associated with the tetromino type.
-        * @param intValue A unique identifier for the tetromino type.
+    public void setTetromino(List<Point> points) {
+        this.cord = points;
+    }
+
+    /**
+     * The Tetromino is define as List of points represent the tetromino shape,
+     * color and int value The color field assigns a specific color to each
+     * tetromino type for rendering purposes. The intValue is a unique
+     * identifier for each tetromino type, used for easy retrieval from the map.
+     * The static block initializes a map that allows for quick lookup of
+     * tetromino types based on their integer value, facilitating the random
+     * generation of pieces in the factory method.
+     * <p>
+     * x is column, y is row
+     *
      */
     enum TETROMINO_TYPE {
 
-        I(new boolean[][]{
-            {false, false, false, false},
-            {true, true, true, true},
-            {false, false, false, false},
-            {false, false, false, false}
-        },
-                Color.CYAN, 0),
-        J(new boolean[][]{
-            {true, false, false},
-            {true, true, true},
-            {false, false, false}
-        },
-                Color.BLUE, 1),
-        L(new boolean[][]{
-            {false, false, true},
-            {true, true, true},
-            {false, false, false}
-        },
-                Color.ORANGE, 2),
-        O(new boolean[][]{
-            {true, true},
-            {true, true}
-        },
-                Color.YELLOW, 3),
-        S(new boolean[][]{
-            {false, true, true},
-            {true, true, false},
-            {false, false, false}
-        },
-                Color.GREEN, 4),
-        T(new boolean[][]{
-            {false, true, false},
-            {true, true, true},
-            {false, false, false}
-        }, Color.MAGENTA, 5),
-        Z(new boolean[][]{
-            {true, true, false},
-            {false, true, true},
-            {false, false, false}
-        }, Color.RED, 6);
+        I(List.of(new Point(0, 0),
+                new Point(1, 0),
+                new Point(-1, 0),
+                new Point(2, 0)),
+                Color.CYAN,
+                0),
+        J(List.of(new Point(-1, 1),
+                new Point(-1, 0),
+                new Point(0, 0),
+                new Point(1, 0)),
+                Color.BLUE,
+                1),
+        L(List.of(new Point(-1, 0),
+                new Point(0, 0),
+                new Point(1, 0),
+                new Point(1, 1)),
+                Color.ORANGE,
+                2),
+        O(List.of(new Point(1, 1),
+                new Point(1, 0),
+                new Point(0, 0),
+                new Point(0, 1)),
+                Color.YELLOW,
+                3),
+        S(List.of(new Point(1, 1),
+                new Point(0, 1),
+                new Point(0, 0),
+                new Point(-1, 0)),
+                Color.GREEN,
+                4),
+        T(List.of(new Point(0, -1),
+                new Point(0, 0),
+                new Point(1, 0),
+                new Point(-1, 0)),
+                Color.MAGENTA,
+                5),
+        Z(List.of(
+                new Point(-1, 1),
+                new Point(0, 1),
+                new Point(0, 0),
+                new Point(1, 0)),
+                Color.RED,
+                6);
 
+        private final List<Point> points;
         private final Color color;
-        private final boolean[][] grid;
         private final int intValue;
 
-        TETROMINO_TYPE(boolean[][] grid, Color color, int intValue) {
+        /*
+        points are 
+         */
+        TETROMINO_TYPE(List<Point> points, Color color,
+                       int intValue
+        ) {
             this.color = color;
-            this.grid = grid;
+            this.points = points;
             this.intValue = intValue;
         }
 

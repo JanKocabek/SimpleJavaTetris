@@ -2,6 +2,7 @@ package org.sehes.tetris.model.board;
 
 import java.awt.Point;
 import java.util.Arrays;
+import java.util.List;
 
 import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.model.DirectionFlag;
@@ -70,8 +71,14 @@ public class GameBoard {
      * This method returns the IBoardView instance that provides a <b> read-only
      * view of the game board.</b> <br>
      * Dont use for the changes of the Board state or its components!!!<br>
-     * The IBoardView interface allows other components of the game, such as the GUI, to access the state of the board without being able to modify it directly. This encapsulation ensures that all changes to the board state are controlled through the GameBoard class, maintaining the integrity of the game logic.
-     * @return the IBoardView instance representing the current state of the game board.
+     * The IBoardView interface allows other components of the game, such as the
+     * GUI, to access the state of the board without being able to modify it
+     * directly. This encapsulation ensures that all changes to the board state
+     * are controlled through the GameBoard class, maintaining the integrity of
+     * the game logic.
+     *
+     * @return the IBoardView instance representing the current state of the
+     * game board.
      */
     public IBoardView getBoardView() {
         return boardView;
@@ -79,10 +86,10 @@ public class GameBoard {
 
     public boolean trySetNewTetromino() {
         final Tetromino newTetromino = Tetromino.tetrominoFactory(startingPosition);
-        if (!checkBoundaries(newTetromino.getGrid(), startingPosition)) {
+        if (isOutOfBoundaries(newTetromino.getPoints(), startingPosition)) {
             return false;
         }
-        if (isCollisionDetected(newTetromino.getGrid(), newTetromino.getPosition())) {
+        if (isCollisionDetected(newTetromino.getPoints(), newTetromino.getPosition())) {
             return false;
         }
         this.currentTetromino = newTetromino;
@@ -93,7 +100,7 @@ public class GameBoard {
         if (this.currentTetromino == null) {
             return false;
         }
-        if (canMove(currentTetromino.getGrid(), currentTetromino.getPosition(), flag)) {
+        if (canMove(currentTetromino.getPoints(), currentTetromino.getPosition(), flag)) {
             currentTetromino.move(flag);
             return true;
         }
@@ -119,11 +126,11 @@ public class GameBoard {
         if (this.currentTetromino == null) {
             return false;
         }
-        final boolean[][] nextGrid = currentTetromino.rotate(flag);
-        if (!canRotate(nextGrid)) {
+        final List<Point> points = currentTetromino.rotate(flag);
+        if (!canRotate(points)) {
             return false;
         }
-        currentTetromino.setGrid(nextGrid);
+        currentTetromino.setTetromino(points);
         return true;
     }
 
@@ -143,12 +150,9 @@ public class GameBoard {
             throw new IllegalStateException("No current tetromino to add to the board.");
         }
         final Point position = currentTetromino.getPosition();
-        for (int row = 0; row < currentTetromino.getGrid().length; row++) {
-            for (int column = 0; column < currentTetromino.getGrid()[row].length; column++) {
-                if (currentTetromino.getGrid()[row][column]) {
-                    this.board[position.y + row][position.x + column] = BlockContent.fromColor(currentTetromino.getColor());
-                }
-            }
+        final List<Point> tetromino = currentTetromino.getPoints();
+        for (Point block : tetromino) {
+            this.board[position.y + block.y][position.x + block.x] = BlockContent.fromColor(currentTetromino.getColor());
         }
     }
 
@@ -182,12 +186,9 @@ public class GameBoard {
     }
 
     /**
-     * Updates the score based on the number of lines cleared.
-     * The scoring system is as follows:
-     * - 1 line cleared: 100 points
-     * - 2 lines cleared: 300 points
-     * - 3 lines cleared: 500 points
-     * - 4 lines cleared: 800 points
+     * Updates the score based on the number of lines cleared. The scoring
+     * system is as follows: - 1 line cleared: 100 points - 2 lines cleared: 300
+     * points - 3 lines cleared: 500 points - 4 lines cleared: 800 points
      */
     private void updateScore(int linesCleared) {
         switch (linesCleared) {
@@ -223,22 +224,22 @@ public class GameBoard {
      * compare if a new position of tetromino grid isn't occupied, both are
      * represented as 2D boolean array tetromino position [column][row]
      *
-     * @param tetrominoGrid the grid of the tetromino after moving
+     * @param points List of cordinates represented current tetromino
      * @param position the position of the tetromino before moving
      * @param flag which direction are the tetromino supposed to move determines
      * the new position of the tetromino after moving
      * @return true if collision not happened and the position is in the
      * gameBoard boundaries
      */
-    private boolean canMove(final boolean[][] tetrominoGrid, final Point position, final DirectionFlag flag) {
-        if (tetrominoGrid == null || flag == null) {
+    private boolean canMove(final List<Point> points, final Point position, final DirectionFlag flag) {
+        if (points == null || flag == null) {
             return false;
         }
         final Point newPosition = new Point(position.x + flag.getX(), position.y + flag.getY());
-        if (!checkBoundaries(tetrominoGrid, newPosition)) {
+        if (isOutOfBoundaries(points, newPosition)) {
             return false;
         }
-        return !isCollisionDetected(tetrominoGrid, newPosition);
+        return !isCollisionDetected(points, newPosition);
     }
 
     /**
@@ -253,21 +254,17 @@ public class GameBoard {
      * rotation is valid and can be performed without overlapping another piece
      * on the board
      *
-     * @param tetrominoGrid the grid of the tetromino after moving or rotating,
-     * represented as a 2D boolean array where true indicates the presence of a
-     * block in that position
+     * @param points the tetromino represented as List of Points{x,y}
      * @param newPosition the new position of the tetromino after moving or
      * rotating, represented as a Point object with x and y coordinates
      * corresponding to the column and row on the game board, respectively
      * @return
      */
-    private boolean isCollisionDetected(final boolean[][] tetrominoGrid, final Point newPosition) {
-        for (int gridR = 0; gridR < tetrominoGrid.length; gridR++) {
-            for (int gridC = 0; gridC < tetrominoGrid[gridR].length; gridC++) {
-                if ((tetrominoGrid[gridR][gridC])
-                        && (this.board[newPosition.y + gridR][newPosition.x + gridC] != BlockContent.EMPTY)) {
-                    return true;
-                }
+    private boolean isCollisionDetected(final List<Point> points, final Point newPosition) {
+
+        for (final Point point : points) {
+            if (this.board[newPosition.y + point.y][newPosition.x + point.x] != BlockContent.EMPTY) {
+                return true;
             }
         }
         return false;
@@ -277,45 +274,41 @@ public class GameBoard {
      * this method check if the position after rotating a piece is in the
      * gameBoardBoundaries and not occupied by another piece
      *
-     * @param tetrominoGrid the grid of the tetromino after rotation
+     * @param points the list of cordination represent the tetromino after
+     * rotation
      * @return true if collision not happened and the position is in the
      * gameBoard boundaries
      */
-    private boolean canRotate(final boolean[][] tetrominoGrid) {
-        if (tetrominoGrid == null || currentTetromino == null) {
+    private boolean canRotate(final List<Point> points) {
+        if (points == null || currentTetromino == null) {
             return false;
         }
         final Point position = currentTetromino.getPosition();
-        if (!checkBoundaries(tetrominoGrid, position)) {
+        if (isOutOfBoundaries(points, position)) {
             return false;
         }
-        return !isCollisionDetected(tetrominoGrid, position);
+        return !isCollisionDetected(points, position);
     }
 
     /**
      * this method check if the position after moving a piece is in the
      * gameBoardBoundaries.
      *
-     * @param tetrominoGrid the final grid of the tetromino after
-     * moving/rotating
+     * @param points the final grid of the tetromino after moving/rotating
      * @param position the destined position of the tetromino after moving /
      * rotating(doesn't change it)
-     * @return true if the final position is in the gameBoard boundaries
+     * @return true if the final position is out of boundaries
      */
-    private boolean checkBoundaries(final boolean[][] tetrominoGrid, final Point position) {
-
-        for (int gridR = 0; gridR < tetrominoGrid.length; gridR++) {
-            for (int gridC = 0; gridC < tetrominoGrid[gridR].length; gridC++) {
-                if ((tetrominoGrid[gridR][gridC])
-                        && (position.x + gridC < 0
-                        || position.x + gridC >= board[0].length
-                        || position.y + gridR >= board.length
-                        || position.y + gridR < 0)) {
-                    return false;
-                }
+    private boolean isOutOfBoundaries(final List<Point> points, final Point position) {
+        for (final Point point : points) {
+            if (point.x + position.x < 0
+                    || point.y + position.y < 0
+                    || point.x + position.x >= board[0].length
+                    || point.y + position.y >= board.length) {
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     private void shiftLinesDown(final int currentRow) {

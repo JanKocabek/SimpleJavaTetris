@@ -1,8 +1,8 @@
 package org.sehes.tetris.model.util;
 
+import org.junit.jupiter.api.Assertions;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import org.junit.jupiter.api.Test;
-
 
 class MatrixTest {
 
@@ -10,22 +10,22 @@ class MatrixTest {
     public void testTranspose() {
         // Input matrix
         boolean[][] input = {
-                {true, false, true},
-                {false, true, false}
+            {true, false, true},
+            {false, true, false}
         };
 
         // Expected transposed matrix
         boolean[][] expected = {
-                {true, false},
-                {false, true},
-                {true, false}
+            {true, false},
+            {false, true},
+            {true, false}
         };
 
         // Call the transpose method
         boolean[][] result = MatrixTransformations.transposeMatrix(input);
 
         // Assert the transposed matrix is as expected
-        assertArrayEquals(expected, result);
+        Assertions.assertArrayEquals(expected, result);
     }
 
     @Test
@@ -46,14 +46,14 @@ class MatrixTest {
     @Test
     public void testSwapColumns() {
         boolean[][] input = {
-                {true, false},
-                {false, true},
-                {false, true}
+            {true, false},
+            {false, true},
+            {false, true}
         };
         boolean[][] expected = {
-                {false, true},
-                {true, false},
-                {true, false}
+            {false, true},
+            {true, false},
+            {true, false}
         };
         MatrixTransformations.swapColumns(input);
         assertArrayEquals(expected, input);
@@ -73,10 +73,10 @@ class MatrixTest {
     @Test
     public void testSwapColumnsSingleRowMatrix() {
         boolean[][] input = {
-                {true, true, false}
+            {true, true, false}
         };
         boolean[][] expected = {
-                {false, true, true}
+            {false, true, true}
         };
 
         MatrixTransformations.swapColumns(input);
@@ -87,14 +87,14 @@ class MatrixTest {
     @Test
     public void testSwapColumnsSingleColumnMatrix() {
         boolean[][] input = {
-                {true},
-                {false},
-                {true}
+            {true},
+            {false},
+            {true}
         };
         boolean[][] expected = {
-                {true},
-                {false},
-                {true}
+            {true},
+            {false},
+            {true}
         };
 
         MatrixTransformations.swapColumns(input);
@@ -115,10 +115,10 @@ class MatrixTest {
     @Test
     public void testSwapRowsSingleRowMatrix() {
         boolean[][] input = {
-                {true, false, true}
+            {true, false, true}
         };
         boolean[][] expected = {
-                {true, false, true}
+            {true, false, true}
         };
 
         MatrixTransformations.swapRows(input);
@@ -129,31 +129,32 @@ class MatrixTest {
     @Test
     public void testSwapRowsSingleColumnMatrix() {
         boolean[][] input = {
-                {true},
-                {true},
-                {false}
+            {true},
+            {true},
+            {false}
         };
         boolean[][] expected = {
-                {false},
-                {true},
-                {true}
+            {false},
+            {true},
+            {true}
         };
 
         MatrixTransformations.swapRows(input);
 
         assertArrayEquals(expected, input);
     }
+
     @Test
     public void testSwapRows() {
         boolean[][] input = {
-                {true, false},
-                {false, true},
-                {false, false}
+            {true, false},
+            {false, true},
+            {false, false}
         };
         boolean[][] expected = {
-                {false, false},
-                {false, true},
-                {true, false}
+            {false, false},
+            {false, true},
+            {true, false}
         };
         MatrixTransformations.swapRows(input);
         assertArrayEquals(expected, input);
