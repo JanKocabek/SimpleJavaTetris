@@ -103,25 +103,18 @@ public class GameManager {
      */
     void startGame() {
         switch (gameState) {
-            case PREPARED ->
+            case PREPARED -> {
                 newGame();
-            case GAME_OVER ->
-                resetGame();
+                gameLoopTimer.start();
+            }
+            case GAME_OVER -> {
+                scoreUI.resetScore();
+                newGame();
+                gameLoopTimer.restart();
+            }
             default -> {
             }
         }
-    }
-
-    private void resetGame() {
-        gameBoard = new GameBoard();
-        scoreUI.resetScore();
-        updateState(GameState.PLAYING);
-        if (!gameBoard.trySetNewTetromino()) {
-            setGameOver();
-            return;
-        }
-        tetrisCanvas.repaintCanvas();
-        gameLoopTimer.restart();
     }
 
     private void newGame() {
@@ -132,8 +125,6 @@ public class GameManager {
             return;
         }
         tetrisCanvas.repaintCanvas();
-        gameLoopTimer.start();
-
     }
 
     private void setGameOver() {
@@ -223,8 +214,9 @@ public class GameManager {
     }
 
     /**
-     * !!!CALL THIS METHOD TO UPDATE THE GAME STATE!!! NOT the gameState field
-     * directly unless its necessary. then document it
+     * !!!except before UI is inicialization CALL THIS METHOD TO UPDATE THE GAME
+     * STATE!!! NOT the gameState field directly unless its necessary. then
+     * document it please
      *
      * @param gameState new state game is set to. this method ensures that
      * whenever the game state is updated, the information panel is also
