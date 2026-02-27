@@ -1,19 +1,15 @@
 package org.sehes.tetris.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
+import java.awt.LayoutManager2;
 
 import javax.swing.JPanel;
 
 public class GameContainer extends JPanel {
 
-    GameContainer() {
+    GameContainer(LayoutManager2 layoutManager) {
         super();
 
-        final BorderLayout layout = new BorderLayout();
         setOpaque(true);
-        setLayout(layout);
-        // The border is now handled by GridBagConstraints.insets in GuiFactory
-        setBackground(Color.red);
+        setLayout(layoutManager);
     }
 }
