@@ -60,7 +60,7 @@ public class TetrisDrawingHandler {
             return;
         }
         g2d.setColor(t.getColor());
-        List<Point> points = t.getPoints();
+        List<Point> points = t.getStateCord();
         Point position = calculateTetrominoPosition(t);
         for (Point point : points) {
             g2d.fillRect(position.x + (point.x * GameParameters.BLOCK_SIZE), position.y + (point.y * GameParameters.BLOCK_SIZE), GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE);
