@@ -14,9 +14,9 @@ import org.sehes.tetris.gui.ScorePanel;
 import org.sehes.tetris.gui.TetrisCanvas;
 import org.sehes.tetris.gui.TetrisDrawingHandler;
 import org.sehes.tetris.model.DirectionFlag;
+import org.sehes.tetris.model.GameBoard;
+import org.sehes.tetris.model.IBoardView;
 import org.sehes.tetris.model.Tetromino;
-import org.sehes.tetris.model.board.GameBoard;
-import org.sehes.tetris.model.board.IBoardView;
 
 /**
  * The GameManager class is responsible for managing the overall game state,
@@ -112,7 +112,7 @@ public class GameManager {
                 newGame();
                 gameLoopTimer.restart();
             }
-            default -> {
+            default -> {break;
             }
         }
     }

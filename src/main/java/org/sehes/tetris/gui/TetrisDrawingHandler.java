@@ -8,9 +8,9 @@ import java.awt.RenderingHints;
 import java.util.List;
 
 import org.sehes.tetris.config.GameParameters;
+import org.sehes.tetris.model.BlockContent;
+import org.sehes.tetris.model.IBoardView;
 import org.sehes.tetris.model.Tetromino;
-import org.sehes.tetris.model.board.BlockContent;
-import org.sehes.tetris.model.board.IBoardView;
 
 /**
  * The TetrisDrawingHandler class is responsible for rendering the game state
