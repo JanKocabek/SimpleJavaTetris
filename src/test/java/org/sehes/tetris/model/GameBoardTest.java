@@ -23,13 +23,14 @@ class GameBoardTest {
     @DisplayName("basic functionality")
     class BasicFunctionality {
         @Test
-         void testGameBoardInitialization() {
+        void testGameBoardInitialization() {
             assertNotNull(gameBoard);
             assertEquals(0, gameBoard.getScore());
             assertNull(gameBoard.getCurrentTetromino());
         }
+
         @Test
-         void testGetBoardView() {
+        void testGetBoardView() {
             IBoardView boardView = gameBoard.getBoardView();
             assertNotNull(boardView);
             assertEquals(GameParameters.COLUMNS, boardView.getWidth());
@@ -38,7 +39,7 @@ class GameBoardTest {
 
 
         @Test
-         void testBoardViewGetBlockContent() {
+        void testBoardViewGetBlockContent() {
             IBoardView boardView = gameBoard.getBoardView();
             assertEquals(BlockContent.EMPTY, boardView.getBlockContent(0, 0));
         }
@@ -64,9 +65,9 @@ class GameBoardTest {
     @DisplayName("crash cases")
     class CrashCases {
 
-        @Tag("crash test")
+
         @Test
-         void testTryMovePieceWithoutTetromino() {
+        void testTryMovePieceWithoutTetromino() {
             boolean result = gameBoard.tryMovePiece(DirectionFlag.LEFT);
             assertFalse(result);
         }
@@ -80,32 +81,33 @@ class GameBoardTest {
         @Test
         void testBoardViewGetBlockContentOutOfBounds() {
             IBoardView boardView = gameBoard.getBoardView();
-            assertThrows(IndexOutOfBoundsException.class, () -> {
-                boardView.getBlockContent(-1, 0);
-            });
+            assertThrows(IndexOutOfBoundsException.class, () -> boardView.getBlockContent(-1, 0));
         }
 
         @Test
         void testTryAddBlockToBoardWithoutTetromino() {
-            assertThrows(IllegalStateException.class, () -> {
-                gameBoard.addBlockToBoard();
-            });
+            assertThrows(IllegalStateException.class, gameBoard::addBlockToBoard);
         }
     }
 
     @Test
     void testAddBlockToBoard() {
+        //given
         gameBoard.trySetNewTetromino();
         Tetromino tetromino = gameBoard.getCurrentTetromino();
-        assertNotNull(tetromino);
+        //when
         gameBoard.addBlockToBoard();
         IBoardView boardView = gameBoard.getBoardView();
+        //then
+        assertNotNull(tetromino);
         assertNotNull(boardView);
     }
 
     @Test
     void testCheckAndClearLinesNoLines() {
+        //when
         boolean result = gameBoard.checkAndClearLines();
+        //then
         assertFalse(result);
     }
 
@@ -191,7 +193,7 @@ class GameBoardTest {
 
         /**
          * Tests that the position of the tetromino is not changed after rotation. it
-         * test both directions
+         * tests both directions
          *
          * @param directionFlag The direction to rotate the tetromino.
          */
@@ -224,9 +226,9 @@ class GameBoardTest {
                 gameBoard.tryRotatePiece(DirectionFlag.ROTATE_R);
             }
             // then
-            List<Point> finalCoord = gameBoard.getCurrentTetromino().getStateCord();
+            List<Point> finalCord = gameBoard.getCurrentTetromino().getStateCord();
             assertEquals(tetrominoState, gameBoard.getCurrentTetromino().getCurrentState());
-            assertEquals(baseCord, finalCoord);
+            assertEquals(baseCord, finalCord);
 
 
         }
