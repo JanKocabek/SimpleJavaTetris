@@ -82,15 +82,12 @@ public enum tetromino_type {
         return Collections.unmodifiableList(Arrays.asList(shapeState[state].clone()));
     }// clone the array and return an unmodifiable list
 
+
     /**
-     * Returns the coordinates of the Tetromino in its next state of rotation.
-     * The method calculates the next state of rotation by incrementing the current
-     * state value and taking the modulus of 4. It then returns an unmodifiable
-     * list of Points representing the coordinates of the Tetromino in its
-     * next state of rotation.
+     * Gets the next state of the tetromino based on the given state.
      *
-     * @return An unmodifiable list of Points representing the coordinates of the
-     *         Tetromino in its next state of rotation.
+     * @param state the current state of the tetromino
+     * @return the next state of the tetromino
      */
     public List<Point> getNextState(int state) {
         int nextState = (state + 1) % 4;

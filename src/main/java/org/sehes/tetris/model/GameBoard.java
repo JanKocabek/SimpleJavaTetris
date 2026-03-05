@@ -28,7 +28,7 @@ import org.sehes.tetris.config.GameParameters;
  */
 public class GameBoard {
 
-    private static System.Logger myLogger = System.getLogger(GameBoard.class.getName());
+    private static  final System.Logger myLogger = System.getLogger(GameBoard.class.getName());
 
     private Tetromino currentTetromino;
     private final BlockContent[][] board;
@@ -247,25 +247,14 @@ public class GameBoard {
         return !isCollisionDetected(points, newPosition);
     }
 
+
     /**
-     * this method checks if the new position of the tetromino after moving or
-     * rotating is occupied by another piece on the game board. It iterates
-     * through the grid of the tetromino and checks if any of the blocks in the
-     * grid are true (indicating that there is a block in that position) and if
-     * the corresponding position on the game board is not EMPTY. If such a
-     * condition is found, it means that there is a collision, and the method
-     * returns true. If no collisions are detected after checking all blocks in
-     * the tetromino grid, the method returns false, indicating that the move or
-     * rotation is valid and can be performed without overlapping another piece
-     * on the board
+     * Checks if the position after moving or rotating a piece would collide with
+     * any existing pieces on the game board.
      *
-     * @param points      the tetromino represented as List of Points{x,y}
-     * @param newPosition the new position of the tetromino after moving or
-     *                    rotating, represented as a Point object with x and y
-     *                    coordinates
-     *                    corresponding to the column and row on the game board,
-     *                    respectively
-     * @return
+     * @param points   The list of coordinates representing the tetromino's new state
+     * @param newPosition The expected new position of the tetromino pivot on the board
+     * @return {@code true} if there is a collision, {@code false} otherwise
      */
     private boolean isCollisionDetected(final List<Point> points, final Point newPosition) {
 
