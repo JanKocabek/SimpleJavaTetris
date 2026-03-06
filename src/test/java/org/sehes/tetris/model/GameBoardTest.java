@@ -201,7 +201,7 @@ class GameBoardTest {
         @EnumSource(value = DirectionFlag.class, names = {"ROTATE_L", "ROTATE_R"})
         void testPositionIsTheSameAfterRotation(DirectionFlag directionFlag) {
             // given
-            Tetromino tetromino = Tetromino.spawnSpecficTetromino(tetromino_type.T, new Point(4, 1));
+            Tetromino tetromino = Tetromino.spawnSpecificTetromino(tetrominoType.T, new Point(4, 1));
             gameBoard.spawnTetrominoForTestOnly(tetromino);
             Point initialPos = gameBoard.getCurrentTetromino().getPosition();
             // when
@@ -214,10 +214,10 @@ class GameBoardTest {
         }
 
         @ParameterizedTest
-        @EnumSource(value = tetromino_type.class, names = {"I", "O", "S", "Z", "L", "J", "T"})
-        void testTryReturnIntoBaseState(tetromino_type type) {
+        @EnumSource(value = tetrominoType.class, names = {"I", "O", "S", "Z", "L", "J", "T"})
+        void testTryReturnIntoBaseState(tetrominoType type) {
             // given
-            Tetromino tetromino = Tetromino.spawnSpecficTetromino(type, new Point(4, 2));
+            Tetromino tetromino = Tetromino.spawnSpecificTetromino(type, new Point(4, 2));
             gameBoard.spawnTetrominoForTestOnly(tetromino);
             var baseCord = tetromino.getStateCord();
             int tetrominoState = tetromino.getCurrentState();
@@ -236,7 +236,7 @@ class GameBoardTest {
         @Test
         void testTryRotatePieceRight() {
             // given
-            Tetromino tetromino = Tetromino.spawnSpecficTetromino(tetromino_type.T, new Point(4, 1));
+            Tetromino tetromino = Tetromino.spawnSpecificTetromino(tetrominoType.T, new Point(4, 1));
             gameBoard.spawnTetrominoForTestOnly(tetromino);
             // when
             boolean rotated = gameBoard.tryRotatePiece(DirectionFlag.ROTATE_R);
@@ -256,7 +256,7 @@ class GameBoardTest {
         @Test
         void testTryRotatePieceLeft() {
             // given
-            Tetromino tetromino = Tetromino.spawnSpecficTetromino(tetromino_type.T, new Point(4, 1));
+            Tetromino tetromino = Tetromino.spawnSpecificTetromino(tetrominoType.T, new Point(4, 1));
             gameBoard.spawnTetrominoForTestOnly(tetromino);
             // when
             boolean rotated = gameBoard.tryRotatePiece(DirectionFlag.ROTATE_L);

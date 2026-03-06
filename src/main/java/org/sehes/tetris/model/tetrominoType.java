@@ -4,7 +4,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-public enum tetromino_type {
+public enum tetrominoType {
 
     I(new Point[][]{
             {new Point(0, 0), new Point(1, 0), new Point(-1, 0), new Point(2, 0)}, // State 0
@@ -56,15 +56,15 @@ public enum tetromino_type {
             {new Point(-1, 1), new Point(-1, 0), new Point(0, 0), new Point(0, -1)}// 270°
     }, Color.RED, 6);
 
-    private static final Map<Integer, tetromino_type> map = new HashMap<>();
+    private static final Map<Integer, tetrominoType> map = new HashMap<>();
 
     static {
-        for (final tetromino_type type : tetromino_type.values()) {
+        for (final tetrominoType type : tetrominoType.values()) {
             map.put(type.intValue, type);
         }
     }
 
-    public static tetromino_type get(final int intValue) {
+    public static tetrominoType get(final int intValue) {
         return map.get(intValue);
     }
 
@@ -99,7 +99,7 @@ public enum tetromino_type {
         return Collections.unmodifiableList(Arrays.asList(shapeState[previousState].clone()));
     }
 
-    tetromino_type(final Point[][] shapeState, final Color color, final int intValue) {
+    tetrominoType(final Point[][] shapeState, final Color color, final int intValue) {
         this.color = color;
         this.shapeState = shapeState;
         this.intValue = intValue;

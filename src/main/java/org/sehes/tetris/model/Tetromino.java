@@ -21,7 +21,7 @@ public class Tetromino {
     private static final Random random = new Random();
 
     public static Tetromino tetrominoFactory(final Point position) {
-        final tetromino_type[] values = tetromino_type.values();
+        final tetrominoType[] values = tetrominoType.values();
         final int tetrominoType = random.nextInt(values.length);
         return new Tetromino(values[tetrominoType], position);
     }
@@ -31,15 +31,20 @@ public class Tetromino {
     private List<Point> stateCoordination;
     private int state;
 
-    private final tetromino_type type;
+    private final tetrominoType type;
 
-    private Tetromino(final tetromino_type type, final Point spawnPosition) {
+    private Tetromino(final tetrominoType type, final Point spawnPosition) {
+        this.state = 0;
         color = type.getColor();
-        stateCoordination = type.getTetrominoState(0);
+        stateCoordination = type.getTetrominoState(state);
         this.position = new Point(spawnPosition);
         this.type = type;
-        this.state = 0;
+
     }
+    public String getTypeValue() {
+        return type.name();
+    }
+
 
     public Color getColor() {
         return color;
@@ -71,11 +76,8 @@ public class Tetromino {
     }
 
     /**
-     * grab the next or previous state of the tetromino from enum [@code
-     * tetromino_type] and return as unmodifiable list of points.
+     * grab the next or previous state of the tetromino from {@link tetrominoType} and return as unmodifiable list of points.
      * <p>
-     *
-     * @see tetromino_type
      *
      * @param flag ROTATE_R for next state, ROTATE_L for previous state
      * @return the next or previous state of the tetromino based on the flag
@@ -136,7 +138,7 @@ public class Tetromino {
      * center (pivot) is (0,0)
      * left side is x=-1, right side is x=1
      * <p>
-     * The Tetromino is define as List of points represent the tetromino shape,
+     * The Tetromino is defined as List of points represent the tetromino shape,
      * color and int value The color field assigns a specific color to each
      * tetromino type for rendering purposes.
      * The intValue is a unique
@@ -150,7 +152,7 @@ public class Tetromino {
      */
 
     // methods for junit testing purpose
-    static Tetromino spawnSpecficTetromino(final tetromino_type tetrominoType, final Point startPos) {
+    static Tetromino spawnSpecificTetromino(final tetrominoType tetrominoType, final Point startPos) {
         return new Tetromino(tetrominoType, startPos);
     }
 
