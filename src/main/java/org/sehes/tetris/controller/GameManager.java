@@ -49,7 +49,19 @@ public class GameManager {
             var elapsedTime = currentTime - prevTime;
             prevTime = currentTime;
 
-            gravityAccumulator += TimeUnit.NANOSECONDS.toMillis(elapsedTime);
+            // --- FPS Logic Start ---
+            frameCount++;
+            fpsTimer += elapsedTime;
+
+            if (fpsTimer >= TimeUnit.SECONDS.toNanos(1)) {
+                currentFPS = frameCount; // This is your actual FPS for the last second
+                frameCount = 0;
+                fpsTimer = 0;
+                infoP.updateFPS(currentFPS);
+            }
+            // --- FPS Logic End ---
+
+            gravityAccumulator += elapsedTime;
             while (gravityAccumulator >= movementSpeed) {
                 if (!gameBoard.tryMovePiece(DirectionFlag.DOWN)) {
                     gameBoard.addBlockToBoard();
@@ -75,12 +87,14 @@ public class GameManager {
     private ScorePanel scoreUI;// Reference to the score UI for updating the score display
     private InfoPanel infoP;// Reference to the info panel for updating game state messages
     private long prevTime = 0;
-    private final int fps = 60;
-    private final int msPerFrame = 1000 / fps;
-
-    private final long movementSpeed = 500;
-
+    private static final int FPS = 60;
+    private static final long FRAME_TIME = 1000 / FPS;
+    private long movementSpeed = TimeUnit.MILLISECONDS.toNanos(600);
     private long gravityAccumulator = 0;
+    private int frameCount = 0;
+    private long fpsTimer = 0;
+    private int currentFPS = 0;
+    private TetrisDrawingHandler tetrisDrawingHandler;
 
     /**
      * Starts the Tetris application by initializing the game state, creating
@@ -98,7 +112,7 @@ public class GameManager {
         this.gameState = GameState.INIT;
         SwingUtilities.invokeLater(() -> {
             final ActionListener gameLoopListener = new MainLoopListener();
-            gameLoopTimer = new Timer(msPerFrame, gameLoopListener);
+            gameLoopTimer = new Timer((int) FRAME_TIME, gameLoopListener);
             initializeGameWindow();
         });
     }
