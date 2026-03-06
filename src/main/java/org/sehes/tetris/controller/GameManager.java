@@ -14,9 +14,9 @@ import org.sehes.tetris.gui.ScorePanel;
 import org.sehes.tetris.gui.TetrisCanvas;
 import org.sehes.tetris.gui.TetrisDrawingHandler;
 import org.sehes.tetris.model.DirectionFlag;
+import org.sehes.tetris.model.GameBoard;
+import org.sehes.tetris.model.IBoardView;
 import org.sehes.tetris.model.Tetromino;
-import org.sehes.tetris.model.board.GameBoard;
-import org.sehes.tetris.model.board.IBoardView;
 
 /**
  * The GameManager class is responsible for managing the overall game state,
@@ -113,6 +113,7 @@ public class GameManager {
                 gameLoopTimer.restart();
             }
             default -> {
+                break;
             }
         }
     }
@@ -214,14 +215,10 @@ public class GameManager {
     }
 
     /**
-     * !!!except before UI is inicialization CALL THIS METHOD TO UPDATE THE GAME
-     * STATE!!! NOT the gameState field directly unless its necessary. then
-     * document it please
+     * !!!except before UI is initialization CALL THIS METHOD TO UPDATE THE GAME STATE!!! NOT the {@link GameState}  field directly unless its necessary. then document it please why was it necessary.
      *
-     * @param gameState new state game is set to. this method ensures that
-     * whenever the game state is updated, the information panel is also
-     * refreshed to reflect the new state. Updates the game state and refreshes
-     * the information panel to reflect the new state.
+     * @param newState new state game is set to. this method ensures that whenever the game state is updated, the information panel is also refreshed to reflect the new state.
+     * Updates the game state and refreshes the information panel to reflect the new state.
      *
      */
     private void updateState(final GameState newState) {

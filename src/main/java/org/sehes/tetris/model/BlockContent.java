@@ -1,4 +1,4 @@
-package org.sehes.tetris.model.board;
+package org.sehes.tetris.model;
 
 import java.awt.Color;
 import java.util.HashMap;
