@@ -156,9 +156,15 @@ public class GameManager {
 
     public void resumeGame() {
         if (gameState == GameState.PAUSED) {
+            resetTime();
             gameLoopTimer.start();
             updateState(GameState.PLAYING);
         }
+    }
+
+    private void resetTime() {
+        prevTime = System.nanoTime();
+        gravityAccumulator = 0;
     }
 
     /**
