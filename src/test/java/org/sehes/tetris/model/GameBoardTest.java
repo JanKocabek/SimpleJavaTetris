@@ -201,7 +201,7 @@ class GameBoardTest {
         @EnumSource(value = DirectionFlag.class, names = {"ROTATE_L", "ROTATE_R"})
         void testPositionIsTheSameAfterRotation(DirectionFlag directionFlag) {
             // given
-            Tetromino tetromino = Tetromino.spawnSpecificTetromino(tetrominoType.T, new Point(4, 1));
+            Tetromino tetromino = Tetromino.spawnSpecificTetromino(TetrominoType.T, new Point(4, 1));
             gameBoard.spawnTetrominoForTestOnly(tetromino);
             Point initialPos = gameBoard.getCurrentTetromino().getPosition();
             // when
@@ -214,8 +214,8 @@ class GameBoardTest {
         }
 
         @ParameterizedTest
-        @EnumSource(value = tetrominoType.class, names = {"I", "O", "S", "Z", "L", "J", "T"})
-        void testTryReturnIntoBaseState(tetrominoType type) {
+        @EnumSource(value = TetrominoType.class, names = {"I", "O", "S", "Z", "L", "J", "T"})
+        void testTryReturnIntoBaseState(TetrominoType type) {
             // given
             Tetromino tetromino = Tetromino.spawnSpecificTetromino(type, new Point(4, 2));
             gameBoard.spawnTetrominoForTestOnly(tetromino);
@@ -236,7 +236,7 @@ class GameBoardTest {
         @Test
         void testTryRotatePieceRight() {
             // given
-            Tetromino tetromino = Tetromino.spawnSpecificTetromino(tetrominoType.T, new Point(4, 1));
+            Tetromino tetromino = Tetromino.spawnSpecificTetromino(TetrominoType.T, new Point(4, 1));
             gameBoard.spawnTetrominoForTestOnly(tetromino);
             // when
             boolean rotated = gameBoard.tryRotatePiece(DirectionFlag.ROTATE_R);
@@ -256,7 +256,7 @@ class GameBoardTest {
         @Test
         void testTryRotatePieceLeft() {
             // given
-            Tetromino tetromino = Tetromino.spawnSpecificTetromino(tetrominoType.T, new Point(4, 1));
+            Tetromino tetromino = Tetromino.spawnSpecificTetromino(TetrominoType.T, new Point(4, 1));
             gameBoard.spawnTetrominoForTestOnly(tetromino);
             // when
             boolean rotated = gameBoard.tryRotatePiece(DirectionFlag.ROTATE_L);

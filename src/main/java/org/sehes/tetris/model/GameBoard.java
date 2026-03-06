@@ -229,22 +229,22 @@ public class GameBoard {
      * compare if a new position of tetromino grid isn't occupied, both are
      * represented as 2D boolean array tetromino position [column][row]
      *
-     * @param points   List of cordinates represented current tetromino
+     * @param stateCord   List of cordinates represented current tetromino
      * @param position the position of the tetromino before moving
      * @param flag     which direction are the tetromino supposed to move determines
      *                 the new position of the tetromino after moving
      * @return true if collision not happened and the position is in the
      *         gameBoard boundaries
      */
-    private boolean canMove(final List<Point> points, final Point position, final DirectionFlag flag) {
-        if (points == null || flag == null) {
+    private boolean canMove(final List<Point> stateCord, final Point position, final DirectionFlag flag) {
+        if (stateCord == null || flag == null) {
             return false;
         }
         final Point newPosition = new Point(position.x + flag.getX(), position.y + flag.getY());
-        if (isOutOfBoundaries(points, newPosition)) {
+        if (isOutOfBoundaries(stateCord, newPosition)) {
             return false;
         }
-        return !isCollisionDetected(points, newPosition);
+        return !isCollisionDetected(stateCord, newPosition);
     }
 
 
@@ -252,13 +252,13 @@ public class GameBoard {
      * Checks if the position after moving or rotating a piece would collide with
      * any existing pieces on the game board.
      *
-     * @param points   The list of coordinates representing the tetromino's new state
+     * @param stateCord   The list of coordinates representing the tetromino's new state
      * @param newPosition The expected new position of the tetromino pivot on the board
      * @return {@code true} if there is a collision, {@code false} otherwise
      */
-    private boolean isCollisionDetected(final List<Point> points, final Point newPosition) {
+    private boolean isCollisionDetected(final List<Point> stateCord, final Point newPosition) {
 
-        for (final Point point : points) {
+        for (final Point point : stateCord) {
             if (this.board[newPosition.y + point.y][newPosition.x + point.x] != BlockContent.EMPTY) {
                 return true;
             }
@@ -271,39 +271,36 @@ public class GameBoard {
      * gameBoardBoundaries and if sp then return true if dont colide with other
      * piece;
      *
-     * @param points the list of cordination represent the tetromino state after
+     * @param coordination the list of cordination represent the tetromino state after
      *               expected rotation
      * @return true if original position is ok
      */
-    private boolean canRotate(final List<Point> points) {
-        if (points == null || currentTetromino == null) {
+    private boolean canRotate(final List<Point> coordination) {
+        if (coordination == null || currentTetromino == null) {
             return false;
         }
         final Point position = currentTetromino.getPosition();
-        if (isOutOfBoundaries(points, position)) {
+        if (isOutOfBoundaries(coordination, position)) {
             return false;
         }
-        return !isCollisionDetected(points, position);
+        return !isCollisionDetected(coordination, position);
     }
 
     /**
      * this method check if the position after moving a piece is out of board or
      * not
      *
-     * @param points   the points of tetromino after move/rotation
+     * @param newStateCord   the coordniation of tetromino after move/rotation
      * @param position the destined position of the tetromino after moving /
      *                 rotating(doesn't change it) on the board
      * @return true if the final position is out of boundaries
      */
-    private boolean isOutOfBoundaries(final List<Point> points, final Point position) {
-        myLogger.log(INFO, () -> "Tetromino Points: " + points + ", Position: " + position);
-        for (final Point point : points) {
-            if (point.x + position.x < 0
-                || point.y + position.y < 0
-                || point.x + position.x >= board[0].length
-                || point.y + position.y >= board.length) {
-                myLogger.log(INFO, () -> "tetromino would be on position: " + (point.x + position.x) + ", "
-                                         + (point.y + position.y));
+    private boolean isOutOfBoundaries(final List<Point> newStateCord, final Point position) {    
+        for (final Point cord : newStateCord) {
+            if (cord.x + position.x < 0
+                || cord.y + position.y < 0
+                || cord.x + position.x >= board[0].length
+                || cord.y + position.y >= board.length) {
                 return true;
             }
         }
@@ -335,6 +332,7 @@ public class GameBoard {
      * JUNIT TEST ONLY<br>
      * this method fill last line with blocks
      */
+    
     void fillLineForTestOnly() {
         int lastLine = board.length - 1;
         Arrays.fill(board[lastLine], BlockContent.CYAN);
