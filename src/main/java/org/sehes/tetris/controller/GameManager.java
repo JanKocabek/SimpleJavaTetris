@@ -217,6 +217,9 @@ public class GameManager {
 
     private void newGame() {
         gameBoard = new GameBoard();
+        if (tetrisDrawingHandler.getGrid() == null) {
+            tetrisDrawingHandler.drawGrid();
+        }
         updateState(GameState.PLAYING);
         if (!gameBoard.trySetNewTetromino()) {
             setGameOver();
@@ -243,7 +246,9 @@ public class GameManager {
      */
     private void initializeGameWindow() {
         final TetrisKeyInputHandler keyInputHandler = new TetrisKeyInputHandler(this);
-        final GuiFactory.GuiComponents gui = GuiFactory.createGUI(this, new TetrisDrawingHandler(), keyInputHandler);
+        tetrisDrawingHandler = new TetrisDrawingHandler();
+
+        final GuiFactory.GuiComponents gui = GuiFactory.createGUI(this, tetrisDrawingHandler, keyInputHandler);
         this.tetrisCanvas = gui.canvas();
         this.scoreUI = gui.scoreUI();
         this.infoP = gui.infoP();

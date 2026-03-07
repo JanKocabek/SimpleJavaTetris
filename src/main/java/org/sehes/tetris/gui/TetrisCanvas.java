@@ -43,7 +43,7 @@ public class TetrisCanvas extends JPanel {
         if (gameManager.getGameState() == GameManager.GameState.PREPARED) {
             return;
         }
-        drawingHandler.drawGrid(g2d);
+        g2d.drawImage(drawingHandler.getGrid(), 0, 0, null);
         drawingHandler.drawBoardState(g2d, gameManager.getBoardView());
         drawingHandler.drawCurrentTetromino(g2d, gameManager.getCurrentTetromino());
     }
