@@ -1,9 +1,9 @@
 package org.sehes.tetris.gui;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -22,18 +22,21 @@ import org.sehes.tetris.model.Tetromino;
  * representation of the game is accurate and up to date.
  */
 public class TetrisDrawingHandler {
-    private BufferedImage backGroundGrid=null;
+    private BufferedImage backGroundGrid = null;
+    private BufferedImage boardImg = null;
 
     public void initialize(Graphics2D g2d) {
         RenderingHints hints = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setRenderingHints(hints);
     }
+
     public BufferedImage getGrid() {
         return backGroundGrid;
     }
 
     public void drawGrid() {
-        backGroundGrid = new BufferedImage(GameParameters.COLUMNS * GameParameters.BLOCK_SIZE, GameParameters.VISIBLE_ROWS * GameParameters.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
+        backGroundGrid = new BufferedImage(GameParameters.COLUMNS * GameParameters.BLOCK_SIZE,
+                GameParameters.VISIBLE_ROWS * GameParameters.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = backGroundGrid.createGraphics();
         final int width = backGroundGrid.getWidth();
         final int height = backGroundGrid.getHeight();
@@ -48,7 +51,22 @@ public class TetrisDrawingHandler {
         g2d.dispose();
     }
 
-    public void drawBoardState(Graphics2D g2d, IBoardView boardView) {
+    public void drawBoard(Graphics2D g2d, IBoardView boardView, boolean isBoardDirty) {
+        if (boardImg == null) {
+            boardImg = new BufferedImage(GameParameters.COLUMNS * GameParameters.BLOCK_SIZE,
+                    GameParameters.VISIBLE_ROWS * GameParameters.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
+        }
+        if (isBoardDirty) {
+            boardImg = reDrawBoard(boardView);
+        }
+        g2d.drawImage(boardImg, 0, 0, null);
+    }
+
+    private BufferedImage reDrawBoard(IBoardView boardView) {
+        Graphics2D g2d = boardImg.createGraphics();
+        g2d.setComposite(AlphaComposite.Clear);
+        g2d.fillRect(0, 0, boardImg.getWidth(), boardImg.getHeight());
+        g2d.setComposite(AlphaComposite.SrcOver);
         for (int row = boardView.getHeight() - 1; row >= 0; row--) {
             for (int col = boardView.getWidth() - 1; col >= 0; col--) {
                 BlockContent content = boardView.getBlockContent(row, col);
@@ -60,6 +78,8 @@ public class TetrisDrawingHandler {
                 }
             }
         }
+        g2d.dispose();
+        return boardImg;
     }
 
     public void drawCurrentTetromino(Graphics2D g2d, Tetromino t) {
@@ -70,7 +90,9 @@ public class TetrisDrawingHandler {
         List<Point> points = t.getStateCord();
         Point position = calculateTetrominoPosition(t);
         for (Point point : points) {
-            g2d.fillRect(position.x + (point.x * GameParameters.BLOCK_SIZE), position.y + (point.y * GameParameters.BLOCK_SIZE), GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE);
+            g2d.fillRect(position.x + (point.x * GameParameters.BLOCK_SIZE),
+                    position.y + (point.y * GameParameters.BLOCK_SIZE), GameParameters.BLOCK_SIZE,
+                    GameParameters.BLOCK_SIZE);
         }
     }
 

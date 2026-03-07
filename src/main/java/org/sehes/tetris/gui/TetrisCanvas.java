@@ -23,9 +23,11 @@ public class TetrisCanvas extends JPanel {
 
     private final GameManager gameManager;
     private final TetrisDrawingHandler drawingHandler;
+    private boolean isBoardDirty = false;
 
     TetrisCanvas(TetrisDrawingHandler drawingHandler, GameManager gameManager) {
-        Dimension prefSize = new Dimension(GameParameters.BLOCK_SIZE * GameParameters.COLUMNS, GameParameters.BLOCK_SIZE * GameParameters.VISIBLE_ROWS);
+        Dimension prefSize = new Dimension(GameParameters.BLOCK_SIZE * GameParameters.COLUMNS,
+                GameParameters.BLOCK_SIZE * GameParameters.VISIBLE_ROWS);
         this.setPreferredSize(prefSize);
         this.setMinimumSize(prefSize);
         this.setMaximumSize(prefSize);
@@ -44,11 +46,14 @@ public class TetrisCanvas extends JPanel {
             return;
         }
         g2d.drawImage(drawingHandler.getGrid(), 0, 0, null);
-        drawingHandler.drawBoardState(g2d, gameManager.getBoardView());
+
+        drawingHandler.drawBoard(g2d, gameManager.getBoardView(), isBoardDirty);
+        isBoardDirty = false;
         drawingHandler.drawCurrentTetromino(g2d, gameManager.getCurrentTetromino());
     }
 
-    public void repaintCanvas() {
+    public void repaintCanvas(boolean boardDirty) {
+        this.isBoardDirty = boardDirty;
         repaint();
     }
 }

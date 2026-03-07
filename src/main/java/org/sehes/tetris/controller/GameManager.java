@@ -69,7 +69,9 @@ public class GameManager {
             gravityAccumulator += elapsedTime;
             while (gravityAccumulator >= movementSpeed) {
                 if (!gameBoard.tryMovePiece(DirectionFlag.DOWN)) {
+
                     gameBoard.addBlockToBoard();
+                    isDirty = true;
                     gameBoard.checkAndClearLines();
                     scoreUI.updateScore(gameBoard.getScore());
                     if (!gameBoard.trySetNewTetromino()) {
@@ -81,7 +83,8 @@ public class GameManager {
                 gravityAccumulator -= movementSpeed;
             }
 
-            tetrisCanvas.repaintCanvas();
+            tetrisCanvas.repaintCanvas(isDirty);
+            isDirty = false;
         }
     }
 
@@ -94,14 +97,17 @@ public class GameManager {
     private Timer gameLoopTimer; // Timer for the main game loop to control the game speed
     private ScorePanel scoreUI;// Reference to the score UI for updating the score display
     private InfoPanel infoP;// Reference to the info panel for updating game state messages
+    private TetrisDrawingHandler tetrisDrawingHandler; // only for telling the handler what to redraw and if it needs to
+                                                       // redraw
+    private boolean isDirty = false;
+    // Loop Time vars
     private long prevTime;
     private long gravityAccumulator;
     private long movementSpeed = TimeUnit.MILLISECONDS.toNanos(BASE_SPEED);
-
+    // FPS vars
     private int frameCount = 0;
     private long fpsTimer = 0;
     private int currentFPS = 0;
-    private TetrisDrawingHandler tetrisDrawingHandler;
 
     /**
      * Starts the Tetris application by initializing the game state, creating
@@ -135,6 +141,7 @@ public class GameManager {
     public Tetromino getCurrentTetromino() {
         return gameBoard.getCurrentTetromino();
     }
+    
 
     /**
      * Try to move the current piece in the specified direction. If the move is
@@ -148,7 +155,7 @@ public class GameManager {
             return;
         }
         if (gameBoard.tryMovePiece(direction)) {
-            tetrisCanvas.repaintCanvas();
+            tetrisCanvas.repaintCanvas(false);
         }
     }
 
@@ -164,7 +171,7 @@ public class GameManager {
             return;
         }
         if (gameBoard.tryRotatePiece(direction)) {
-            tetrisCanvas.repaintCanvas();
+            tetrisCanvas.repaintCanvas(false);
         }
     }
 
@@ -225,7 +232,7 @@ public class GameManager {
             setGameOver();
             return;
         }
-        tetrisCanvas.repaintCanvas();
+        tetrisCanvas.repaintCanvas(false);
         resetTime();
     }
 
