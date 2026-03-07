@@ -17,6 +17,7 @@ import org.sehes.tetris.controller.GameManager;
 public class InfoPanel extends JPanel {
 
     private final InfoLabel infoLabel;
+    private final FpsLabel fps;
 
     InfoPanel() {
         super();
@@ -24,15 +25,20 @@ public class InfoPanel extends JPanel {
         setBackground(Color.green);
         setLayout(new BorderLayout());
         infoLabel = new InfoLabel();
+        fps = new FpsLabel();
+        add(fps, BorderLayout.NORTH);
         add(infoLabel, BorderLayout.CENTER);
     }
 
     public void updateInfo(GameManager.GameState gameState) {
         infoLabel.updateInfo(gameState);
-
     }
 
-    private class InfoLabel extends JLabel {
+    public void updateFPS(int fpsValue) {
+        fps.updateFPS(fpsValue);
+    }
+
+    private static class InfoLabel extends JLabel {
 
         private final Font infoFont = new Font(Font.SERIF, Font.BOLD, 18);
 
@@ -46,26 +52,37 @@ public class InfoPanel extends JPanel {
 
         void updateInfo(GameManager.GameState gameState) {
             switch (gameState) {
-                case INIT ->
-                    setText("game is loading wait please");
+                case INIT -> setText("game is loading wait please");
 
-                case PREPARED ->
-                    setText("press enter to start a new game");
+                case PREPARED -> setText("press enter to start a new game");
 
-                case PLAYING ->
-                    setText("game is running");
+                case PLAYING -> setText("game is running");
 
-                case PAUSED ->
-                    setText("game is paused - press enter to resume");
+                case PAUSED -> setText("game is paused - press enter to resume");
 
-                case GAME_OVER ->
-                    setText("nobody can survive forever - press enter to start a new game");
+                case GAME_OVER -> setText("nobody can survive forever - press enter to start a new game");
 
-                default -> {
-                    setText("UNEXPECTED MOMENT send me bug report");
-                }
+                default -> setText("UNEXPECTED MOMENT send me bug report");
 
             }
         }
+
     }
+
+    private static class FpsLabel extends JLabel {
+        private final Font fpsFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);
+
+        FpsLabel() {
+            setFont(fpsFont);
+            setForeground(Color.BLACK);
+            setHorizontalAlignment(SwingConstants.RIGHT);
+            setText("FPS: 0");
+        }
+
+        void updateFPS(int fps) {
+            setText("FPS: " + fps);
+        }
+
+    }
+
 }
