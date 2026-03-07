@@ -232,7 +232,7 @@ public class GameManager {
             setGameOver();
             return;
         }
-        tetrisCanvas.repaintCanvas(false);
+        tetrisCanvas.repaintCanvas(true);
         resetTime();
     }
 
