@@ -45,8 +45,9 @@ public class GameManager {
         @Override
         public void actionPerformed(final ActionEvent e) {
             var currentTime = System.nanoTime();
-            if (prevTime == 0) { //security if was called difererent ways then trought the newGame
-                prevTime = currentTime;
+            if (prevTime == 0) {
+                prevTime = currentTime;// Safety guard in case this is invoked before newGame() initializes timing
+                                       // state
                 return;
             }
 
@@ -86,6 +87,7 @@ public class GameManager {
 
     private static final int FPS = 60;
     private static final int FRAME_TIME_MS = 1000 / FPS;
+    private static final int BASE_SPEED = 600;
     private GameState gameState;// Current state of the game
     private TetrisCanvas tetrisCanvas; // Reference to the canvas for repainting
     private GameBoard gameBoard; // reference to the game board for managing game logic
@@ -94,8 +96,8 @@ public class GameManager {
     private InfoPanel infoP;// Reference to the info panel for updating game state messages
     private long prevTime;
     private long gravityAccumulator;
-    private long movementSpeed = TimeUnit.MILLISECONDS.toNanos(600);
-    private long gravityAccumulator = 0;
+    private long movementSpeed = TimeUnit.MILLISECONDS.toNanos(BASE_SPEED);
+
     private int frameCount = 0;
     private long fpsTimer = 0;
     private int currentFPS = 0;
@@ -117,7 +119,7 @@ public class GameManager {
         this.gameState = GameState.INIT;
         SwingUtilities.invokeLater(() -> {
             final ActionListener gameLoopListener = new MainLoopListener();
-            gameLoopTimer = new Timer((int) FRAME_TIME, gameLoopListener);
+            gameLoopTimer = new Timer(FRAME_TIME_MS, gameLoopListener);
             initializeGameWindow();
         });
     }
