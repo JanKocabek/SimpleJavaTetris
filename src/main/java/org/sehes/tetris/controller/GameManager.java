@@ -2,7 +2,6 @@ package org.sehes.tetris.controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Time;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.SwingUtilities;
@@ -46,6 +45,11 @@ public class GameManager {
         @Override
         public void actionPerformed(final ActionEvent e) {
             var currentTime = System.nanoTime();
+            if (prevTime == 0) { //security if was called difererent ways then trought the newGame
+                prevTime = currentTime;
+                return;
+            }
+
             var elapsedTime = currentTime - prevTime;
             prevTime = currentTime;
 
@@ -80,15 +84,16 @@ public class GameManager {
         }
     }
 
+    private static final int FPS = 60;
+    private static final int FRAME_TIME_MS = 1000 / FPS;
     private GameState gameState;// Current state of the game
     private TetrisCanvas tetrisCanvas; // Reference to the canvas for repainting
     private GameBoard gameBoard; // reference to the game board for managing game logic
     private Timer gameLoopTimer; // Timer for the main game loop to control the game speed
     private ScorePanel scoreUI;// Reference to the score UI for updating the score display
     private InfoPanel infoP;// Reference to the info panel for updating game state messages
-    private long prevTime = 0;
-    private static final int FPS = 60;
-    private static final long FRAME_TIME = 1000 / FPS;
+    private long prevTime;
+    private long gravityAccumulator;
     private long movementSpeed = TimeUnit.MILLISECONDS.toNanos(600);
     private long gravityAccumulator = 0;
     private int frameCount = 0;
@@ -176,11 +181,6 @@ public class GameManager {
         }
     }
 
-    private void resetTime() {
-        prevTime = System.nanoTime();
-        gravityAccumulator = 0;
-    }
-
     /**
      * Starts the game by resetting the game board and starting the game loop
      * timer. Sets the game state to PLAYING. This method can only be called if
@@ -208,6 +208,11 @@ public class GameManager {
         System.exit(0);
     }
 
+    private void resetTime() {
+        prevTime = System.nanoTime();
+        gravityAccumulator = 0;
+    }
+
     private void newGame() {
         gameBoard = new GameBoard();
         updateState(GameState.PLAYING);
@@ -216,8 +221,7 @@ public class GameManager {
             return;
         }
         tetrisCanvas.repaintCanvas();
-        prevTime = System.nanoTime();
-
+        resetTime();
     }
 
     private void setGameOver() {
