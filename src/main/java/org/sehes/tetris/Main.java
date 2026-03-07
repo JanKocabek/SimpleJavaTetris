@@ -4,14 +4,14 @@ import org.sehes.tetris.controller.GameManager;
 
 public class Main {
 
-/**
- *
- * This class is responsible for launching the application. It creates an instance of GameManager and calls the startApp method to set up the game window and initialize the game components.
- *
- */
+    /**
+     *
+     * This class is responsible for launching the application. It creates an instance of GameManager and from his constructor main window is running
+     *
+     */
 
     public static void main(String[] args) {
-       new GameManager();
+        new GameManager();
     }
 
 }
