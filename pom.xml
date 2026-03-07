@@ -41,7 +41,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>your.package.Main</mainClass>
+                            <mainClass>org.sehes.tetris.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
