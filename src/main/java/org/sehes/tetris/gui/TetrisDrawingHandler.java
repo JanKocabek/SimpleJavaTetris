@@ -98,17 +98,17 @@ public class TetrisDrawingHandler {
         }
         g2d.setColor(t.getColor());
         int[] shapeCoordinates = t.getShape();
-        Point position = calculateTetrominoPosition(t);
+        int[] position = calculateTetrominoPosition(t);
         for (int i = 0; i < shapeCoordinates.length; i += 2) {
-            g2d.fillRect(position.x + (shapeCoordinates[i] * GameParameters.BLOCK_SIZE),
-                    position.y + (shapeCoordinates[i + 1] * GameParameters.BLOCK_SIZE), GameParameters.BLOCK_SIZE,
+            g2d.fillRect(position[0] + (shapeCoordinates[i] * GameParameters.BLOCK_SIZE),
+                    position[1] + (shapeCoordinates[i + 1] * GameParameters.BLOCK_SIZE), GameParameters.BLOCK_SIZE,
                     GameParameters.BLOCK_SIZE);
         }
     }
 
-    private Point calculateTetrominoPosition(Tetromino t) {
+    private int[] calculateTetrominoPosition(Tetromino t) {
         int x = t.getPosition().x * GameParameters.BLOCK_SIZE;
         int y = (t.getPosition().y - GameParameters.HIDDEN_ROWS) * GameParameters.BLOCK_SIZE;
-        return new Point(x, y);
+        return new int[] { x, y };
     }
 }
