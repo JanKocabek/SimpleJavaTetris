@@ -5,6 +5,8 @@ import java.awt.Point;
 import java.util.List;
 import java.util.Random;
 
+import org.sehes.tetris.config.GameParameters;
+
 /**
  * The Tetromino class represents the individual Tetris pieces in the game. Each
  * Tetromino has a specific shape defined by a 2D boolean grid, a color for
@@ -50,6 +52,7 @@ public class Tetromino {
     private List<Point> stateCoordination;
     private int state;
     private int[] shape;
+    private final int[] pixelCoordinates;
 
     private final TetrominoType type;
 
@@ -60,7 +63,9 @@ public class Tetromino {
         this.position = new Point(spawnPosition);
         this.type = type;
         shape = new int[stateCoordination.size() * 2];
+        pixelCoordinates = new int[shape.length];
         setShape();
+        updatePixelCoordinates();
     }
 
     public String getTypeValue() {
@@ -73,6 +78,20 @@ public class Tetromino {
 
     public List<Point> getStateCord() {
         return stateCoordination;
+    }
+
+    public int[] getPixelCoordinates() {
+        return pixelCoordinates;
+    }
+
+    private void updatePixelCoordinates() {
+        // +2 because we have x and y coordinate after each other
+        int pX = position.x * GameParameters.BLOCK_SIZE;
+        int pY = (position.y - GameParameters.HIDDEN_ROWS) * GameParameters.BLOCK_SIZE;
+        for (int i = 0; i < shape.length; i += 2) {
+            pixelCoordinates[i] = pX + (shape[i] * GameParameters.BLOCK_SIZE);
+            pixelCoordinates[i + 1] = pY + (shape[i + 1] * GameParameters.BLOCK_SIZE);
+        }
     }
 
     /**
@@ -112,6 +131,7 @@ public class Tetromino {
         }
         position.x += flag.getX();
         position.y += flag.getY();
+        updatePixelCoordinates();
     }
 
     /**
@@ -135,6 +155,7 @@ public class Tetromino {
             setPreviousState();
             setShape();
         }
+        updatePixelCoordinates();
     }
 
     /**
