@@ -82,16 +82,26 @@ public class TetrisDrawingHandler {
         return boardImg;
     }
 
+    /**
+     * Draws the current Tetromino piece based on the game board's state.
+     * It renders the Tetromino piece based on its shape and position on the board.
+     * The drawing handler interacts with the GameManager to retrieve necessary
+     * information about the game state and ensures that the visual representation
+     * of the game is accurate and up to date.
+     * 
+     * @param g2d the graphics context to draw on
+     * @param t the Tetromino piece to draw
+     */
     public void drawCurrentTetromino(Graphics2D g2d, Tetromino t) {
         if (t == null) {
             return;
         }
         g2d.setColor(t.getColor());
-        List<Point> points = t.getStateCord();
+        int[] shapeCoordinates = t.getShape();
         Point position = calculateTetrominoPosition(t);
-        for (Point point : points) {
-            g2d.fillRect(position.x + (point.x * GameParameters.BLOCK_SIZE),
-                    position.y + (point.y * GameParameters.BLOCK_SIZE), GameParameters.BLOCK_SIZE,
+        for (int i = 0; i < shapeCoordinates.length; i += 2) {
+            g2d.fillRect(position.x + (shapeCoordinates[i] * GameParameters.BLOCK_SIZE),
+                    position.y + (shapeCoordinates[i + 1] * GameParameters.BLOCK_SIZE), GameParameters.BLOCK_SIZE,
                     GameParameters.BLOCK_SIZE);
         }
     }

@@ -2,7 +2,6 @@ package org.sehes.tetris.model;
 
 import java.awt.Color;
 import java.awt.Point;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -17,39 +16,40 @@ import java.util.Random;
  * piece's state and position during gameplay.
  */
 
- /**
-     * tetromino is defined by list of points where y is row and x is column
-     * <p>
-     * the base level is y = 0 and upper one is -1
-     * center (pivot) is (0,0)
-     * left side is x=-1, right side is x=1
-     * <p>
-     * The Tetromino is defined as List of points represent the tetromino shape,
-     * color and int value The color field assigns a specific color to each
-     * tetromino type for rendering purposes.
-     * The intValue is a unique
-     * identifier for each tetromino type, used for easy retrieval from the map.
-     * The static block initializes a map that allows for quick lookup of
-     * tetromino types based on their integer value, facilitating the random
-     * generation of pieces in the factory method.
-     * <p>
-     * x is column, y is row
-     *
-     */
+/**
+ * tetromino is defined by list of points where y is row and x is column
+ * <p>
+ * the base level is y = 0 and upper one is -1
+ * center (pivot) is (0,0)
+ * left side is x=-1, right side is x=1
+ * <p>
+ * The Tetromino is defined as List of points represent the tetromino shape,
+ * color and int value The color field assigns a specific color to each
+ * tetromino type for rendering purposes.
+ * The intValue is a unique
+ * identifier for each tetromino type, used for easy retrieval from the map.
+ * The static block initializes a map that allows for quick lookup of
+ * tetromino types based on their integer value, facilitating the random
+ * generation of pieces in the factory method.
+ * <p>
+ * x is column, y is row
+ *
+ */
 public class Tetromino {
 
     private static final Random random = new Random();
+    private static final TetrominoType[] TETROMINO_TYPES = TetrominoType.values();
 
     public static Tetromino tetrominoFactory(final Point position) {
-        final TetrominoType[] values = TetrominoType.values();
-        final int tetrominoType = random.nextInt(values.length);
-        return new Tetromino(values[tetrominoType], position);
+        final int tetrominoType = random.nextInt(TETROMINO_TYPES.length);
+        return new Tetromino(TETROMINO_TYPES[tetrominoType], position);
     }
 
     private final Color color;// X column, Y row
     private final Point position;
     private List<Point> stateCoordination;
     private int state;
+    private int[] shape;
 
     private final TetrominoType type;
 
@@ -59,19 +59,38 @@ public class Tetromino {
         stateCoordination = type.getTetrominoState(state);
         this.position = new Point(spawnPosition);
         this.type = type;
-
+        shape = new int[stateCoordination.size() * 2];
+        setShape();
     }
+
     public String getTypeValue() {
         return type.name();
     }
-
 
     public Color getColor() {
         return color;
     }
 
     public List<Point> getStateCord() {
-        return cloneCoordinates(stateCoordination);
+        return stateCoordination;
+    }
+
+    /**
+     * Returns a flattened 1D int array representing the shape of the Tetromino,
+     * where each element is a pair of X and Y coordinates put after each other
+     * 
+     * @return a 1D int array representing the shape of the Tetromino
+     */
+    public int[] getShape() {
+        return shape;
+    }
+
+    private void setShape() {
+        for (int i = 0; i < stateCoordination.size(); i++) {
+            Point p = stateCoordination.get(i);
+            shape[i * 2] = p.x;
+            shape[i * 2 + 1] = p.y;
+        }
     }
 
     /**
@@ -84,7 +103,7 @@ public class Tetromino {
      *         tetromino.
      */
     public Point getPosition() {
-        return new Point(position);
+        return position;
     }
 
     public void move(final DirectionFlag flag) {
@@ -96,7 +115,8 @@ public class Tetromino {
     }
 
     /**
-     * grab the next or previous state of the tetromino from {@link TetrominoType} and return as unmodifiable list of points.
+     * grab the next or previous state of the tetromino from {@link TetrominoType}
+     * and return as unmodifiable list of points.
      * <p>
      *
      * @param flag ROTATE_R for next state, ROTATE_L for previous state
@@ -110,8 +130,10 @@ public class Tetromino {
         this.stateCoordination = coordinates;
         if (flag == DirectionFlag.ROTATE_R) {
             setNextState();
+            setShape();
         } else if (flag == DirectionFlag.ROTATE_L) {
             setPreviousState();
+            setShape();
         }
     }
 
@@ -135,23 +157,6 @@ public class Tetromino {
     private void setPreviousState() {
         state = (state + 3) % 4;// 0,3,2,1
     }
-
-    /**
-     * Helper method for making always deep copy of the points list
-     *
-     * @param coordinates current tetromino coordinates
-     * @return deep copy of the input coordinates
-     */
-
-    private List<Point> cloneCoordinates(final List<Point> coordinates) {
-        final List<Point> newCoordinates = new ArrayList<>(coordinates.size());
-        for (final Point point : coordinates) {
-            newCoordinates.add(new Point(point));
-        }
-        return newCoordinates;
-    }
-
-   
 
     // methods for junit testing purpose
     static Tetromino spawnSpecificTetromino(final TetrominoType tetrominoType, final Point startPos) {
