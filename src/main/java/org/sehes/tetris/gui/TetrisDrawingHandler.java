@@ -97,18 +97,10 @@ public class TetrisDrawingHandler {
             return;
         }
         g2d.setColor(t.getColor());
-        int[] shapeCoordinates = t.getShape();
-        int[] position = calculateTetrominoPosition(t);
-        for (int i = 0; i < shapeCoordinates.length; i += 2) {
-            g2d.fillRect(position[0] + (shapeCoordinates[i] * GameParameters.BLOCK_SIZE),
-                    position[1] + (shapeCoordinates[i + 1] * GameParameters.BLOCK_SIZE), GameParameters.BLOCK_SIZE,
+        int[] pixelCoordinates = t.getPixelCoordinates();
+        for (int i = 0; i < pixelCoordinates.length; i += 2) {
+            g2d.fillRect(pixelCoordinates[i], pixelCoordinates[i + 1], GameParameters.BLOCK_SIZE,
                     GameParameters.BLOCK_SIZE);
         }
-    }
-
-    private int[] calculateTetrominoPosition(Tetromino t) {
-        int x = t.getPosition().x * GameParameters.BLOCK_SIZE;
-        int y = (t.getPosition().y - GameParameters.HIDDEN_ROWS) * GameParameters.BLOCK_SIZE;
-        return new int[] { x, y };
     }
 }
