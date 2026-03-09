@@ -1,6 +1,5 @@
 package org.sehes.tetris.model;
 
-import static java.lang.System.Logger.Level.INFO;
 import static java.lang.System.Logger.Level.WARNING;
 
 import java.awt.Point;
@@ -28,7 +27,7 @@ import org.sehes.tetris.config.GameParameters;
  */
 public class GameBoard {
 
-    private static  final System.Logger myLogger = System.getLogger(GameBoard.class.getName());
+    private static final System.Logger myLogger = System.getLogger(GameBoard.class.getName());
 
     private Tetromino currentTetromino;
     private final BlockContent[][] board;
@@ -159,8 +158,6 @@ public class GameBoard {
         final Point position = currentTetromino.getPosition();
         final List<Point> tetromino = currentTetromino.getStateCord();
         for (Point block : tetromino) {
-            myLogger.log(INFO, () -> "Adding block X: " + block.x + ", Y: " + block.y + " to pos X: " + position.x
-                                     + ",Y: " + position.y + " which would be: " + position.x + block.x + ", " + position.y + block.y);
             this.board[position.y + block.y][position.x + block.x] = BlockContent
                     .fromColor(currentTetromino.getColor());
         }
@@ -185,7 +182,8 @@ public class GameBoard {
                 shiftLinesDown(row);
                 linesClearedCount++;
                 lineCleared = true;
-                row--;//todo: in future make the counting of line and clearing of lines separated to prevent this
+                row--;// todo: in future make the counting of line and clearing of lines separated to
+                      // prevent this
             }
         }
         if (lineCleared) {
@@ -205,8 +203,8 @@ public class GameBoard {
             case 2 -> score += 300;
             case 3 -> score += 500;
             case 4 -> score += 800;
-            default ->//shouldn't happen in current implementation
-                    myLogger.log(WARNING, () -> "Invalid number of lines cleared: " + linesCleared);
+            default -> // shouldn't happen in current implementation
+                myLogger.log(WARNING, () -> "Invalid number of lines cleared: " + linesCleared);
         }
     }
 
@@ -229,10 +227,11 @@ public class GameBoard {
      * compare if a new position of tetromino grid isn't occupied, both are
      * represented as 2D boolean array tetromino position [column][row]
      *
-     * @param stateCord   List of cordinates represented current tetromino
-     * @param position the position of the tetromino before moving
-     * @param flag     which direction are the tetromino supposed to move determines
-     *                 the new position of the tetromino after moving
+     * @param stateCord List of cordinates represented current tetromino
+     * @param position  the position of the tetromino before moving
+     * @param flag      which direction are the tetromino supposed to move
+     *                  determines
+     *                  the new position of the tetromino after moving
      * @return true if collision not happened and the position is in the
      *         gameBoard boundaries
      */
@@ -247,13 +246,14 @@ public class GameBoard {
         return !isCollisionDetected(stateCord, newPosition);
     }
 
-
     /**
      * Checks if the position after moving or rotating a piece would collide with
      * any existing pieces on the game board.
      *
-     * @param stateCord   The list of coordinates representing the tetromino's new state
-     * @param newPosition The expected new position of the tetromino pivot on the board
+     * @param stateCord   The list of coordinates representing the tetromino's new
+     *                    state
+     * @param newPosition The expected new position of the tetromino pivot on the
+     *                    board
      * @return {@code true} if there is a collision, {@code false} otherwise
      */
     private boolean isCollisionDetected(final List<Point> stateCord, final Point newPosition) {
@@ -271,8 +271,9 @@ public class GameBoard {
      * gameBoardBoundaries and if sp then return true if dont colide with other
      * piece;
      *
-     * @param coordination the list of cordination represent the tetromino state after
-     *               expected rotation
+     * @param coordination the list of cordination represent the tetromino state
+     *                     after
+     *                     expected rotation
      * @return true if original position is ok
      */
     private boolean canRotate(final List<Point> coordination) {
@@ -290,17 +291,17 @@ public class GameBoard {
      * this method check if the position after moving a piece is out of board or
      * not
      *
-     * @param newStateCord   the coordniation of tetromino after move/rotation
-     * @param position the destined position of the tetromino after moving /
-     *                 rotating(doesn't change it) on the board
+     * @param newStateCord the coordniation of tetromino after move/rotation
+     * @param position     the destined position of the tetromino after moving /
+     *                     rotating(doesn't change it) on the board
      * @return true if the final position is out of boundaries
      */
-    private boolean isOutOfBoundaries(final List<Point> newStateCord, final Point position) {    
+    private boolean isOutOfBoundaries(final List<Point> newStateCord, final Point position) {
         for (final Point cord : newStateCord) {
             if (cord.x + position.x < 0
-                || cord.y + position.y < 0
-                || cord.x + position.x >= board[0].length
-                || cord.y + position.y >= board.length) {
+                    || cord.y + position.y < 0
+                    || cord.x + position.x >= board[0].length
+                    || cord.y + position.y >= board.length) {
                 return true;
             }
         }
@@ -320,8 +321,6 @@ public class GameBoard {
         Arrays.fill(board[0], BlockContent.EMPTY);
     }
 
-
-
     /*
      * JUNIT TEST ONLY methods
      * here is section of testing method for assuring the code correctness
@@ -332,7 +331,7 @@ public class GameBoard {
      * JUNIT TEST ONLY<br>
      * this method fill last line with blocks
      */
-    
+
     void fillLineForTestOnly() {
         int lastLine = board.length - 1;
         Arrays.fill(board[lastLine], BlockContent.CYAN);
@@ -341,6 +340,7 @@ public class GameBoard {
     /**
      * JUNIT TEST ONLY<br>
      * this method set the current tetromino to the specific tetromino
+     * 
      * @param tetromino the tetromino you need to spawn
      */
     void spawnTetrominoForTestOnly(final Tetromino tetromino) {
