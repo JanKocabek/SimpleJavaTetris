@@ -3,10 +3,9 @@ package org.sehes.tetris.gui;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.util.List;
+import java.util.Map;
 
 import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.model.BlockContent;
@@ -24,9 +23,25 @@ import org.sehes.tetris.model.Tetromino;
 public class TetrisDrawingHandler {
     private BufferedImage backGroundGrid = null;
     private BufferedImage boardImg = null;
+    private final RenderingHints hints = createHints();
+
+    
+    /**
+     * Creates a RenderingHints object with settings optimized for fast rendering
+     * with nearest neighbor interpolation. The resulting object is used to configure
+     * the graphics context for rendering the Tetris game board.
+     *
+     * @return The RenderingHints object with optimized settings for fast rendering
+     */
+    private static RenderingHints createHints() {
+        return new RenderingHints(
+                Map.of(
+                        RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF,
+                        RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED,
+                        RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR));
+    }
 
     public void initialize(Graphics2D g2d) {
-        RenderingHints hints = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setRenderingHints(hints);
     }
 
@@ -90,7 +105,7 @@ public class TetrisDrawingHandler {
      * of the game is accurate and up to date.
      * 
      * @param g2d the graphics context to draw on
-     * @param t the Tetromino piece to draw
+     * @param t   the Tetromino piece to draw
      */
     public void drawCurrentTetromino(Graphics2D g2d, Tetromino t) {
         if (t == null) {
