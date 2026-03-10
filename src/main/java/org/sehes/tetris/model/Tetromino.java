@@ -1,7 +1,6 @@
 package org.sehes.tetris.model;
 
 import java.awt.Color;
-import java.awt.Point;
 import java.util.List;
 import java.util.Random;
 
@@ -42,25 +41,30 @@ public class Tetromino {
     private static final Random random = new Random();
     private static final TetrominoType[] TETROMINO_TYPES = TetrominoType.values();
 
-    public static Tetromino tetrominoFactory(final Point position) {
+    public static Tetromino tetrominoFactory(final Coordinate position) {
         final int tetrominoType = random.nextInt(TETROMINO_TYPES.length);
         return new Tetromino(TETROMINO_TYPES[tetrominoType], position);
     }
 
     private final Color color;// X column, Y row
-    private final Point position;
-    private List<Point> stateCoordination;
-    private int state;
-    private int[] shape;
-    private final int[] pixelCoordinates;
+    private int positionX;
+    private int positionY;
+    private List<Coordinate> stateCoordination;
+    private int rotationState; // number represent curent rotation state of the tetromino
+    private final int[] shape; 
+    private final int[] pixelCoordinates;// pixel coordination of the blocks for the drawing
 
     private final TetrominoType type;
 
-    private Tetromino(final TetrominoType type, final Point spawnPosition) {
-        this.state = 0;
+    private Tetromino( final TetrominoType type, final Coordinate spawnPosition) {
+        if (type == null || spawnPosition == null) {
+            throw new IllegalArgumentException("Tetromino type and spawn position cannot be null.");
+        }
+        this.rotationState = 0;
         color = type.getColor();
-        stateCoordination = type.getTetrominoState(state);
-        this.position = new Point(spawnPosition);
+        stateCoordination = type.getTetrominoState(rotationState);
+        this.positionX = spawnPosition.x();
+        this.positionY = spawnPosition.y();
         this.type = type;
         shape = new int[stateCoordination.size() * 2];
         pixelCoordinates = new int[shape.length];
@@ -76,7 +80,7 @@ public class Tetromino {
         return color;
     }
 
-    public List<Point> getStateCord() {
+    public List<Coordinate> getStateCord() {
         return stateCoordination;
     }
 
@@ -86,8 +90,8 @@ public class Tetromino {
 
     private void updatePixelCoordinates() {
         // +2 because we have x and y coordinate after each other
-        int pX = position.x * GameParameters.BLOCK_SIZE;
-        int pY = (position.y - GameParameters.HIDDEN_ROWS) * GameParameters.BLOCK_SIZE;
+        int pX = positionX * GameParameters.BLOCK_SIZE;
+        int pY = (positionY - GameParameters.HIDDEN_ROWS) * GameParameters.BLOCK_SIZE;
         for (int i = 0; i < shape.length; i += 2) {
             pixelCoordinates[i] = pX + (shape[i] * GameParameters.BLOCK_SIZE);
             pixelCoordinates[i + 1] = pY + (shape[i + 1] * GameParameters.BLOCK_SIZE);
@@ -105,32 +109,35 @@ public class Tetromino {
     }
 
     private void setShape() {
+        if (stateCoordination.size() * 2 != shape.length) {
+            throw new IllegalStateException("State coordination size mismatch");
+        }
         for (int i = 0; i < stateCoordination.size(); i++) {
-            Point p = stateCoordination.get(i);
-            shape[i * 2] = p.x;
-            shape[i * 2 + 1] = p.y;
+            Coordinate p = stateCoordination.get(i);
+            shape[i * 2] = p.x();
+            shape[i * 2 + 1] = p.y();
         }
     }
 
     /**
-     * Returns the current position of the tetromino as an immutable Point
-     * object. The X is the column coordinate, and the second is the Y row
-     * coordinate.
+     * Returns the X (column) coordinate of the tetromino's position.
      *
-     * @see Point
-     * @return A new Point object representing the current position of the
-     *         tetromino.
+     * @return The column position of the tetromino.
      */
-    public Point getPosition() {
-        return position;
+    public int getPositionX() {
+        return positionX;
+    }
+
+    public int getPositionY() {
+        return positionY;
     }
 
     public void move(final DirectionFlag flag) {
         if (flag == null) {
             return;
         }
-        position.x += flag.getX();
-        position.y += flag.getY();
+        positionX += flag.getX();
+        positionY += flag.getY();
         updatePixelCoordinates();
     }
 
@@ -142,11 +149,11 @@ public class Tetromino {
      * @param flag ROTATE_R for next state, ROTATE_L for previous state
      * @return the next or previous state of the tetromino based on the flag
      */
-    public List<Point> rotate(final DirectionFlag flag) {
-        return flag == DirectionFlag.ROTATE_R ? type.getNextState(state) : type.getPreviousState(state);
+    public List<Coordinate> rotate(final DirectionFlag flag) {
+        return flag == DirectionFlag.ROTATE_R ? type.getNextState(rotationState) : type.getPreviousState(rotationState);
     }
 
-    void setState(final List<Point> coordinates, final DirectionFlag flag) {
+    void setState(final List<Coordinate> coordinates, final DirectionFlag flag) {
         this.stateCoordination = coordinates;
         if (flag == DirectionFlag.ROTATE_R) {
             setNextState();
@@ -154,6 +161,8 @@ public class Tetromino {
         } else if (flag == DirectionFlag.ROTATE_L) {
             setPreviousState();
             setShape();
+        } else {
+            throw new IllegalArgumentException("Invalid rotation flag: " + flag);
         }
         updatePixelCoordinates();
     }
@@ -165,7 +174,7 @@ public class Tetromino {
      * 3
      */
     private void setNextState() {
-        state = (state + 1) % 4;// 0,1,2,3
+        rotationState = (rotationState + 1) % 4;// 0,1,2,3
     }
 
     /**
@@ -176,15 +185,15 @@ public class Tetromino {
      * @see #setNextState()
      */
     private void setPreviousState() {
-        state = (state + 3) % 4;// 0,3,2,1
+        rotationState = (rotationState + 3) % 4;// 0,3,2,1
     }
 
     // methods for junit testing purpose
-    static Tetromino spawnSpecificTetromino(final TetrominoType tetrominoType, final Point startPos) {
+    static Tetromino spawnSpecificTetromino(final TetrominoType tetrominoType, final Coordinate startPos) {
         return new Tetromino(tetrominoType, startPos);
     }
 
     int getCurrentState() {
-        return state;
+        return rotationState;
     }
 }

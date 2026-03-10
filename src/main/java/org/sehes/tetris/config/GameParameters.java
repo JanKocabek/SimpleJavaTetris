@@ -1,6 +1,6 @@
 package org.sehes.tetris.config;
 
-import java.awt.Point;
+import org.sehes.tetris.model.Coordinate;
 
 /**
  * The GameParameters class is a utility class that defines various constants
@@ -22,5 +22,5 @@ public final class GameParameters {
     public static final int VISIBLE_ROWS = 20;//number of rows that are visible to player, the top 2 rows are for spawning new tetromino and are not visible to player
     public static final int GAME_SPEED = 1600;//the speed of the game, in milliseconds, the lower the faster
     public static final int HIDDEN_ROWS = ROWS - VISIBLE_ROWS;//the number of rows that are not visible to player, used for calculating the position of tetromino on the game board
-    public static final Point SPAWN_POINT = new Point(COLUMNS / 2 - 1, 1);//the point where new tetromino spawns, it is in the middle of the top row of the game board
+    public static final Coordinate SPAWN_POINT = new Coordinate(COLUMNS / 2 - 1, 1);//the point where new tetromino spawns, it is in the middle of the top row of the game board
 }

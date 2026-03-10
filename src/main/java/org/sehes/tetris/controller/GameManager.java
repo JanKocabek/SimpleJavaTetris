@@ -70,7 +70,7 @@ public class GameManager {
             while (gravityAccumulator >= movementSpeed) {
                 if (!gameBoard.tryMovePiece(DirectionFlag.DOWN)) {
 
-                    gameBoard.addBlockToBoard();
+                    gameBoard.lockTetrominoInPlace();
                     isDirty = true;
                     gameBoard.checkAndClearLines();
                     scoreUI.updateScore(gameBoard.getScore());
@@ -220,6 +220,8 @@ public class GameManager {
     private void resetTime() {
         prevTime = System.nanoTime();
         gravityAccumulator = 0;
+        frameCount = 0;
+        fpsTimer = 0;
     }
 
     private void newGame() {
