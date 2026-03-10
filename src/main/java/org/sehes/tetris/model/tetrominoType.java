@@ -82,7 +82,7 @@ public enum TetrominoType {
 
     }
 
-    public Color getColor() {
+    Color getColor() {
         return color;
     }
 
@@ -110,6 +110,15 @@ public enum TetrominoType {
         return allStates.get(nextState);
     }
 
+    /**
+     * Gets the previous state of the tetromino based on the given state.
+     * This method simply decrements the given state by 1 (modulo 4) to get
+     * the previous state of the tetromino.
+     *
+     * @param state the current state of the tetromino
+     * @return the List of Coordinates describing the tetromino shape at the
+     *         previous state index
+     */
     public List<Coordinate> getPreviousState(int state) {
         int previousState = (state + 3) % 4;
         return allStates.get(previousState);
