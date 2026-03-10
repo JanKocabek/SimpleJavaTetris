@@ -15,7 +15,7 @@ import org.sehes.tetris.gui.TetrisCanvas;
 import org.sehes.tetris.gui.TetrisDrawingHandler;
 import org.sehes.tetris.model.DirectionFlag;
 import org.sehes.tetris.model.GameBoard;
-import org.sehes.tetris.model.IBoardView;
+import org.sehes.tetris.model.BoardView;
 import org.sehes.tetris.model.Tetromino;
 
 /**
@@ -134,7 +134,7 @@ public class GameManager {
         return gameState;
     }
 
-    public IBoardView getBoardView() {
+    public BoardView getBoardView() {
         return gameBoard.getBoardView();
     }
 

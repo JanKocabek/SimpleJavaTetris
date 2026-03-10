@@ -23,7 +23,7 @@ import org.sehes.tetris.config.GameParameters;
  * @author Sehes
  * @version 0.5
  * @see Tetromino
- * @see IBoardView
+ * @see BoardView
  */
 public class GameBoard {
 
@@ -37,14 +37,14 @@ public class GameBoard {
      */
     private final Point startingPosition = new Point(GameParameters.SPAWN_POINT);// the position where new tetromino
     // will spawn column 4 row 0
-    private final IBoardView boardView;
+    private final BoardView boardView;
     private int score;
 
     public GameBoard() {
         board = new BlockContent[GameParameters.ROWS][GameParameters.COLUMNS];
         score = 0;
         fillBoard();
-        this.boardView = new IBoardView() {
+        this.boardView = new BoardView() {
             @Override
             public int getWidth() {
                 return board[0].length;
@@ -86,7 +86,7 @@ public class GameBoard {
      * @return the IBoardView instance representing the current state of the
      *         game board.
      */
-    public IBoardView getBoardView() {
+    public BoardView getBoardView() {
         return boardView;
     }
 

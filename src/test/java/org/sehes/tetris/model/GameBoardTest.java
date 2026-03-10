@@ -31,7 +31,7 @@ class GameBoardTest {
 
         @Test
         void testGetBoardView() {
-            IBoardView boardView = gameBoard.getBoardView();
+            BoardView boardView = gameBoard.getBoardView();
             assertNotNull(boardView);
             assertEquals(GameParameters.COLUMNS, boardView.getWidth());
             assertEquals(GameParameters.ROWS, boardView.getHeight());
@@ -40,7 +40,7 @@ class GameBoardTest {
 
         @Test
         void testBoardViewGetBlockContent() {
-            IBoardView boardView = gameBoard.getBoardView();
+            BoardView boardView = gameBoard.getBoardView();
             assertEquals(BlockContent.EMPTY, boardView.getBlockContent(0, 0));
         }
 
@@ -80,7 +80,7 @@ class GameBoardTest {
 
         @Test
         void testBoardViewGetBlockContentOutOfBounds() {
-            IBoardView boardView = gameBoard.getBoardView();
+            BoardView boardView = gameBoard.getBoardView();
             assertThrows(IndexOutOfBoundsException.class, () -> boardView.getBlockContent(-1, 0));
         }
 
@@ -97,7 +97,7 @@ class GameBoardTest {
         Tetromino tetromino = gameBoard.getCurrentTetromino();
         //when
         gameBoard.addBlockToBoard();
-        IBoardView boardView = gameBoard.getBoardView();
+        BoardView boardView = gameBoard.getBoardView();
         //then
         assertNotNull(tetromino);
         assertNotNull(boardView);

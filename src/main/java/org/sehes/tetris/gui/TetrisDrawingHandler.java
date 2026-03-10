@@ -9,7 +9,7 @@ import java.util.Map;
 
 import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.model.BlockContent;
-import org.sehes.tetris.model.IBoardView;
+import org.sehes.tetris.model.BoardView;
 import org.sehes.tetris.model.Tetromino;
 
 /**
@@ -66,18 +66,18 @@ public class TetrisDrawingHandler {
         g2d.dispose();
     }
 
-    public void drawBoard(Graphics2D g2d, IBoardView boardView, boolean isBoardDirty) {
+    public void paintGameBoard(Graphics2D g2d, BoardView boardView, boolean isBoardDirty) {
         if (boardImg == null) {
             boardImg = new BufferedImage(GameParameters.COLUMNS * GameParameters.BLOCK_SIZE,
                     GameParameters.VISIBLE_ROWS * GameParameters.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
         }
         if (isBoardDirty) {
-            boardImg = reDrawBoard(boardView);
+            boardImg = bakeBoardImg(boardView);
         }
         g2d.drawImage(boardImg, 0, 0, null);
     }
 
-    private BufferedImage reDrawBoard(IBoardView boardView) {
+    private BufferedImage bakeBoardImg(BoardView boardView) {
         Graphics2D g2d = boardImg.createGraphics();
         g2d.setComposite(AlphaComposite.Clear);
         g2d.fillRect(0, 0, boardImg.getWidth(), boardImg.getHeight());
