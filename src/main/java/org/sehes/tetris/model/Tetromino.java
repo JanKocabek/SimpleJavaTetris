@@ -46,7 +46,6 @@ public class Tetromino {
         return new Tetromino(TETROMINO_TYPES[tetrominoType], position);
     }
 
-    private final Color color;// X column, Y row
     private int positionX;
     private int positionY;
     private List<Coordinate> stateCoordination;
@@ -61,7 +60,6 @@ public class Tetromino {
             throw new IllegalArgumentException("Tetromino type and spawn position cannot be null.");
         }
         this.rotationState = 0;
-        color = type.getColor();
         stateCoordination = type.getTetrominoState(rotationState);
         this.positionX = spawnPosition.x();
         this.positionY = spawnPosition.y();
@@ -77,7 +75,7 @@ public class Tetromino {
     }
 
     public Color getColor() {
-        return color;
+        return type.getColor();
     }
 
     public List<Coordinate> getStateCord() {
@@ -110,7 +108,8 @@ public class Tetromino {
 
     private void setShape() {
         if (stateCoordination.size() * 2 != shape.length) {
-            throw new IllegalStateException("State coordination size mismatch");
+            throw new IllegalStateException("State coordination size mismatch: expected " + (shape.length / 2)
+                    + " coordinates, got " + stateCoordination.size());
         }
         for (int i = 0; i < stateCoordination.size(); i++) {
             Coordinate p = stateCoordination.get(i);
@@ -155,14 +154,22 @@ public class Tetromino {
 
     /**
      * Sets the state of the Tetromino to the given coordinates and rotation flag.
-     * If the flag is ROTATE_R, it sets the next state of the Tetromino based on the given coordinates.
-     * If the flag is ROTATE_L, it sets the previous state of the Tetromino based on the given coordinates.
+     * If the flag is ROTATE_R, it sets the next state of the Tetromino based on the
+     * given coordinates.
+     * If the flag is ROTATE_L, it sets the previous state of the Tetromino based on
+     * the given coordinates.
      * If the flag is neither ROTATE_R nor ROTATE_L, it does nothing.
-     * After setting the state, it updates the shape and pixel coordinates accordingly.
-     * @param coordinates the new state of the Tetromino
-     * @param directionFlag the rotation flag to determine the next or previous state of the Tetromino
+     * After setting the state, it updates the shape and pixel coordinates
+     * accordingly.
+     * 
+     * @param coordinates   the new state of the Tetromino
+     * @param directionFlag the rotation flag to determine the next or previous
+     *                      state of the Tetromino
      */
     void setState(final List<Coordinate> coordinates, final DirectionFlag directionFlag) {
+        if (coordinates == null || directionFlag == null) {
+            return;
+        }
         this.stateCoordination = coordinates;
         switch (directionFlag) {
             case ROTATE_R:
