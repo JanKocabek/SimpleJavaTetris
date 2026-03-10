@@ -51,12 +51,12 @@ public class Tetromino {
     private int positionY;
     private List<Coordinate> stateCoordination;
     private int rotationState; // number represent curent rotation state of the tetromino
-    private final int[] shape; 
+    private final int[] shape;
     private final int[] pixelCoordinates;// pixel coordination of the blocks for the drawing
 
     private final TetrominoType type;
 
-    private Tetromino( final TetrominoType type, final Coordinate spawnPosition) {
+    private Tetromino(final TetrominoType type, final Coordinate spawnPosition) {
         if (type == null || spawnPosition == null) {
             throw new IllegalArgumentException("Tetromino type and spawn position cannot be null.");
         }
@@ -153,21 +153,28 @@ public class Tetromino {
         return flag == DirectionFlag.ROTATE_R ? type.getNextState(rotationState) : type.getPreviousState(rotationState);
     }
 
-    void setState(final List<Coordinate> coordinates, final DirectionFlag flag) {
+    /**
+     * Sets the state of the Tetromino to the given coordinates and rotation flag.
+     * If the flag is ROTATE_R, it sets the next state of the Tetromino based on the given coordinates.
+     * If the flag is ROTATE_L, it sets the previous state of the Tetromino based on the given coordinates.
+     * If the flag is neither ROTATE_R nor ROTATE_L, it does nothing.
+     * After setting the state, it updates the shape and pixel coordinates accordingly.
+     * @param coordinates the new state of the Tetromino
+     * @param directionFlag the rotation flag to determine the next or previous state of the Tetromino
+     */
+    void setState(final List<Coordinate> coordinates, final DirectionFlag directionFlag) {
         this.stateCoordination = coordinates;
-        switch (flag) {
-          case DirectionFlag.ROTATE_R -> {
-              setNextState();
-              setShape();
-          }
-          case DirectionFlag.ROTATE_L -> {
-              setPreviousState();
-              setShape();
-          }
-          default -> {
-              // do nothing
-          }
+        switch (directionFlag) {
+            case ROTATE_R:
+                setNextState();
+                break;
+            case ROTATE_L:
+                setPreviousState();
+                break;
+            default:
+                // do nothing
         }
+        setShape();
         updatePixelCoordinates();
     }
 
