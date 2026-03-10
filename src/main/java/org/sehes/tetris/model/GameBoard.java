@@ -278,10 +278,7 @@ public class GameBoard {
 
     /**
      * Checks if the position of the tetromino after a move or rotation is out of
-     * /**
-     * Checks if the position of the tetromino after a move or rotation is out of
-     * the game board boundaries.
-     *
+     * the game board boundaries.     *
      * @param newStateCord The coordinates of the tetromino after the move or
      *                     rotation.
      * @param position     The position of the tetromino pivot on the board after
