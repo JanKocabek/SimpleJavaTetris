@@ -20,14 +20,10 @@ public class TetrisKeyInputHandler extends KeyAdapter {
     public void keyPressed(KeyEvent e) {
 
         switch (gameManager.getGameState()) {
-            case PREPARED, GAME_OVER -> {
-                handleNotRunningGame(e);
-            }
+            case PREPARED, GAME_OVER -> handleNotRunningGame(e);
             case PLAYING ->
                 handlePlayingStateInput(e);
-            case PAUSED -> {
-                handlePausedStateInput(e);
-            }
+            case PAUSED ->  handlePausedStateInput(e);
             default -> {
                 // Do nothing for other states
             }
@@ -40,6 +36,9 @@ public class TetrisKeyInputHandler extends KeyAdapter {
                 gameManager.startGame();
             case KeyEvent.VK_ESCAPE ->
                 gameManager.exitGame();
+            default -> {
+                // Do nothing for other keys
+            }
         }
     }
 

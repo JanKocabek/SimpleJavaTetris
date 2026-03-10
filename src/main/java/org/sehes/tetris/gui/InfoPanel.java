@@ -40,13 +40,13 @@ public class InfoPanel extends JPanel {
 
     private static class InfoLabel extends JLabel {
 
-        private final Font infoFont = new Font(Font.SERIF, Font.BOLD, 18);
+        private static final Font INFO_FONT = new Font(Font.SERIF, Font.BOLD, 18);
 
         InfoLabel() {
             setText("");
             setHorizontalAlignment(SwingConstants.CENTER);
             setVerticalAlignment(SwingConstants.TOP);
-            setFont(infoFont);
+            setFont(INFO_FONT);
             setForeground(Color.black);
         }
 
@@ -70,10 +70,10 @@ public class InfoPanel extends JPanel {
     }
 
     private static class FpsLabel extends JLabel {
-        private final Font fpsFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);
+        private static final Font FPS_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 12);
 
         FpsLabel() {
-            setFont(fpsFont);
+            setFont(FPS_FONT);
             setForeground(Color.BLACK);
             setHorizontalAlignment(SwingConstants.RIGHT);
             setText("FPS: 0");

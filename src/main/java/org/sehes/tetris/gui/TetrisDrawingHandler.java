@@ -21,14 +21,14 @@ import org.sehes.tetris.model.Tetromino;
  * representation of the game is accurate and up to date.
  */
 public class TetrisDrawingHandler {
-    private BufferedImage backGroundGrid = null;
+    private BufferedImage backgroundGrid = null;
     private BufferedImage boardImg = null;
     private final RenderingHints hints = createHints();
 
-    
     /**
      * Creates a RenderingHints object with settings optimized for fast rendering
-     * with nearest neighbor interpolation. The resulting object is used to configure
+     * with nearest neighbor interpolation. The resulting object is used to
+     * configure
      * the graphics context for rendering the Tetris game board.
      *
      * @return The RenderingHints object with optimized settings for fast rendering
@@ -46,15 +46,15 @@ public class TetrisDrawingHandler {
     }
 
     public BufferedImage getGrid() {
-        return backGroundGrid;
+        return backgroundGrid;
     }
 
     public void drawGrid() {
-        backGroundGrid = new BufferedImage(GameParameters.COLUMNS * GameParameters.BLOCK_SIZE,
+        backgroundGrid = new BufferedImage(GameParameters.COLUMNS * GameParameters.BLOCK_SIZE,
                 GameParameters.VISIBLE_ROWS * GameParameters.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = backGroundGrid.createGraphics();
-        final int width = backGroundGrid.getWidth();
-        final int height = backGroundGrid.getHeight();
+        Graphics2D g2d = backgroundGrid.createGraphics();
+        final int width = backgroundGrid.getWidth();
+        final int height = backgroundGrid.getHeight();
 
         g2d.setColor(Color.YELLOW);
         for (int i = 1; i < GameParameters.COLUMNS; i++) {
@@ -72,7 +72,7 @@ public class TetrisDrawingHandler {
                     GameParameters.VISIBLE_ROWS * GameParameters.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
         }
         if (isBoardDirty) {
-            boardImg = bakeBoardImg(boardView);
+            bakeBoardImg(boardView);
         }
         g2d.drawImage(boardImg, 0, 0, null);
     }
@@ -82,7 +82,7 @@ public class TetrisDrawingHandler {
         g2d.setComposite(AlphaComposite.Clear);
         g2d.fillRect(0, 0, boardImg.getWidth(), boardImg.getHeight());
         g2d.setComposite(AlphaComposite.SrcOver);
-        for (int row = boardView.getHeight() - 1; row >= 0; row--) {
+        for (int row = boardView.getHeight() - 1; row >= GameParameters.HIDDEN_ROWS; row--) {
             for (int col = boardView.getWidth() - 1; col >= 0; col--) {
                 BlockContent content = boardView.getBlockContent(row, col);
                 if (content != BlockContent.EMPTY) {
