@@ -5,17 +5,41 @@ import java.awt.event.KeyEvent;
 
 import org.sehes.tetris.model.DirectionFlag;
 
-/*
-    * The TetrisKeyInputHandler class is responsible for handling keyboard input during the Tetris game. It extends KeyAdapter and overrides the keyPressed method to respond to specific key events based on the current state of the game. Depending on whether the game is initializing, playing, paused, or over, it processes different key inputs to control the game flow, such as starting the game, moving or rotating the Tetromino pieces, pausing or resuming the game. This class interacts with the GameManager to update the game state accordingly based on user input.
+/**
+ * The TetrisKeyInputHandler class is responsible for handling keyboard input
+ * for the Tetris game.
+ * It handles the input based on the current state of the game. If the game is
+ * not running
+ * (i.e. the game state is PREPARED or GAME_OVER), it handles the input to start
+ * a new game
+ * or exit the application. If the game is running, it handles the input to move
+ * the current
+ * piece, rotate it, pause the game, or exit the application. The class extends
+ * the KeyAdapter class and overrides the keyPressed method to handle the input.
+ *
+ * @author Sehes
+ * @version 0.5
  */
 public class TetrisKeyInputHandler extends KeyAdapter {
 
     private final GameManager gameManager;
 
+    /**
+     * Constructor for the TetrisKeyInputHandler class.
+     * 
+     * @param gameManager The GameManager responsible for managing the game state
+     *                    and logic.
+     */
     public TetrisKeyInputHandler(GameManager gameManager) {
         this.gameManager = gameManager;
     }
 
+    /**
+     * Method to handle the input based on the current state of the game.
+     * 
+     * @param e The KeyEvent object containing information about the key that was
+     *          pressed.
+     */
     @Override
     public void keyPressed(KeyEvent e) {
 
@@ -23,13 +47,34 @@ public class TetrisKeyInputHandler extends KeyAdapter {
             case PREPARED, GAME_OVER -> handleNotRunningGame(e);
             case PLAYING ->
                 handlePlayingStateInput(e);
-            case PAUSED ->  handlePausedStateInput(e);
+            case PAUSED -> handlePausedStateInput(e);
             default -> {
                 // Do nothing for other states
             }
         }
     }
 
+    /**
+     * Method to handle the input when the game is running.
+     * 
+     * @param e The KeyEvent object containing information about the key that was
+     *          pressed.
+     */
+    private void handlePausedStateInput(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+            gameManager.resumeGame();
+        }
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            gameManager.exitGame();
+        }
+    }
+
+    /**
+     * Method to handle the input when the game is not running.
+     * 
+     * @param e The KeyEvent object containing information about the key that was
+     *          pressed.
+     */
     private void handleNotRunningGame(KeyEvent e) {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_ENTER ->
@@ -42,15 +87,12 @@ public class TetrisKeyInputHandler extends KeyAdapter {
         }
     }
 
-    private void handlePausedStateInput(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-            gameManager.resumeGame();
-        }
-        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-            gameManager.exitGame();
-        }
-    }
-
+    /**
+     * Method to handle the input when the game is running.
+     * 
+     * @param e The KeyEvent object containing information about the key that was
+     *          pressed.
+     */
     private void handlePlayingStateInput(KeyEvent e) {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_RIGHT ->
