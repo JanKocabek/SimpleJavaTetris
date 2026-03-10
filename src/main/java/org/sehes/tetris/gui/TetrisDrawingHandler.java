@@ -29,8 +29,9 @@ public class TetrisDrawingHandler {
      * Creates a RenderingHints object with settings optimized for fast rendering
      * with nearest neighbor interpolation. The resulting object is used to
      * configure
-     * the graphics context for rendering the Tetris game board.
-     *
+     * + * the graphics context for rendering the Tetris game board.
+     * <p>
+     * 
      * @return The RenderingHints object with optimized settings for fast rendering
      */
     private static RenderingHints createHints() {
@@ -77,7 +78,7 @@ public class TetrisDrawingHandler {
         g2d.drawImage(boardImg, 0, 0, null);
     }
 
-    private BufferedImage bakeBoardImg(BoardView boardView) {
+    private void bakeBoardImg(BoardView boardView) {
         Graphics2D g2d = boardImg.createGraphics();
         g2d.setComposite(AlphaComposite.Clear);
         g2d.fillRect(0, 0, boardImg.getWidth(), boardImg.getHeight());
