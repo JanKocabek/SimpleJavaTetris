@@ -155,14 +155,18 @@ public class Tetromino {
 
     void setState(final List<Coordinate> coordinates, final DirectionFlag flag) {
         this.stateCoordination = coordinates;
-        if (flag == DirectionFlag.ROTATE_R) {
-            setNextState();
-            setShape();
-        } else if (flag == DirectionFlag.ROTATE_L) {
-            setPreviousState();
-            setShape();
-        } else {
-            throw new IllegalArgumentException("Invalid rotation flag: " + flag);
+        switch (flag) {
+          case DirectionFlag.ROTATE_R -> {
+              setNextState();
+              setShape();
+          }
+          case DirectionFlag.ROTATE_L -> {
+              setPreviousState();
+              setShape();
+          }
+          default -> {
+              // do nothing
+          }
         }
         updatePixelCoordinates();
     }
