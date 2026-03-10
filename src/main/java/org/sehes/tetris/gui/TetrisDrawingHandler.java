@@ -95,7 +95,6 @@ public class TetrisDrawingHandler {
             }
         }
         g2d.dispose();
-        return boardImg;
     }
 
     /**
