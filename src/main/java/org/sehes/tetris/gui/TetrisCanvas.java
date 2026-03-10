@@ -44,7 +44,8 @@ public class TetrisCanvas extends JPanel {
         final Graphics2D g2d = (Graphics2D) g;
         drawingHandler.initialize(g2d);
         if (gameManager.getGameState() == GameManager.GameState.PREPARED) {
-            return;//this check is here not in the beggining because the first part sure that it will be canvas drawn.
+            return;// this check is here not in the beggining because the first part sure that it
+                   // will be canvas drawn.
         }
         g2d.drawImage(drawingHandler.getGrid(), 0, 0, null);
         final boolean wasDirty = isBoardDirty.getAndSet(false);
@@ -54,7 +55,7 @@ public class TetrisCanvas extends JPanel {
 
     public void repaintCanvas(boolean boardDirty) {
         if (boardDirty) {
-           this.isBoardDirty.compareAndSet(false, true);
+            this.isBoardDirty.compareAndSet(false, true);
         }
         repaint();
     }
