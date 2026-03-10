@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JPanel;
 
@@ -23,7 +24,7 @@ public class TetrisCanvas extends JPanel {
 
     private final GameManager gameManager;
     private final TetrisDrawingHandler drawingHandler;
-    private volatile boolean isBoardDirty = false;
+    private final AtomicBoolean isBoardDirty = new AtomicBoolean(false);
 
     TetrisCanvas(TetrisDrawingHandler drawingHandler, GameManager gameManager) {
         Dimension prefSize = new Dimension(GameParameters.BLOCK_SIZE * GameParameters.COLUMNS,
@@ -40,22 +41,20 @@ public class TetrisCanvas extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Graphics2D g2d = (Graphics2D) g;
+        final Graphics2D g2d = (Graphics2D) g;
         drawingHandler.initialize(g2d);
         if (gameManager.getGameState() == GameManager.GameState.PREPARED) {
-            return;
+            return;//this check is here not in the beggining because the first part sure that it will be canvas drawn.
         }
         g2d.drawImage(drawingHandler.getGrid(), 0, 0, null);
-
-        drawingHandler.paintGameBoard(g2d, gameManager.getBoardView(), isBoardDirty);
-        isBoardDirty = false; // immediately reset to prevent unnecessary redraw
+        final boolean wasDirty = isBoardDirty.getAndSet(false);
+        drawingHandler.paintGameBoard(g2d, gameManager.getBoardView(), wasDirty);
         drawingHandler.drawCurrentTetromino(g2d, gameManager.getCurrentTetromino());
-        g2d.dispose();
     }
 
     public void repaintCanvas(boolean boardDirty) {
-        if (!this.isBoardDirty) {
-            this.isBoardDirty = boardDirty;
+        if (boardDirty) {
+           this.isBoardDirty.compareAndSet(false, true);
         }
         repaint();
     }
