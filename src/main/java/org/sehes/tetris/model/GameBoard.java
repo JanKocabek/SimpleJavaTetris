@@ -90,10 +90,10 @@ public class GameBoard {
     public boolean trySetNewTetromino() {
         final Coordinate startingPosition = GameParameters.SPAWN_POINT;
         final Tetromino newTetromino = Tetromino.tetrominoFactory(startingPosition);
-        if (isOutOfBoundaries(newTetromino.getStateCord(), startingPosition)) {
+        if (isOutOfBoundaries(newTetromino.getStateCord(), startingPosition.x(), startingPosition.y())) {
             return false;
         }
-        if (isCollisionDetected(newTetromino.getStateCord(), startingPosition)) {
+        if (isCollisionDetected(newTetromino.getStateCord(), startingPosition.x(), startingPosition.y())) {
             return false;
         }
         this.currentTetromino = newTetromino;
@@ -228,12 +228,10 @@ public class GameBoard {
      * @return {@code true} if the move is valid, {@code false} otherwise
      */
     private boolean canMove(final Tetromino tetromino, final DirectionFlag direction) {
-        final Coordinate newPosition = new Coordinate(
-                tetromino.getPositionX() + direction.getX(),
-                tetromino.getPositionY() + direction.getY());
-
-        return !isOutOfBoundaries(tetromino.getStateCord(), newPosition)
-                && !isCollisionDetected(tetromino.getStateCord(), newPosition);
+        final int futureX = tetromino.getPositionX() + direction.getX();
+        final int futureY = tetromino.getPositionY() + direction.getY();
+        return !isOutOfBoundaries(tetromino.getStateCord(), futureX, futureY)
+                && !isCollisionDetected(tetromino.getStateCord(), futureX, futureY);
     }
 
     /**
@@ -246,10 +244,11 @@ public class GameBoard {
      *                    board
      * @return {@code true} if there is a collision, {@code false} otherwise
      */
-    private boolean isCollisionDetected(final List<Coordinate> stateCord, final Coordinate newPosition) {
+    private boolean isCollisionDetected(final List<Coordinate> stateCord, final int newPositionX,
+            final int newPositionY) {
 
         for (final var cord : stateCord) {
-            if (this.board[newPosition.y() + cord.y()][newPosition.x() + cord.x()] != BlockContent.EMPTY) {
+            if (this.board[newPositionY + cord.y()][newPositionX + cord.x()] != BlockContent.EMPTY) {
                 return true;
             }
         }
@@ -269,16 +268,16 @@ public class GameBoard {
         if (rotatedStateCord == null || currentTetromino == null) {
             return false;
         }
-        final Coordinate pivotPosition = new Coordinate(currentTetromino.getPositionX(),
-                currentTetromino.getPositionY());
 
-        return !isOutOfBoundaries(rotatedStateCord, pivotPosition)
-                && !isCollisionDetected(rotatedStateCord, pivotPosition);
+        return !isOutOfBoundaries(rotatedStateCord, currentTetromino.getPositionX(), currentTetromino.getPositionY()) &&
+                !isCollisionDetected(rotatedStateCord, currentTetromino.getPositionX(),
+                        currentTetromino.getPositionY());
     }
 
     /**
      * Checks if the position of the tetromino after a move or rotation is out of
-     * the game board boundaries.     *
+     * the game board boundaries. *
+     * 
      * @param newStateCord The coordinates of the tetromino after the move or
      *                     rotation.
      * @param position     The position of the tetromino pivot on the board after
@@ -286,10 +285,10 @@ public class GameBoard {
      * @return {@code true} if the final position is out of the board
      *         boundaries, {@code false} otherwise.
      */
-    private boolean isOutOfBoundaries(List<Coordinate> newStateCord, Coordinate position) {
+    private boolean isOutOfBoundaries(List<Coordinate> newStateCord, int positionX, int positionY) {
         for (Coordinate cord : newStateCord) {
-            int newX = cord.x() + position.x();
-            int newY = cord.y() + position.y();
+            int newX = cord.x() + positionX;
+            int newY = cord.y() + positionY;
             if (newX < 0 || newY < 0 || newX >= board[0].length || newY >= board.length) {
                 return true;
             }
