@@ -157,6 +157,7 @@ public class GameBoard {
             final int y = currentTetromino.getPositionY() + coordinate.y();
             this.board[y][x] = BlockContent.fromColor(currentTetromino.getColor());
         }
+        currentTetromino = null;
     }
 
     /**
