@@ -105,6 +105,17 @@ class GameBoardTest {
         // then
         assertNotNull(tetromino);
         assertNotNull(boardView);
+        boolean hasNonEmptyBlock = false;
+        for (int row = 0; row < GameParameters.ROWS; row++) {
+            for (int col = 0; col < GameParameters.COLUMNS; col++) {
+                if (boardView.getBlockContent(row, col) != BlockContent.EMPTY) {
+                    hasNonEmptyBlock = true;
+                    break;
+                }
+            }
+        }
+        assertTrue(hasNonEmptyBlock, "Board should have at least one non-empty block after adding tetromino");
+        assertNull(gameBoard.getCurrentTetromino(), "Current tetromino should be null after adding to board");
     }
 
     @Test
