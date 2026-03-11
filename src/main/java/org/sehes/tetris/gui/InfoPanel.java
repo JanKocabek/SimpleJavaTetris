@@ -17,7 +17,7 @@ import org.sehes.tetris.controller.GameManager;
 public class InfoPanel extends JPanel {
 
     private final InfoLabel infoLabel;
-    private final FpsLabel fps;
+    private final FpsLabel fpsLabel;
 
     InfoPanel() {
         super();
@@ -25,8 +25,8 @@ public class InfoPanel extends JPanel {
         setBackground(Color.green);
         setLayout(new BorderLayout());
         infoLabel = new InfoLabel();
-        fps = new FpsLabel();
-        add(fps, BorderLayout.NORTH);
+        fpsLabel = new FpsLabel();
+        add(fpsLabel, BorderLayout.NORTH);
         add(infoLabel, BorderLayout.CENTER);
     }
 
@@ -35,7 +35,7 @@ public class InfoPanel extends JPanel {
     }
 
     public void updateFPS(int fpsValue) {
-        fps.updateFPS(fpsValue);
+        fpsLabel.updateFPS(fpsValue);
     }
 
     private static class InfoLabel extends JLabel {
