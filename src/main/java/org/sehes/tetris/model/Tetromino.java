@@ -59,7 +59,7 @@ public class Tetromino {
         if (type == null || spawnPosition == null) {
             throw new IllegalArgumentException("Tetromino type and spawn position cannot be null.");
         }
-        this.rotationState = 0;
+        this.rotationState = 0;// initial rotation state
         stateCoordination = type.getTetrominoState(rotationState);
         this.positionX = spawnPosition.x();
         this.positionY = spawnPosition.y();
