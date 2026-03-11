@@ -1,14 +1,21 @@
 package org.sehes.tetris.model;
 
-import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.sehes.tetris.config.GameParameters;
-
-import java.awt.*;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class GameBoardTest {
 
@@ -37,13 +44,11 @@ class GameBoardTest {
             assertEquals(GameParameters.ROWS, boardView.getHeight());
         }
 
-
         @Test
         void testBoardViewGetBlockContent() {
             BoardView boardView = gameBoard.getBoardView();
             assertEquals(BlockContent.EMPTY, boardView.getBlockContent(0, 0));
         }
-
 
         @Test
         void testTrySetNewTetromino() {
@@ -65,7 +70,6 @@ class GameBoardTest {
     @DisplayName("crash cases")
     class CrashCases {
 
-
         @Test
         void testTryMovePieceWithoutTetromino() {
             boolean result = gameBoard.tryMovePiece(DirectionFlag.LEFT);
@@ -86,28 +90,28 @@ class GameBoardTest {
 
         @Test
         void testTryAddBlockToBoardWithoutTetromino() {
-            assertThrows(IllegalStateException.class, gameBoard::addBlockToBoard);
+            assertThrows(IllegalStateException.class, gameBoard::lockTetrominoInPlace);
         }
     }
 
     @Test
     void testAddBlockToBoard() {
-        //given
+        // given
         gameBoard.trySetNewTetromino();
         Tetromino tetromino = gameBoard.getCurrentTetromino();
-        //when
-        gameBoard.addBlockToBoard();
+        // when
+        gameBoard.lockTetrominoInPlace();
         BoardView boardView = gameBoard.getBoardView();
-        //then
+        // then
         assertNotNull(tetromino);
         assertNotNull(boardView);
     }
 
     @Test
     void testCheckAndClearLinesNoLines() {
-        //when
+        // when
         boolean result = gameBoard.checkAndClearLines();
-        //then
+        // then
         assertFalse(result);
     }
 
@@ -145,14 +149,15 @@ class GameBoardTest {
         void testTryMovePieceLeft() {
             // given
             gameBoard.trySetNewTetromino();
-            Point initialPos = gameBoard.getCurrentTetromino().getPosition();
+            Tetromino tetromino = gameBoard.getCurrentTetromino();
+            Coordinate initialPos = new Coordinate(tetromino.getPositionX(), tetromino.getPositionY());
             // when
             boolean moved = gameBoard.tryMovePiece(DirectionFlag.LEFT);
             // then
             assertTrue(moved);
-            Point newPos = gameBoard.getCurrentTetromino().getPosition();
-            assertEquals(initialPos.x - 1, newPos.x);
-            assertEquals(initialPos.y, newPos.y);
+            Coordinate newPos = new Coordinate(tetromino.getPositionX(), tetromino.getPositionY());
+            assertEquals(initialPos.x() - 1, newPos.x());
+            assertEquals(initialPos.y(), newPos.y());
 
         }
 
@@ -160,28 +165,33 @@ class GameBoardTest {
         void testTryMovePieceRight() {
             // given
             gameBoard.trySetNewTetromino();
-            Point initialPos = gameBoard.getCurrentTetromino().getPosition();
+            Tetromino tetromino = gameBoard.getCurrentTetromino();
+            assertNotNull(tetromino);
+            Coordinate initialPos = new Coordinate(tetromino.getPositionX(), tetromino.getPositionY());
             // when
             boolean moved = gameBoard.tryMovePiece(DirectionFlag.RIGHT);
             // then
             assertTrue(moved);
-            Point newPos = gameBoard.getCurrentTetromino().getPosition();
-            assertEquals(initialPos.x + 1, newPos.x);
-            assertEquals(initialPos.y, newPos.y);
+            Coordinate newPos = new Coordinate(tetromino.getPositionX(), tetromino.getPositionY());
+            assertNotNull(newPos);
+            assertEquals(initialPos.x() + 1, newPos.x());
+            assertEquals(initialPos.y(), newPos.y());
+
         }
 
         @Test
         void testTryMovePieceDown() {
             // given
             gameBoard.trySetNewTetromino();
-            Point initialPos = gameBoard.getCurrentTetromino().getPosition();
+            Tetromino tetromino = gameBoard.getCurrentTetromino();
+            Coordinate initialPos = new Coordinate(tetromino.getPositionX(), tetromino.getPositionY());
             // when
             boolean moved = gameBoard.tryMovePiece(DirectionFlag.DOWN);
             // then
             assertTrue(moved);
-            Point newPos = gameBoard.getCurrentTetromino().getPosition();
-            assertEquals(initialPos.y + 1, newPos.y);
-            assertEquals(initialPos.x, newPos.x);
+            Coordinate newPos = new Coordinate(tetromino.getPositionX(), tetromino.getPositionY());
+            assertEquals(initialPos.x(), newPos.x());
+            assertEquals(initialPos.y() + 1, newPos.y());
 
         }
 
@@ -198,26 +208,27 @@ class GameBoardTest {
          * @param directionFlag The direction to rotate the tetromino.
          */
         @ParameterizedTest
-        @EnumSource(value = DirectionFlag.class, names = {"ROTATE_L", "ROTATE_R"})
+        @EnumSource(value = DirectionFlag.class, names = { "ROTATE_L", "ROTATE_R" })
         void testPositionIsTheSameAfterRotation(DirectionFlag directionFlag) {
             // given
-            Tetromino tetromino = Tetromino.spawnSpecificTetromino(TetrominoType.T, new Point(4, 1));
+            Tetromino tetromino = Tetromino.spawnSpecificTetromino(TetrominoType.T, new Coordinate(4, 1));
             gameBoard.spawnTetrominoForTestOnly(tetromino);
-            Point initialPos = gameBoard.getCurrentTetromino().getPosition();
+            Tetromino currentTetromino = gameBoard.getCurrentTetromino();
+            Coordinate initialPos = new Coordinate(currentTetromino.getPositionX(), currentTetromino.getPositionY());
             // when
             boolean rotated = gameBoard.tryRotatePiece(directionFlag);
             // then
             assertTrue(rotated);
-            Point newPos = gameBoard.getCurrentTetromino().getPosition();
-            assertEquals(initialPos.x, newPos.x);
-            assertEquals(initialPos.y, newPos.y);
+            Coordinate newPos = new Coordinate(currentTetromino.getPositionX(), currentTetromino.getPositionY());
+            assertEquals(initialPos.x(), newPos.x());
+            assertEquals(initialPos.y(), newPos.y());
         }
 
         @ParameterizedTest
-        @EnumSource(value = TetrominoType.class, names = {"I", "O", "S", "Z", "L", "J", "T"})
+        @EnumSource(value = TetrominoType.class, names = { "I", "O", "S", "Z", "L", "J", "T" })
         void testTryReturnIntoBaseState(TetrominoType type) {
             // given
-            Tetromino tetromino = Tetromino.spawnSpecificTetromino(type, new Point(4, 2));
+            Tetromino tetromino = Tetromino.spawnSpecificTetromino(type, new Coordinate(4, 2));
             gameBoard.spawnTetrominoForTestOnly(tetromino);
             var baseCord = tetromino.getStateCord();
             int tetrominoState = tetromino.getCurrentState();
@@ -226,28 +237,27 @@ class GameBoardTest {
                 gameBoard.tryRotatePiece(DirectionFlag.ROTATE_R);
             }
             // then
-            List<Point> finalCord = gameBoard.getCurrentTetromino().getStateCord();
+            List<Coordinate> finalCord = gameBoard.getCurrentTetromino().getStateCord();
             assertEquals(tetrominoState, gameBoard.getCurrentTetromino().getCurrentState());
             assertEquals(baseCord, finalCord);
-
 
         }
 
         @Test
         void testTryRotatePieceRight() {
             // given
-            Tetromino tetromino = Tetromino.spawnSpecificTetromino(TetrominoType.T, new Point(4, 1));
+            Tetromino tetromino = Tetromino.spawnSpecificTetromino(TetrominoType.T, new Coordinate(4, 1));
             gameBoard.spawnTetrominoForTestOnly(tetromino);
             // when
             boolean rotated = gameBoard.tryRotatePiece(DirectionFlag.ROTATE_R);
             // then
             assertTrue(rotated);
-            List<Point> afterCord = gameBoard.getCurrentTetromino().getStateCord();
-            List<Point> expected = List.of(
-                    new Point(0, 0),
-                    new Point(0, -1),
-                    new Point(0, 1),
-                    new Point(1, 0));
+            List<Coordinate> afterCord = gameBoard.getCurrentTetromino().getStateCord();
+            List<Coordinate> expected = List.of(
+                    new Coordinate(0, 0),
+                    new Coordinate(0, -1),
+                    new Coordinate(0, 1),
+                    new Coordinate(1, 0));
             assertEquals(4, afterCord.size());
             assertTrue(afterCord.containsAll(expected));
 
@@ -256,18 +266,18 @@ class GameBoardTest {
         @Test
         void testTryRotatePieceLeft() {
             // given
-            Tetromino tetromino = Tetromino.spawnSpecificTetromino(TetrominoType.T, new Point(4, 1));
+            Tetromino tetromino = Tetromino.spawnSpecificTetromino(TetrominoType.T, new Coordinate(4, 1));
             gameBoard.spawnTetrominoForTestOnly(tetromino);
             // when
             boolean rotated = gameBoard.tryRotatePiece(DirectionFlag.ROTATE_L);
             // then
             assertTrue(rotated);
-            List<Point> afterCord = gameBoard.getCurrentTetromino().getStateCord();
-            List<Point> expected = List.of(
-                    new Point(0, 0),
-                    new Point(0, 1),
-                    new Point(0, -1),
-                    new Point(-1, 0));
+            List<Coordinate> afterCord = gameBoard.getCurrentTetromino().getStateCord();
+            List<Coordinate> expected = List.of(
+                    new Coordinate(0, 0),
+                    new Coordinate(0, 1),
+                    new Coordinate(0, -1),
+                    new Coordinate(-1, 0));
             assertEquals(4, afterCord.size());
             assertTrue(afterCord.containsAll(expected));
         }
