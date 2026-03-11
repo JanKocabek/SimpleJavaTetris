@@ -80,6 +80,7 @@ public class TetrisDrawingHandler {
 
     private void bakeBoardImg(BoardView boardView) {
         Graphics2D g2d = boardImg.createGraphics();
+        g2d.setRenderingHints(hints);
         g2d.setComposite(AlphaComposite.Clear);
         g2d.fillRect(0, 0, boardImg.getWidth(), boardImg.getHeight());
         g2d.setComposite(AlphaComposite.SrcOver);
