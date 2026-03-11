@@ -6,7 +6,7 @@
 
     <groupId>org.sehes</groupId>
     <artifactId>SimpleTetris</artifactId>
-    <version>0.6</version>
+    <version>0.8</version>
 
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
