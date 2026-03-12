@@ -17,7 +17,7 @@ import org.sehes.tetris.controller.GameManager;
 public class InfoPanel extends JPanel {
 
     private final InfoLabel infoLabel;
-    private final FpsLabel fps;
+    private final FpsLabel fpsLabel;
 
     InfoPanel() {
         super();
@@ -25,8 +25,8 @@ public class InfoPanel extends JPanel {
         setBackground(Color.green);
         setLayout(new BorderLayout());
         infoLabel = new InfoLabel();
-        fps = new FpsLabel();
-        add(fps, BorderLayout.NORTH);
+        fpsLabel = new FpsLabel();
+        add(fpsLabel, BorderLayout.NORTH);
         add(infoLabel, BorderLayout.CENTER);
     }
 
@@ -35,18 +35,18 @@ public class InfoPanel extends JPanel {
     }
 
     public void updateFPS(int fpsValue) {
-        fps.updateFPS(fpsValue);
+        fpsLabel.updateFPS(fpsValue);
     }
 
     private static class InfoLabel extends JLabel {
 
-        private final Font infoFont = new Font(Font.SERIF, Font.BOLD, 18);
+        private static final Font INFO_FONT = new Font(Font.SERIF, Font.BOLD, 18);
 
         InfoLabel() {
             setText("");
             setHorizontalAlignment(SwingConstants.CENTER);
             setVerticalAlignment(SwingConstants.TOP);
-            setFont(infoFont);
+            setFont(INFO_FONT);
             setForeground(Color.black);
         }
 
@@ -70,10 +70,10 @@ public class InfoPanel extends JPanel {
     }
 
     private static class FpsLabel extends JLabel {
-        private final Font fpsFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);
+        private static final Font FPS_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 12);
 
         FpsLabel() {
-            setFont(fpsFont);
+            setFont(FPS_FONT);
             setForeground(Color.BLACK);
             setHorizontalAlignment(SwingConstants.RIGHT);
             setText("FPS: 0");

@@ -2,16 +2,17 @@ package org.sehes.tetris;
 
 import org.sehes.tetris.controller.GameManager;
 
+/**
+ * The Main class is the entry point of the Tetris game application. It is
+ * responsible for initializing the game by creating a new instance of the
+ * GameManager class. The game starts from the {@code GameManager} constructor.
+ * 
+ * @author Sehes
+ * @version 0.5
+ */
 public class Main {
-
-    /**
-     *
-     * This class is responsible for launching the application. It creates an instance of GameManager and from his constructor main window is running
-     *
-     */
 
     public static void main(String[] args) {
         new GameManager();
     }
-
 }

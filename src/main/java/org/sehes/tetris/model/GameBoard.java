@@ -1,9 +1,7 @@
 package org.sehes.tetris.model;
 
-import static java.lang.System.Logger.Level.INFO;
 import static java.lang.System.Logger.Level.WARNING;
 
-import java.awt.Point;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,11 +22,11 @@ import org.sehes.tetris.config.GameParameters;
  * @author Sehes
  * @version 0.5
  * @see Tetromino
- * @see IBoardView
+ * @see BoardView
  */
 public class GameBoard {
 
-    private static  final System.Logger myLogger = System.getLogger(GameBoard.class.getName());
+    private static final System.Logger myLogger = System.getLogger(GameBoard.class.getName());
 
     private Tetromino currentTetromino;
     private final BlockContent[][] board;
@@ -36,16 +34,14 @@ public class GameBoard {
      * make the start posiiton dynamic based on tetromino type instead of one fixed
      * position
      */
-    private final Point startingPosition = new Point(GameParameters.SPAWN_POINT);// the position where new tetromino
-    // will spawn column 4 row 0
-    private final IBoardView boardView;
+    private final BoardView boardView;
     private int score;
 
     public GameBoard() {
         board = new BlockContent[GameParameters.ROWS][GameParameters.COLUMNS];
         score = 0;
         fillBoard();
-        this.boardView = new IBoardView() {
+        this.boardView = new BoardView() {
             @Override
             public int getWidth() {
                 return board[0].length;
@@ -87,16 +83,17 @@ public class GameBoard {
      * @return the IBoardView instance representing the current state of the
      *         game board.
      */
-    public IBoardView getBoardView() {
+    public BoardView getBoardView() {
         return boardView;
     }
 
     public boolean trySetNewTetromino() {
+        final Coordinate startingPosition = GameParameters.SPAWN_POINT;
         final Tetromino newTetromino = Tetromino.tetrominoFactory(startingPosition);
-        if (isOutOfBoundaries(newTetromino.getStateCord(), startingPosition)) {
+        if (isOutOfBoundaries(newTetromino.getStateCord(), startingPosition.x(), startingPosition.y())) {
             return false;
         }
-        if (isCollisionDetected(newTetromino.getStateCord(), newTetromino.getPosition())) {
+        if (isCollisionDetected(newTetromino.getStateCord(), startingPosition.x(), startingPosition.y())) {
             return false;
         }
         this.currentTetromino = newTetromino;
@@ -107,7 +104,7 @@ public class GameBoard {
         if (this.currentTetromino == null) {
             return false;
         }
-        if (canMove(currentTetromino.getStateCord(), currentTetromino.getPosition(), flag)) {
+        if (canMove(currentTetromino, flag)) {
             currentTetromino.move(flag);
             return true;
         }
@@ -133,7 +130,7 @@ public class GameBoard {
         if (this.currentTetromino == null) {
             return false;
         }
-        final List<Point> rotatedPosition = currentTetromino.rotate(flag);
+        final List<Coordinate> rotatedPosition = currentTetromino.rotate(flag);
         if (!canRotate(rotatedPosition)) {
             return false;
         }
@@ -142,28 +139,25 @@ public class GameBoard {
     }
 
     /**
-     * this method is responsible for adding the current tetromino to the game
+     * This method is responsible for adding the current tetromino to the game
      * board when it can no longer move down. It iterates through the grid of
      * the current tetromino and updates the corresponding positions on the game
      * board with the appropriate BlockContent based on the color of the
      * tetromino. This effectively "locks" the tetromino in place on the board,
      * allowing the elimination of completed lines and the spawning of a new
-     * tetromino to occur in subsequent game logic. It also checks if there is a
-     * current tetromino to add before attempting to update the board, throwing
-     * an IllegalStateException if there isn't one.
+     * tetromino to occur in subsequent game logic.
      */
-    public void addBlockToBoard() {
+    public void lockTetrominoInPlace() {
         if (currentTetromino == null) {
             throw new IllegalStateException("No current tetromino to add to the board.");
         }
-        final Point position = currentTetromino.getPosition();
-        final List<Point> tetromino = currentTetromino.getStateCord();
-        for (Point block : tetromino) {
-            myLogger.log(INFO, () -> "Adding block X: " + block.x + ", Y: " + block.y + " to pos X: " + position.x
-                                     + ",Y: " + position.y + " which would be: " + position.x + block.x + ", " + position.y + block.y);
-            this.board[position.y + block.y][position.x + block.x] = BlockContent
-                    .fromColor(currentTetromino.getColor());
+
+        for (Coordinate coordinate : currentTetromino.getStateCord()) {
+            final int x = currentTetromino.getPositionX() + coordinate.x();
+            final int y = currentTetromino.getPositionY() + coordinate.y();
+            this.board[y][x] = BlockContent.fromColor(currentTetromino.getColor());
         }
+        currentTetromino = null;
     }
 
     /**
@@ -185,7 +179,8 @@ public class GameBoard {
                 shiftLinesDown(row);
                 linesClearedCount++;
                 lineCleared = true;
-                row--;//todo: in future make the counting of line and clearing of lines separated to prevent this
+                row--;// todo: in future make the counting of line and clearing of lines separated to
+                      // prevent this
             }
         }
         if (lineCleared) {
@@ -205,8 +200,8 @@ public class GameBoard {
             case 2 -> score += 300;
             case 3 -> score += 500;
             case 4 -> score += 800;
-            default ->//shouldn't happen in current implementation
-                    myLogger.log(WARNING, () -> "Invalid number of lines cleared: " + linesCleared);
+            default -> // shouldn't happen in current implementation
+                myLogger.log(WARNING, () -> "Invalid number of lines cleared: " + linesCleared);
         }
     }
 
@@ -226,40 +221,35 @@ public class GameBoard {
     }
 
     /**
-     * compare if a new position of tetromino grid isn't occupied, both are
-     * represented as 2D boolean array tetromino position [column][row]
+     * Checks if a tetromino can move to a new position without colliding with
+     * existing pieces on the game board.
      *
-     * @param stateCord   List of cordinates represented current tetromino
-     * @param position the position of the tetromino before moving
-     * @param flag     which direction are the tetromino supposed to move determines
-     *                 the new position of the tetromino after moving
-     * @return true if collision not happened and the position is in the
-     *         gameBoard boundaries
+     * @param tetromino The tetromino to be moved
+     * @param direction The direction in which to move the tetromino
+     * @return {@code true} if the move is valid, {@code false} otherwise
      */
-    private boolean canMove(final List<Point> stateCord, final Point position, final DirectionFlag flag) {
-        if (stateCord == null || flag == null) {
-            return false;
-        }
-        final Point newPosition = new Point(position.x + flag.getX(), position.y + flag.getY());
-        if (isOutOfBoundaries(stateCord, newPosition)) {
-            return false;
-        }
-        return !isCollisionDetected(stateCord, newPosition);
+    private boolean canMove(final Tetromino tetromino, final DirectionFlag direction) {
+        final int futureX = tetromino.getPositionX() + direction.getX();
+        final int futureY = tetromino.getPositionY() + direction.getY();
+        return !isOutOfBoundaries(tetromino.getStateCord(), futureX, futureY)
+                && !isCollisionDetected(tetromino.getStateCord(), futureX, futureY);
     }
-
 
     /**
      * Checks if the position after moving or rotating a piece would collide with
      * any existing pieces on the game board.
      *
-     * @param stateCord   The list of coordinates representing the tetromino's new state
-     * @param newPosition The expected new position of the tetromino pivot on the board
+     * @param stateCord   The list of coordinates representing the tetromino's new
+     *                    state
+     * @param newPosition The expected new position of the tetromino pivot on the
+     *                    board
      * @return {@code true} if there is a collision, {@code false} otherwise
      */
-    private boolean isCollisionDetected(final List<Point> stateCord, final Point newPosition) {
+    private boolean isCollisionDetected(final List<Coordinate> stateCord, final int newPositionX,
+            final int newPositionY) {
 
-        for (final Point point : stateCord) {
-            if (this.board[newPosition.y + point.y][newPosition.x + point.x] != BlockContent.EMPTY) {
+        for (final var cord : stateCord) {
+            if (this.board[newPositionY + cord.y()][newPositionX + cord.x()] != BlockContent.EMPTY) {
                 return true;
             }
         }
@@ -267,40 +257,40 @@ public class GameBoard {
     }
 
     /**
-     * this method check if the position after rotating a piece is in the
-     * gameBoardBoundaries and if sp then return true if dont colide with other
-     * piece;
+     * Checks if the position after rotating a piece is within the game board
+     * boundaries and does not collide with any other pieces.
      *
-     * @param coordination the list of cordination represent the tetromino state after
-     *               expected rotation
-     * @return true if original position is ok
+     * @param rotatedStateCord The list of coordinates representing the tetromino's
+     *                         state after the expected rotation
+     * @return {@code true} if the original position is valid, {@code false}
+     *         otherwise
      */
-    private boolean canRotate(final List<Point> coordination) {
-        if (coordination == null || currentTetromino == null) {
+    private boolean canRotate(final List<Coordinate> rotatedStateCord) {
+        if (rotatedStateCord == null || currentTetromino == null) {
             return false;
         }
-        final Point position = currentTetromino.getPosition();
-        if (isOutOfBoundaries(coordination, position)) {
-            return false;
-        }
-        return !isCollisionDetected(coordination, position);
+
+        return !isOutOfBoundaries(rotatedStateCord, currentTetromino.getPositionX(), currentTetromino.getPositionY()) &&
+                !isCollisionDetected(rotatedStateCord, currentTetromino.getPositionX(),
+                        currentTetromino.getPositionY());
     }
 
     /**
-     * this method check if the position after moving a piece is out of board or
-     * not
-     *
-     * @param newStateCord   the coordniation of tetromino after move/rotation
-     * @param position the destined position of the tetromino after moving /
-     *                 rotating(doesn't change it) on the board
-     * @return true if the final position is out of boundaries
+     * Checks if the position of the tetromino after a move or rotation is out of
+     * the game board boundaries. *
+     * 
+     * @param newStateCord The coordinates of the tetromino after the move or
+     *                     rotation.
+     * @param position     The position of the tetromino pivot on the board after
+     *                     the move or rotation.
+     * @return {@code true} if the final position is out of the board
+     *         boundaries, {@code false} otherwise.
      */
-    private boolean isOutOfBoundaries(final List<Point> newStateCord, final Point position) {    
-        for (final Point cord : newStateCord) {
-            if (cord.x + position.x < 0
-                || cord.y + position.y < 0
-                || cord.x + position.x >= board[0].length
-                || cord.y + position.y >= board.length) {
+    private boolean isOutOfBoundaries(List<Coordinate> newStateCord, int positionX, int positionY) {
+        for (Coordinate cord : newStateCord) {
+            int newX = cord.x() + positionX;
+            int newY = cord.y() + positionY;
+            if (newX < 0 || newY < 0 || newX >= board[0].length || newY >= board.length) {
                 return true;
             }
         }
@@ -320,19 +310,11 @@ public class GameBoard {
         Arrays.fill(board[0], BlockContent.EMPTY);
     }
 
-
-
-    /*
-     * JUNIT TEST ONLY methods
-     * here is section of testing method for assuring the code correctness
-     * use only protected modifier
-     */
-
     /**
      * JUNIT TEST ONLY<br>
      * this method fill last line with blocks
      */
-    
+
     void fillLineForTestOnly() {
         int lastLine = board.length - 1;
         Arrays.fill(board[lastLine], BlockContent.CYAN);
@@ -341,6 +323,7 @@ public class GameBoard {
     /**
      * JUNIT TEST ONLY<br>
      * this method set the current tetromino to the specific tetromino
+     * 
      * @param tetromino the tetromino you need to spawn
      */
     void spawnTetrominoForTestOnly(final Tetromino tetromino) {

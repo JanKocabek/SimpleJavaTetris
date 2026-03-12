@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JPanel;
 
@@ -23,9 +24,11 @@ public class TetrisCanvas extends JPanel {
 
     private final GameManager gameManager;
     private final TetrisDrawingHandler drawingHandler;
+    private final AtomicBoolean isBoardDirty = new AtomicBoolean(false);
 
     TetrisCanvas(TetrisDrawingHandler drawingHandler, GameManager gameManager) {
-        Dimension prefSize = new Dimension(GameParameters.BLOCK_SIZE * GameParameters.COLUMNS, GameParameters.BLOCK_SIZE * GameParameters.VISIBLE_ROWS);
+        Dimension prefSize = new Dimension(GameParameters.BLOCK_SIZE * GameParameters.COLUMNS,
+                GameParameters.BLOCK_SIZE * GameParameters.VISIBLE_ROWS);
         this.setPreferredSize(prefSize);
         this.setMinimumSize(prefSize);
         this.setMaximumSize(prefSize);
@@ -38,17 +41,22 @@ public class TetrisCanvas extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Graphics2D g2d = (Graphics2D) g;
+        final Graphics2D g2d = (Graphics2D) g;
         drawingHandler.initialize(g2d);
         if (gameManager.getGameState() == GameManager.GameState.PREPARED) {
-            return;
+            return; // Not at the beginning: super.paintComponent() must run first to clear the
+                    // canvas.
         }
-        drawingHandler.drawGrid(g2d);
-        drawingHandler.drawBoardState(g2d, gameManager.getBoardView());
+        g2d.drawImage(drawingHandler.getGrid(), 0, 0, null);
+        final boolean wasDirty = isBoardDirty.getAndSet(false);
+        drawingHandler.paintGameBoard(g2d, gameManager.getBoardView(), wasDirty);
         drawingHandler.drawCurrentTetromino(g2d, gameManager.getCurrentTetromino());
     }
 
-    public void repaintCanvas() {
+    public void repaintCanvas(boolean boardDirty) {
+        if (boardDirty) {
+            this.isBoardDirty.compareAndSet(false, true);
+        }
         repaint();
     }
 }

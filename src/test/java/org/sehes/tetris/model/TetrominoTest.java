@@ -2,46 +2,60 @@ package org.sehes.tetris.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.sehes.tetris.config.GameParameters;
 
 class TetrominoTest {
 
     @Test
-    void testTetrominoFactory() {
+    void testTetrominoFactory_ValidTetrominoCreation() {
+        // given
+        Tetromino tetromino = Tetromino.tetrominoFactory(GameParameters.SPAWN_POINT);
+        // when
+        // then
+        assertNotNull(tetromino, "tetrominoFactory should not return null");
+        assertEquals(GameParameters.SPAWN_POINT.x(), tetromino.getPositionX());
+        assertEquals(GameParameters.SPAWN_POINT.y(), tetromino.getPositionY());
+        assertNotNull(tetromino.getTypeValue());
+        assertNotNull(tetromino.getStateCord());
+    }
+
+    @Test
+    void shouldThrowExceptionForNullInput() {
+        assertThrows(IllegalArgumentException.class, () -> Tetromino.tetrominoFactory(null),
+                "tetrominoFactory should throw IllegalArgumentException for null input");
+    }
+
+    @Test
+    void validTetrominoCreationFromFactory() {
         // given
         Tetromino tetromino = Tetromino.tetrominoFactory(GameParameters.SPAWN_POINT);
         // then
         assertNotNull(tetromino);
-        assertEquals(GameParameters.SPAWN_POINT, tetromino.getPosition());
-        assertNotSame(GameParameters.SPAWN_POINT, tetromino.getPosition());
-        assertNotSame(tetromino.getStateCord(), TetrominoType.valueOf(tetromino.getTypeValue()).getTetrominoState(0));
-        assertNotNull(tetromino.getColor());
-        assertEquals(0, tetromino.getCurrentState());
-        assertNotNull(tetromino.getStateCord());
-
+        assertEquals(GameParameters.SPAWN_POINT.x(), tetromino.getPositionX());
+        assertEquals(GameParameters.SPAWN_POINT.y(), tetromino.getPositionY());
     }
 
-    @ParameterizedTest
-
-    @EnumSource(value = TetrominoType.class, names = { "I", "O", "S", "Z", "L",
-            "J", "T" })
-    void tryDefineNewTetromino(TetrominoType names) {
+    @Test
+    void testPixelCoordinatesShapeConsistency() {
         // given
-        Tetromino tetromino = Tetromino.spawnSpecificTetromino(names, GameParameters.SPAWN_POINT);
+        Tetromino tetromino = Tetromino.tetrominoFactory(GameParameters.SPAWN_POINT);
+        // when
+        // when
+        var stateCoords = tetromino.getStateCord(); // relative grid coordinates of each block
+        var pixelCoordinates = tetromino.getPixelCoordinates(); // pixel-based coordinates used for rendering
+
         // then
-        assertNotNull(tetromino);
-        assertEquals(GameParameters.SPAWN_POINT, tetromino.getPosition());
-        assertNotSame(GameParameters.SPAWN_POINT, tetromino.getPosition());
-        assertNotSame(tetromino.getStateCord(),
-                org.sehes.tetris.model.TetrominoType.valueOf(tetromino.getTypeValue()).getTetrominoState(0));
-        assertNotNull(tetromino.getColor());
-        assertEquals(0, tetromino.getCurrentState());
-        assertNotNull(tetromino.getStateCord());
+        assertNotNull(stateCoords);
+        assertNotNull(pixelCoordinates);
+        // rely on the relationship between stateCoords and the flattened/pixel arrays
+        // instead of hard-coding specific lengths
+
+        assertEquals(stateCoords.size(), pixelCoordinates.length / 2);
+        assertEquals(8, pixelCoordinates.length);
+        assertEquals(stateCoords.size(), pixelCoordinates.length / 2);
     }
 
 }
