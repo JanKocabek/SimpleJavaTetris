@@ -28,8 +28,7 @@ public class TetrisDrawingHandler {
     /**
      * Creates a RenderingHints object with settings optimized for fast rendering
      * with nearest neighbor interpolation. The resulting object is used to
-     * configure
-     * + * the graphics context for rendering the Tetris game board.
+     * configure the graphics context for rendering the Tetris game board.
      * <p>
      * 
      * @return The RenderingHints object with optimized settings for fast rendering
@@ -98,14 +97,14 @@ public class TetrisDrawingHandler {
         g2d.dispose();
     }
 
-  
     /**
      * Draws the current Tetromino on the given Graphics2D object.
      * The Tetromino is drawn with its assigned color and at its current position
      * on the game board, specified by its pixel coordinates.
      * If the Tetromino is null, the method does nothing.
+     * 
      * @param g2d the Graphics2D object to draw on
-     * @param t the Tetromino to draw
+     * @param t   the Tetromino to draw
      */
     public void drawCurrentTetromino(Graphics2D g2d, Tetromino t) {
         if (t == null) {
