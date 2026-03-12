@@ -45,20 +45,16 @@ class TetrominoTest {
         // when
         // when
         var stateCoords = tetromino.getStateCord(); // relative grid coordinates of each block
-        int[] flatShape = tetromino.getShape(); // flattened shape representation
         var pixelCoordinates = tetromino.getPixelCoordinates(); // pixel-based coordinates used for rendering
 
         // then
         assertNotNull(stateCoords);
-        assertNotNull(flatShape);
         assertNotNull(pixelCoordinates);
         // rely on the relationship between stateCoords and the flattened/pixel arrays
         // instead of hard-coding specific lengths
-        assertEquals(stateCoords.size(), flatShape.length / 2);
+
         assertEquals(stateCoords.size(), pixelCoordinates.length / 2);
-        assertEquals(8, flatShape.length);
         assertEquals(8, pixelCoordinates.length);
-        assertEquals(stateCoords.size(), flatShape.length / 2);
         assertEquals(stateCoords.size(), pixelCoordinates.length / 2);
     }
 

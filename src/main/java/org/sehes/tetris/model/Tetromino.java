@@ -50,7 +50,6 @@ public class Tetromino {
     private int positionY;
     private List<Coordinate> stateCoordination;
     private int rotationState; // number represent curent rotation state of the tetromino
-    private final int[] shape;
     private final int[] pixelCoordinates;// pixel coordination of the blocks for the drawing
 
     private final TetrominoType type;
@@ -64,9 +63,7 @@ public class Tetromino {
         this.positionX = spawnPosition.x();
         this.positionY = spawnPosition.y();
         this.type = type;
-        shape = new int[stateCoordination.size() * 2];
-        pixelCoordinates = new int[shape.length];
-        setShape();
+        pixelCoordinates = new int[stateCoordination.size() * 2];
         updatePixelCoordinates();
     }
 
@@ -86,35 +83,23 @@ public class Tetromino {
         return pixelCoordinates;
     }
 
-    private void updatePixelCoordinates() {
-        // +2 because we have x and y coordinate after each other
-        int pX = positionX * GameParameters.BLOCK_SIZE;
-        int pY = (positionY - GameParameters.HIDDEN_ROWS) * GameParameters.BLOCK_SIZE;
-        for (int i = 0; i < shape.length; i += 2) {
-            pixelCoordinates[i] = pX + (shape[i] * GameParameters.BLOCK_SIZE);
-            pixelCoordinates[i + 1] = pY + (shape[i + 1] * GameParameters.BLOCK_SIZE);
-        }
-    }
-
     /**
-     * Returns a flattened 1D int array representing the shape of the Tetromino,
-     * where each element is a pair of X and Y coordinates put after each other
-     * 
-     * @return a 1D int array representing the shape of the Tetromino
+     * Updates the pixel coordinates of the tetromino based on its current state
+     * and position. The method takes the state coordinates, scales them by the
+     * block size, and then applies the position offset to get the final
+     * pixel coordinates.
      */
-    public int[] getShape() {
-        return shape;
-    }
-
-    private void setShape() {
-        if (stateCoordination.size() * 2 != shape.length) {
-            throw new IllegalStateException("State coordination size mismatch: expected " + (shape.length / 2)
-                    + " coordinates, got " + stateCoordination.size());
-        }
+    private void updatePixelCoordinates() {
+        final int sizeCord = 2;
+        final int next = 1;
+        final int pX = positionX * GameParameters.BLOCK_SIZE;
+        final int pY = (positionY - GameParameters.HIDDEN_ROWS) * GameParameters.BLOCK_SIZE;
+        final int blockSize = GameParameters.BLOCK_SIZE;
         for (int i = 0; i < stateCoordination.size(); i++) {
-            Coordinate p = stateCoordination.get(i);
-            shape[i * 2] = p.x();
-            shape[i * 2 + 1] = p.y();
+            final int x = stateCoordination.get(i).x() * blockSize + pX;
+            final int y = stateCoordination.get(i).y() * blockSize + pY;
+            pixelCoordinates[i * sizeCord] = x;
+            pixelCoordinates[(i * sizeCord) + next] = y;
         }
     }
 
@@ -181,7 +166,6 @@ public class Tetromino {
             default:
                 // do nothing
         }
-        setShape();
         updatePixelCoordinates();
     }
 
