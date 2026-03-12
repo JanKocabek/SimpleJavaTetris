@@ -39,11 +39,10 @@ import org.sehes.tetris.config.GameParameters;
 public class Tetromino {
 
     private static final Random random = new Random();
-    private static final TetrominoType[] TETROMINO_TYPES = TetrominoType.values();
 
     public static Tetromino tetrominoFactory(final Coordinate position) {
-        final int tetrominoType = random.nextInt(TETROMINO_TYPES.length);
-        return new Tetromino(TETROMINO_TYPES[tetrominoType], position);
+        final int piece = random.nextInt(TetrominoType.size());
+        return new Tetromino(TetrominoType.get(piece), position);
     }
 
     private int positionX;

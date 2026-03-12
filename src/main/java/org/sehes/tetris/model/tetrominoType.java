@@ -2,9 +2,7 @@ package org.sehes.tetris.model;
 
 import java.awt.Color;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public enum TetrominoType {
 
@@ -14,70 +12,67 @@ public enum TetrominoType {
             { new Coordinate(0, 1), new Coordinate(-1, 1), new Coordinate(1, 1), new Coordinate(2, 1) }, // State 2
             { new Coordinate(0, 0), new Coordinate(0, -1), new Coordinate(0, 1), new Coordinate(0, 2) }// State 3
     },
-            Color.CYAN,
-            0),
+            Color.CYAN
+            ),
     J(new Coordinate[][] {
             { new Coordinate(-1, -1), new Coordinate(-1, 0), new Coordinate(0, 0), new Coordinate(1, 0) }, // 0°
             { new Coordinate(1, -1), new Coordinate(0, -1), new Coordinate(0, 0), new Coordinate(0, 1) }, // 90°
             { new Coordinate(1, 1), new Coordinate(1, 0), new Coordinate(0, 0), new Coordinate(-1, 0) }, // 180°
             { new Coordinate(-1, 1), new Coordinate(0, 1), new Coordinate(0, 0), new Coordinate(0, -1) }// 270°
-    }, Color.BLUE, 1),
+    }, Color.BLUE ),
 
     L(new Coordinate[][] {
             { new Coordinate(-1, 0), new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(1, -1) }, // 0°
             { new Coordinate(0, -1), new Coordinate(0, 0), new Coordinate(0, 1), new Coordinate(1, 1) }, // 90°
             { new Coordinate(1, 0), new Coordinate(0, 0), new Coordinate(-1, 0), new Coordinate(-1, 1) }, // 180°
             { new Coordinate(0, 1), new Coordinate(0, 0), new Coordinate(0, -1), new Coordinate(-1, -1) }// 270°
-    }, Color.ORANGE, 2),
+    }, Color.ORANGE),
 
     O(new Coordinate[][] {
             { new Coordinate(-1, -1), new Coordinate(-1, 0), new Coordinate(0, 0), new Coordinate(0, -1) }, // 0°
             { new Coordinate(-1, -1), new Coordinate(-1, 0), new Coordinate(0, 0), new Coordinate(0, -1) }, // Same
             { new Coordinate(-1, -1), new Coordinate(-1, 0), new Coordinate(0, 0), new Coordinate(0, -1) }, // Same
             { new Coordinate(-1, -1), new Coordinate(-1, 0), new Coordinate(0, 0), new Coordinate(0, -1) }// Same
-    }, Color.YELLOW, 3),
+    }, Color.YELLOW),
 
     S(new Coordinate[][] {
             { new Coordinate(1, -1), new Coordinate(0, -1), new Coordinate(0, 0), new Coordinate(-1, 0) }, // 0°
             { new Coordinate(1, 1), new Coordinate(1, 0), new Coordinate(0, 0), new Coordinate(0, -1) }, // 90°
             { new Coordinate(-1, 1), new Coordinate(0, 1), new Coordinate(0, 0), new Coordinate(1, 0) }, // 180°
             { new Coordinate(-1, -1), new Coordinate(-1, 0), new Coordinate(0, 0), new Coordinate(0, 1) }// 270°
-    }, Color.GREEN, 4),
+    }, Color.GREEN),
 
     T(new Coordinate[][] {
             { new Coordinate(0, -1), new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(-1, 0) }, // 0°
             { new Coordinate(1, 0), new Coordinate(0, 0), new Coordinate(0, 1), new Coordinate(0, -1) }, // 90°
             { new Coordinate(0, 1), new Coordinate(0, 0), new Coordinate(-1, 0), new Coordinate(1, 0) }, // 180°
             { new Coordinate(-1, 0), new Coordinate(0, 0), new Coordinate(0, -1), new Coordinate(0, 1) }// 270°
-    }, Color.MAGENTA, 5),
+    }, Color.MAGENTA),
 
     Z(new Coordinate[][] {
             { new Coordinate(-1, -1), new Coordinate(0, -1), new Coordinate(0, 0), new Coordinate(1, 0) }, // 0°
             { new Coordinate(1, -1), new Coordinate(1, 0), new Coordinate(0, 0), new Coordinate(0, 1) }, // 90°
             { new Coordinate(1, 1), new Coordinate(0, 1), new Coordinate(0, 0), new Coordinate(-1, 0) }, // 180°
             { new Coordinate(-1, 1), new Coordinate(-1, 0), new Coordinate(0, 0), new Coordinate(0, -1) }// 270°
-    }, Color.RED, 6);
+    }, Color.RED);
 
-    private static final Map<Integer, TetrominoType> map = new HashMap<>();
-
-    static {
-        for (final TetrominoType type : TetrominoType.values()) {
-            map.put(type.intValue, type);
-        }
+    private static final TetrominoType[] map = TetrominoType.values();
+    public static int size() {
+        return map.length;
     }
 
     public static TetrominoType get(final int intValue) {
-        return map.get(intValue);
+        if (intValue < 0 || intValue >= map.length) {
+            throw new IllegalArgumentException("Invalid intValue: " + intValue);
+        }
+        return map[intValue];
     }
 
     private final Color color;
-
-    private final int intValue;
     private final List<List<Coordinate>> allStates;
 
-    TetrominoType(final Coordinate[][] shapeState, final Color color, final int intValue) {
+    TetrominoType(final Coordinate[][] shapeState, final Color color) {
         this.color = color;
-        this.intValue = intValue;
         this.allStates = Arrays.stream(shapeState).map(List::of).toList();
 
     }
