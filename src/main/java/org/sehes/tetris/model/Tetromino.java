@@ -168,7 +168,7 @@ public class Tetromino {
      */
     void setState(final List<Coordinate> coordinates, final DirectionFlag directionFlag) {
         if (coordinates == null || directionFlag == null) {
-            return;
+            throw new IllegalArgumentException("Coordinates and direction flag cannot be null.");
         }
         this.stateCoordination = coordinates;
         switch (directionFlag) {
