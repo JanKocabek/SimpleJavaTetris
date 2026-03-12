@@ -5,12 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.sehes.tetris.config.GameParameters;
 
 class TetrominoTest {
 
     @Test
-    void testTetrominoFactory_neverReturnsNullAndUsesCorrectSpawnPosition() {
+    void testTetrominoFactory_ValidTetrominoCreation() {
         // given
         Tetromino tetromino = Tetromino.tetrominoFactory(GameParameters.SPAWN_POINT);
         // when
@@ -23,9 +25,39 @@ class TetrominoTest {
     }
 
     @Test
-    void testTetrominoFactory_throwsExceptionForNullInput() {
+    void shouldThrowExceptionForNullInput() {
         assertThrows(IllegalArgumentException.class, () -> Tetromino.tetrominoFactory(null),
                 "tetrominoFactory should throw IllegalArgumentException for null input");
+    }
+
+    @Test
+    void validTetrominoCreationFromFactory() {
+        // given
+        Tetromino tetromino = Tetromino.tetrominoFactory(GameParameters.SPAWN_POINT);
+        // then
+        assertNotNull(tetromino);
+        assertEquals(GameParameters.SPAWN_POINT.x(), tetromino.getPositionX());
+        assertEquals(GameParameters.SPAWN_POINT.y(), tetromino.getPositionY());
+    }
+
+    @Test
+    void testPixelCoordinatesShapeConsistency() {
+        // given
+        Tetromino tetromino = Tetromino.tetrominoFactory(GameParameters.SPAWN_POINT);
+        // when
+        // when
+        var stateCoords = tetromino.getStateCord(); // relative grid coordinates of each block
+        int[] flatShape = tetromino.getShape(); // flattened shape representation
+        var pixelCoordinates = tetromino.getPixelCoordinates(); // pixel-based coordinates used for rendering
+
+        // then
+        assertNotNull(stateCoords);
+        assertNotNull(flatShape);
+        assertNotNull(pixelCoordinates);
+        assertEquals(8, flatShape.length);
+        assertEquals(8, pixelCoordinates.length);
+        assertEquals(stateCoords.size(), flatShape.length / 2);
+        assertEquals(stateCoords.size(), pixelCoordinates.length / 2);
     }
 
 }
