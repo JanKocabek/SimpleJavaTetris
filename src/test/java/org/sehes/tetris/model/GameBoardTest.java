@@ -78,7 +78,7 @@ class GameBoardTest {
 
         @Test
         void testTryRotatePieceWithoutTetromino() {
-            boolean result = gameBoard.tryRotatePiece(DirectionFlag.ROTATE_L);
+            boolean result = gameBoard.tryRotatePiece(RotationFlag.CLOCKWISE);
             assertFalse(result);
         }
 
@@ -216,18 +216,18 @@ class GameBoardTest {
          * Tests that the position of the tetromino is not changed after rotation. it
          * tests both directions
          *
-         * @param directionFlag The direction to rotate the tetromino.
+         * @param rotation The direction to rotate the tetromino.
          */
         @ParameterizedTest
-        @EnumSource(value = DirectionFlag.class, names = { "ROTATE_L", "ROTATE_R" })
-        void testPositionIsTheSameAfterRotation(DirectionFlag directionFlag) {
+        @EnumSource(value = RotationFlag.class, names = { "CLOCKWISE", "COUNTERCLOCKWISE" })
+        void testPositionIsTheSameAfterRotation(RotationFlag rotation) {
             // given
             Tetromino tetromino = Tetromino.spawnSpecificTetromino(TetrominoType.T, new Coordinate(4, 1));
             gameBoard.spawnTetrominoForTestOnly(tetromino);
             Tetromino currentTetromino = gameBoard.getCurrentTetromino();
             Coordinate initialPos = new Coordinate(currentTetromino.getPositionX(), currentTetromino.getPositionY());
             // when
-            boolean rotated = gameBoard.tryRotatePiece(directionFlag);
+            boolean rotated = gameBoard.tryRotatePiece(rotation);
             // then
             assertTrue(rotated);
             Coordinate newPos = new Coordinate(currentTetromino.getPositionX(), currentTetromino.getPositionY());
@@ -242,10 +242,10 @@ class GameBoardTest {
             Tetromino tetromino = Tetromino.spawnSpecificTetromino(type, new Coordinate(4, 2));
             gameBoard.spawnTetrominoForTestOnly(tetromino);
             var baseCord = tetromino.getStateCord();
-            int tetrominoState = tetromino.getCurrentState();
+            Rotation tetrominoState = tetromino.getCurrentState();
             // when
             for (int i = 0; i < 4; i++) {
-                gameBoard.tryRotatePiece(DirectionFlag.ROTATE_R);
+                gameBoard.tryRotatePiece(RotationFlag.CLOCKWISE);
             }
             // then
             List<Coordinate> finalCord = gameBoard.getCurrentTetromino().getStateCord();
@@ -260,7 +260,7 @@ class GameBoardTest {
             Tetromino tetromino = Tetromino.spawnSpecificTetromino(TetrominoType.T, new Coordinate(4, 1));
             gameBoard.spawnTetrominoForTestOnly(tetromino);
             // when
-            boolean rotated = gameBoard.tryRotatePiece(DirectionFlag.ROTATE_R);
+            boolean rotated = gameBoard.tryRotatePiece(RotationFlag.CLOCKWISE);
             // then
             assertTrue(rotated);
             List<Coordinate> afterCord = gameBoard.getCurrentTetromino().getStateCord();
@@ -280,7 +280,7 @@ class GameBoardTest {
             Tetromino tetromino = Tetromino.spawnSpecificTetromino(TetrominoType.T, new Coordinate(4, 1));
             gameBoard.spawnTetrominoForTestOnly(tetromino);
             // when
-            boolean rotated = gameBoard.tryRotatePiece(DirectionFlag.ROTATE_L);
+            boolean rotated = gameBoard.tryRotatePiece(RotationFlag.COUNTER_CLOCKWISE);
             // then
             assertTrue(rotated);
             List<Coordinate> afterCord = gameBoard.getCurrentTetromino().getStateCord();

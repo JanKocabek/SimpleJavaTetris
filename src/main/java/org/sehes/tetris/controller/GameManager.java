@@ -15,6 +15,7 @@ import org.sehes.tetris.gui.TetrisCanvas;
 import org.sehes.tetris.gui.TetrisDrawingHandler;
 import org.sehes.tetris.model.DirectionFlag;
 import org.sehes.tetris.model.GameBoard;
+import org.sehes.tetris.model.RotationFlag;
 import org.sehes.tetris.model.BoardView;
 import org.sehes.tetris.model.Tetromino;
 
@@ -164,13 +165,13 @@ public class GameManager {
      * rotation is successful, repaint the canvas to reflect the new orientation
      * of the piece.
      *
-     * @param direction The direction to rotate the piece (CLOCKWISE, COUN
+     * @param rotate The direction to rotate the piece (CLOCKWISE, COUN
      */
-    public void rotatePiece(final DirectionFlag direction) {
+    public void rotatePiece(final RotationFlag rotate) {
         if (gameState != GameState.PLAYING) {
             return;
         }
-        if (gameBoard.tryRotatePiece(direction)) {
+        if (gameBoard.tryRotatePiece(rotate)) {
             tetrisCanvas.repaintCanvas(false);
         }
     }

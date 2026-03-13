@@ -48,7 +48,7 @@ public class Tetromino {
     private int positionX;
     private int positionY;
     private List<Coordinate> stateCoordination;
-    private int rotationState; // number represent curent rotation state of the tetromino
+    private Rotation rotationState; // enum represent current rotation state
     private final int[] pixelCoordinates;// pixel coordination of the blocks for the drawing
 
     private final TetrominoType type;
@@ -57,7 +57,7 @@ public class Tetromino {
         if (type == null || spawnPosition == null) {
             throw new IllegalArgumentException("Tetromino type and spawn position cannot be null.");
         }
-        this.rotationState = 0;// initial rotation state
+        this.rotationState = Rotation.NORTH;
         stateCoordination = type.getTetrominoState(rotationState);
         this.positionX = spawnPosition.x();
         this.positionY = spawnPosition.y();
@@ -125,15 +125,15 @@ public class Tetromino {
     }
 
     /**
-     * grab the next or previous state of the tetromino from {@link TetrominoType}
-     * and return as unmodifiable list of points.
-     * <p>
+     * Returns the next or previous state of the tetromino based on the given
+     * rotation flag.
      *
      * @param flag ROTATE_R for next state, ROTATE_L for previous state
      * @return the next or previous state of the tetromino based on the flag
      */
-    public List<Coordinate> rotate(final DirectionFlag flag) {
-        return flag == DirectionFlag.ROTATE_R ? type.getNextState(rotationState) : type.getPreviousState(rotationState);
+    public List<Coordinate> rotate(final RotationFlag rotation) {
+        return type.getTetrominoState(rotation == RotationFlag.CLOCKWISE ? rotationState.rotateClockwise()
+                : rotationState.rotateCounterClockwise());
     }
 
     /**
@@ -150,43 +150,14 @@ public class Tetromino {
      * @param directionFlag the rotation flag to determine the next or previous
      *                      state of the Tetromino
      */
-    void setState(final List<Coordinate> coordinates, final DirectionFlag directionFlag) {
-        if (coordinates == null || directionFlag == null) {
+    void setState(final List<Coordinate> coordinates, final RotationFlag rotation) {
+        if (coordinates == null || rotation == null) {
             throw new IllegalArgumentException("Coordinates and direction flag cannot be null.");
         }
         this.stateCoordination = coordinates;
-        switch (directionFlag) {
-            case ROTATE_R:
-                setNextState();
-                break;
-            case ROTATE_L:
-                setPreviousState();
-                break;
-            default:
-                // do nothing
-        }
+        this.rotationState = rotation == RotationFlag.CLOCKWISE ? rotationState.rotateClockwise()
+                : rotationState.rotateCounterClockwise();
         updatePixelCoordinates();
-    }
-
-    /**
-     * Sets the next state of the tetromino by incrementing the current state.
-     * its modulus of 4 because there are 4 possible states and modulo 4 return the
-     * value between 0 and 3, this makes sure that the state is always between 0 and
-     * 3
-     */
-    private void setNextState() {
-        rotationState = (rotationState + 1) % 4;// 0,1,2,3
-    }
-
-    /**
-     * Sets the previous state of the tetromino by decrementing the current state.
-     * its +3 because 0+3= 3 and modulo of 4 makes it left 3 which assure that its
-     * return previous position
-     *
-     * @see #setNextState()
-     */
-    private void setPreviousState() {
-        rotationState = (rotationState + 3) % 4;// 0,3,2,1
     }
 
     // methods for junit testing purpose
@@ -194,7 +165,7 @@ public class Tetromino {
         return new Tetromino(tetrominoType, startPos);
     }
 
-    int getCurrentState() {
+    Rotation getCurrentState() {
         return rotationState;
     }
 }

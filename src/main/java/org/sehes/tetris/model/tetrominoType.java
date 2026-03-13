@@ -100,9 +100,9 @@ public enum TetrominoType {
      * @return the List of Coordinates describing the tetromino shape at the given
      *         state index
      */
-    public List<Coordinate> getTetrominoState(int state) {
+    public List<Coordinate> getTetrominoState(Rotation rotationState) {
 
-        return allStates.get(state);
+        return allStates.get(rotationState.getValue());
     }
 
     /**
@@ -112,22 +112,5 @@ public enum TetrominoType {
      * @return the List of Coordinates describing the tetromino shape at the given
      *         state index
      */
-    public List<Coordinate> getNextState(int state) {
-        int nextState = (state + 1) % 4;
-        return allStates.get(nextState);
-    }
-
-    /**
-     * Gets the previous state of the tetromino based on the given state.
-     * This method simply decrements the given state by 1 (modulo 4) to get
-     * the previous state of the tetromino.
-     *
-     * @param state the current state of the tetromino
-     * @return the List of Coordinates describing the tetromino shape at the
-     *         previous state index
-     */
-    public List<Coordinate> getPreviousState(int state) {
-        int previousState = (state + 3) % 4;
-        return allStates.get(previousState);
-    }
+   
 }
