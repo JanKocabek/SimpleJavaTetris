@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.sehes.tetris.config.GameParameters;
 
 class TetrominoTest {
-    private TetrominoFactory factory = new TetrominoFactory();
+    private final TetrominoFactory factory = new TetrominoFactory();
 
     @Test
     void testTetrominoFactory_ValidTetrominoCreation() {
@@ -30,20 +30,9 @@ class TetrominoTest {
     }
 
     @Test
-    void validTetrominoCreationFromFactory() {
-        // given
-        Tetromino tetromino = factory.createNewRandomTetromino(GameParameters.SPAWN_POINT);
-        // then
-        assertNotNull(tetromino);
-        assertEquals(GameParameters.SPAWN_POINT.x(), tetromino.getPositionX());
-        assertEquals(GameParameters.SPAWN_POINT.y(), tetromino.getPositionY());
-    }
-
-    @Test
     void testPixelCoordinatesShapeConsistency() {
         // given
         Tetromino tetromino = factory.createNewRandomTetromino(GameParameters.SPAWN_POINT);
-        // when
         // when
         var stateCoords = tetromino.getStateCord(); // relative grid coordinates of each block
         var pixelCoordinates = tetromino.getPixelCoordinates(); // pixel-based coordinates used for rendering
@@ -51,11 +40,6 @@ class TetrominoTest {
         // then
         assertNotNull(stateCoords);
         assertNotNull(pixelCoordinates);
-        // rely on the relationship between stateCoords and the flattened/pixel arrays
-        // instead of hard-coding specific lengths
-
-        assertEquals(stateCoords.size(), pixelCoordinates.length / 2);
-        assertEquals(8, pixelCoordinates.length);
         assertEquals(stateCoords.size(), pixelCoordinates.length / 2);
     }
 
