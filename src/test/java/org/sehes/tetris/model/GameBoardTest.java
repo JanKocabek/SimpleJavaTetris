@@ -242,14 +242,14 @@ class GameBoardTest {
             Tetromino tetromino = TetrominoFactory.spawnSpecificTetromino(type, new Coordinate(4, 2));
             gameBoard.spawnTetrominoForTestOnly(tetromino);
             var baseCord = tetromino.getStateCord();
-            Orientation tetrominoState = tetromino.getCurrentState();
+            Orientation tetrominoState = tetromino.getCurrentOrientation();
             // when
             for (int i = 0; i < 4; i++) {
                 gameBoard.tryRotatePiece(RotationFlag.CLOCKWISE);
             }
             // then
             List<Coordinate> finalCord = gameBoard.getCurrentTetromino().getStateCord();
-            assertEquals(tetrominoState, gameBoard.getCurrentTetromino().getCurrentState());
+            assertEquals(tetrominoState, gameBoard.getCurrentTetromino().getCurrentOrientation());
             assertEquals(baseCord, finalCord);
 
         }

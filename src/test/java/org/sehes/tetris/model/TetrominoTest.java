@@ -19,7 +19,7 @@ class TetrominoTest {
         assertNotNull(tetromino, "tetrominoFactory should not return null");
         assertEquals(GameParameters.SPAWN_POINT.x(), tetromino.getPositionX());
         assertEquals(GameParameters.SPAWN_POINT.y(), tetromino.getPositionY());
-        assertNotNull(tetromino.getTypeValue());
+        assertNotNull(tetromino.getType());
         assertNotNull(tetromino.getStateCord());
     }
 
