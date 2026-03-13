@@ -27,7 +27,7 @@ import org.sehes.tetris.config.GameParameters;
 public class GameBoard {
 
     private static final System.Logger myLogger = System.getLogger(GameBoard.class.getName());
-
+    private final TetrominoFactory factory = new TetrominoFactory();
     private Tetromino currentTetromino;
     private final BlockContent[][] board;
     /*
@@ -89,7 +89,7 @@ public class GameBoard {
 
     public boolean trySetNewTetromino() {
         final Coordinate startingPosition = GameParameters.SPAWN_POINT;
-        final Tetromino newTetromino = Tetromino.tetrominoFactory(startingPosition);
+        final Tetromino newTetromino = factory.createNewRandomTetromino(startingPosition);
         if (isOutOfBoundaries(newTetromino.getStateCord(), startingPosition.x(), startingPosition.y())) {
             return false;
         }

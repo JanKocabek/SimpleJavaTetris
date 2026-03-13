@@ -2,7 +2,6 @@ package org.sehes.tetris.model;
 
 import java.awt.Color;
 import java.util.List;
-import java.util.Random;
 
 import org.sehes.tetris.config.GameParameters;
 
@@ -38,13 +37,6 @@ import org.sehes.tetris.config.GameParameters;
  */
 public class Tetromino {
 
-    private static final Random random = new Random();
-
-    public static Tetromino tetrominoFactory(final Coordinate startingPosition) {
-        final int piece = random.nextInt(TetrominoType.size());
-        return new Tetromino(TetrominoType.get(piece), startingPosition);
-    }
-
     private int positionX;
     private int positionY;
     private List<Coordinate> stateCoordination;
@@ -53,7 +45,7 @@ public class Tetromino {
 
     private final TetrominoType type;
 
-    private Tetromino(final TetrominoType type, final Coordinate spawnPosition) {
+    Tetromino(final TetrominoType type, final Coordinate spawnPosition) {
         if (type == null || spawnPosition == null) {
             throw new IllegalArgumentException("Tetromino type and spawn position cannot be null.");
         }
@@ -175,10 +167,7 @@ public class Tetromino {
         updatePixelCoordinates();
     }
 
-    // methods for junit testing purpose
-    static Tetromino spawnSpecificTetromino(final TetrominoType tetrominoType, final Coordinate startPos) {
-        return new Tetromino(tetrominoType, startPos);
-    }
+    
 
     Orientation getCurrentState() {
         return rotationState;

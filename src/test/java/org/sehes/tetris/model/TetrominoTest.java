@@ -8,11 +8,12 @@ import org.junit.jupiter.api.Test;
 import org.sehes.tetris.config.GameParameters;
 
 class TetrominoTest {
+    private TetrominoFactory factory = new TetrominoFactory();
 
     @Test
     void testTetrominoFactory_ValidTetrominoCreation() {
         // given
-        Tetromino tetromino = Tetromino.tetrominoFactory(GameParameters.SPAWN_POINT);
+        Tetromino tetromino = factory.createNewRandomTetromino(GameParameters.SPAWN_POINT);
         // when
         // then
         assertNotNull(tetromino, "tetrominoFactory should not return null");
@@ -24,14 +25,14 @@ class TetrominoTest {
 
     @Test
     void shouldThrowExceptionForNullInput() {
-        assertThrows(IllegalArgumentException.class, () -> Tetromino.tetrominoFactory(null),
+        assertThrows(IllegalArgumentException.class, () -> factory.createNewRandomTetromino(null),
                 "tetrominoFactory should throw IllegalArgumentException for null input");
     }
 
     @Test
     void validTetrominoCreationFromFactory() {
         // given
-        Tetromino tetromino = Tetromino.tetrominoFactory(GameParameters.SPAWN_POINT);
+        Tetromino tetromino = factory.createNewRandomTetromino(GameParameters.SPAWN_POINT);
         // then
         assertNotNull(tetromino);
         assertEquals(GameParameters.SPAWN_POINT.x(), tetromino.getPositionX());
@@ -41,7 +42,7 @@ class TetrominoTest {
     @Test
     void testPixelCoordinatesShapeConsistency() {
         // given
-        Tetromino tetromino = Tetromino.tetrominoFactory(GameParameters.SPAWN_POINT);
+        Tetromino tetromino = factory.createNewRandomTetromino(GameParameters.SPAWN_POINT);
         // when
         // when
         var stateCoords = tetromino.getStateCord(); // relative grid coordinates of each block
