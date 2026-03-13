@@ -40,15 +40,15 @@ public class Tetromino {
 
     private static final Random random = new Random();
 
-    public static Tetromino tetrominoFactory(final Coordinate position) {
+    public static Tetromino tetrominoFactory(final Coordinate startingPosition) {
         final int piece = random.nextInt(TetrominoType.size());
-        return new Tetromino(TetrominoType.get(piece), position);
+        return new Tetromino(TetrominoType.get(piece), startingPosition);
     }
 
     private int positionX;
     private int positionY;
     private List<Coordinate> stateCoordination;
-    private Rotation rotationState; // enum represent current rotation state
+    private Orientation rotationState; // enum represent current rotation state
     private final int[] pixelCoordinates;// pixel coordination of the blocks for the drawing
 
     private final TetrominoType type;
@@ -57,13 +57,17 @@ public class Tetromino {
         if (type == null || spawnPosition == null) {
             throw new IllegalArgumentException("Tetromino type and spawn position cannot be null.");
         }
-        this.rotationState = Rotation.NORTH;
-        stateCoordination = type.getTetrominoState(rotationState);
+        this.rotationState = Orientation.NORTH;
         this.positionX = spawnPosition.x();
         this.positionY = spawnPosition.y();
         this.type = type;
+        updateStateCoordination();
         pixelCoordinates = new int[stateCoordination.size() * 2];
         updatePixelCoordinates();
+    }
+
+    private void updateStateCoordination() {
+        stateCoordination = ShapeProvider.getTetrominoState(type, rotationState);
     }
 
     public String getTypeValue() {
@@ -125,15 +129,26 @@ public class Tetromino {
     }
 
     /**
-     * Returns the next or previous state of the tetromino based on the given
-     * rotation flag.
-     *
-     * @param flag ROTATE_R for next state, ROTATE_L for previous state
-     * @return the next or previous state of the tetromino based on the flag
+     * Rotates the Tetromino in the specified direction (clockwise or
+     * counter-clockwise) and returns the new grid configuration.
+     * The method first calculates the new orientation of the Tetromino based on the
+     * given rotation flag.
+     * Then, it retrieves the new grid configuration of the Tetromino using the
+     * ShapeProvider class and the new orientation.
+     * Finally, it returns the new grid configuration.
+     * 
+     * @param rotation enum representing the rotation direction
+     *                 {@link RotationFlag} can be either {@code CLOCKWISE}
+     *                 or {@code COUNTER_CLOCKWISE}
+     * @return The new grid configuration of the Tetromino after rotation.
      */
     public List<Coordinate> rotate(final RotationFlag rotation) {
-        return type.getTetrominoState(rotation == RotationFlag.CLOCKWISE ? rotationState.rotateClockwise()
-                : rotationState.rotateCounterClockwise());
+        return ShapeProvider.getTetrominoState(type, getNewOrientation(rotation));
+    }
+
+    private Orientation getNewOrientation(final RotationFlag rotation) {
+        return rotation == RotationFlag.CLOCKWISE ? rotationState.rotateClockwise()
+                : rotationState.rotateCounterClockwise();
     }
 
     /**
@@ -165,7 +180,7 @@ public class Tetromino {
         return new Tetromino(tetrominoType, startPos);
     }
 
-    Rotation getCurrentState() {
+    Orientation getCurrentState() {
         return rotationState;
     }
 }
