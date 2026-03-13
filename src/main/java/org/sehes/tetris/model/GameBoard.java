@@ -134,9 +134,10 @@ public class GameBoard {
         if (this.currentTetromino == null || rotation == null) {
             return false;
         }
-        if (currentTetromino.getType().equals(TetrominoType.O)) {
+        if (currentTetromino.getType()==TetrominoType.O) {
             return false;
         }
+        currentTetromino.setNextOrientation(rotation);
         final List<Coordinate> rotatedPosition = currentTetromino.getNextState(rotation);
         if (!canRotate(rotatedPosition) && !tryWallKick(rotatedPosition)) {
             return false;

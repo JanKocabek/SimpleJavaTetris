@@ -90,6 +90,7 @@ public class Tetromino {
     public void setPosition(final int x, final int y) {
         this.positionX = x;
         this.positionY = y;
+        updatePixelCoordinates();
     }
 
     public void move(final DirectionFlag flag) {
@@ -116,7 +117,6 @@ public class Tetromino {
      * @return The new grid configuration of the Tetromino after rotation.
      */
     public List<Coordinate> getNextState(final RotationFlag rotation) {
-        nextOrientation = getNewOrientation(rotation);
         return ShapeProvider.getTetrominoState(type, nextOrientation);
     }
 
@@ -143,8 +143,7 @@ public class Tetromino {
             throw new IllegalArgumentException("Coordinates and direction flag cannot be null.");
         }
         this.stateCoordination = coordinates;
-        this.rotationState = rotation == RotationFlag.CLOCKWISE ? rotationState.rotateClockwise()
-                : rotationState.rotateCounterClockwise();
+        this.rotationState = nextOrientation;
         updatePixelCoordinates();
     }
 
@@ -163,21 +162,22 @@ public class Tetromino {
      * pixel coordinates.
      */
     private void updatePixelCoordinates() {
-        final int sizeCord = 2;
-        final int next = 1;
+        final int COORDS_PER_BLOCK = 2;
         final int pX = positionX * GameParameters.BLOCK_SIZE;
         final int pY = (positionY - GameParameters.HIDDEN_ROWS) * GameParameters.BLOCK_SIZE;
         final int blockSize = GameParameters.BLOCK_SIZE;
         for (int i = 0; i < stateCoordination.size(); i++) {
             final int x = stateCoordination.get(i).x() * blockSize + pX;
             final int y = stateCoordination.get(i).y() * blockSize + pY;
-            pixelCoordinates[i * sizeCord] = x;
-            pixelCoordinates[(i * sizeCord) + next] = y;
+            pixelCoordinates[i * COORDS_PER_BLOCK] = x;
+            pixelCoordinates[(i * COORDS_PER_BLOCK) + 1] = y;
         }
     }
 
-    private Orientation getNewOrientation(final RotationFlag rotation) {
-        return rotation == RotationFlag.CLOCKWISE ? rotationState.rotateClockwise()
+    public Orientation setNextOrientation(final RotationFlag rotation) {
+        Orientation newOrientation = rotation == RotationFlag.CLOCKWISE ? rotationState.rotateClockwise()
                 : rotationState.rotateCounterClockwise();
+        nextOrientation = newOrientation;
+        return newOrientation;
     }
 }

@@ -3,7 +3,7 @@ package org.sehes.tetris.model;
 import org.sehes.tetris.model.ShapeProvider.WallKicks.Transition;
 
 /**
- * The Orientation enum represents the possible Orientations state of a
+ * The Orientation enum represents the possible Orientations states of a
  * Tetromino piece in game<br>
  * It represents them as {@code NORTH}, {@code EAST}, {@code SOUTH},
  * and {@code WEST}.<br>

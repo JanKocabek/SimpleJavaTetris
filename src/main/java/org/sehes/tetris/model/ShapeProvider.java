@@ -15,6 +15,12 @@ public class ShapeProvider {
                 for (TetrominoType type : TetrominoType.values()) {
                         tetrominoStates.put(type, new EnumMap<>(Orientation.class));
                 }
+
+                final List<Coordinate> shapeO = List.of(new Coordinate(-1, -1), new Coordinate(-1, 0),
+                        new Coordinate(0, 0), new Coordinate(0, -1));
+                for (Orientation o : Orientation.values()) {
+                        tetrominoStates.get(TetrominoType.O).put(o, shapeO);
+                }
                 tetrominoStates.get(TetrominoType.I).put(Orientation.NORTH, List.of(
                                 new Coordinate(0, 0),
                                 new Coordinate(1, 0),
@@ -35,18 +41,6 @@ public class ShapeProvider {
                                 new Coordinate(0, -1),
                                 new Coordinate(0, 1),
                                 new Coordinate(0, 2)));
-                tetrominoStates.get(TetrominoType.O).put(Orientation.NORTH, List.of(
-                                new Coordinate(-1, -1), new Coordinate(-1, 0), new Coordinate(0, 0),
-                                new Coordinate(0, -1)));
-                tetrominoStates.get(TetrominoType.O).put(Orientation.EAST, List.of(
-                                new Coordinate(-1, -1), new Coordinate(-1, 0), new Coordinate(0, 0),
-                                new Coordinate(0, -1)));
-                tetrominoStates.get(TetrominoType.O).put(Orientation.SOUTH, List.of(
-                                new Coordinate(-1, -1), new Coordinate(-1, 0), new Coordinate(0, 0),
-                                new Coordinate(0, -1)));
-                tetrominoStates.get(TetrominoType.O).put(Orientation.WEST, List.of(
-                                new Coordinate(-1, -1), new Coordinate(-1, 0), new Coordinate(0, 0),
-                                new Coordinate(0, -1)));
                 tetrominoStates.get(TetrominoType.J).put(Orientation.NORTH, List.of(
                                 new Coordinate(-1, -1), new Coordinate(-1, 0), new Coordinate(0, 0),
                                 new Coordinate(1, 0)));
@@ -116,7 +110,7 @@ public class ShapeProvider {
         private ShapeProvider() {
         }
 
-        public class WallKicks {
+        static class WallKicks {
 
                 enum WallKickType {
                         NORMAL, I_KICKS
@@ -189,7 +183,7 @@ public class ShapeProvider {
                                         new Coordinate(-1, -2), new Coordinate(2, 1)));
                 }
 
-                public static List<Coordinate> getWallKicks(WallKickType wallKickType, Transition transition) {
+                static List<Coordinate> getWallKicks(WallKickType wallKickType, Transition transition) {
                         return wallKicks.get(wallKickType).get(transition);
                 }
         }
