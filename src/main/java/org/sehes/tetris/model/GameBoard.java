@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.sehes.tetris.config.GameParameters;
+import org.sehes.tetris.model.ShapeProvider.WallKicks;
+import org.sehes.tetris.model.ShapeProvider.WallKicks.WallKickType;
 
 /**
  * The GameBoard class represents the game board in a Tetris game. It manages
@@ -132,12 +134,45 @@ public class GameBoard {
         if (this.currentTetromino == null || rotation == null) {
             return false;
         }
-        final List<Coordinate> rotatedPosition = currentTetromino.rotate(rotation);
-        if (!canRotate(rotatedPosition)) {
+        if (currentTetromino.getType().equals(TetrominoType.O)) {
+            return false;
+        }
+        final List<Coordinate> rotatedPosition = currentTetromino.getNextState(rotation);
+        if (!canRotate(rotatedPosition) && !tryWallKick(rotatedPosition)) {
             return false;
         }
         currentTetromino.setState(rotatedPosition, rotation);
         return true;
+    }
+
+    /**
+     * This method is responsible for attempting to wall kick the current tetromino
+     * if it cannot be rotated into its next orientation without collision. It uses
+     * the wall kick table to find the possible wall kicks that can be applied to
+     * the current tetromino, and then checks each wall kick to see if it results in
+     * a valid position for the tetromino. If a valid wall kick is found, it updates
+     * the tetromino's position accordingly and returns true. If no valid wall kick
+     * is found, it returns false.
+     * 
+     * @param rotatedPosition the grid configuration of the tetromino after
+     *                        rotation
+     * @return true if a valid wall kick is found, false otherwise
+     */
+    private boolean tryWallKick(List<Coordinate> rotatedPosition) {
+        WallKickType wallKickType = currentTetromino.getType() == TetrominoType.I ? WallKickType.I_KICKS
+                : WallKickType.NORMAL;
+        List<Coordinate> wallKicks = WallKicks.getWallKicks(wallKickType,
+                currentTetromino.getCurrentOrientation().getTransitionTo(currentTetromino.getNextOrientation()));
+        for (Coordinate cord : wallKicks) {
+            int testX = currentTetromino.getPositionX() + cord.x();
+            int testY = currentTetromino.getPositionY() + cord.y();
+            if (!isOutOfBoundaries(rotatedPosition, testX, testY)
+                    && !isCollisionDetected(rotatedPosition, testX, testY)) {
+                currentTetromino.setPosition(testX, testY);
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -189,6 +224,26 @@ public class GameBoard {
             updateScore(linesClearedCount);
         }
         return lineCleared;
+    }
+
+    /**
+     * JUNIT TEST ONLY<br>
+     * this method fill last line with blocks
+     */
+
+    void fillLineForTestOnly() {
+        int lastLine = board.length - 1;
+        Arrays.fill(board[lastLine], BlockContent.CYAN);
+    }
+
+    /**
+     * JUNIT TEST ONLY<br>
+     * this method set the current tetromino to the specific tetromino
+     * 
+     * @param tetromino the tetromino you need to spawn
+     */
+    void spawnTetrominoForTestOnly(final Tetromino tetromino) {
+        this.currentTetromino = tetromino;
     }
 
     /**
@@ -310,26 +365,6 @@ public class GameBoard {
             System.arraycopy(board[cr - 1], 0, board[cr], 0, board[cr].length);
         }
         Arrays.fill(board[0], BlockContent.EMPTY);
-    }
-
-    /**
-     * JUNIT TEST ONLY<br>
-     * this method fill last line with blocks
-     */
-
-    void fillLineForTestOnly() {
-        int lastLine = board.length - 1;
-        Arrays.fill(board[lastLine], BlockContent.CYAN);
-    }
-
-    /**
-     * JUNIT TEST ONLY<br>
-     * this method set the current tetromino to the specific tetromino
-     * 
-     * @param tetromino the tetromino you need to spawn
-     */
-    void spawnTetrominoForTestOnly(final Tetromino tetromino) {
-        this.currentTetromino = tetromino;
     }
 
 }
