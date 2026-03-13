@@ -42,7 +42,7 @@ public class Tetromino {
     private List<Coordinate> stateCoordination;
     private Orientation rotationState; // enum represent current rotation state
     private final int[] pixelCoordinates;// pixel coordination of the blocks for the drawing
-
+    private Orientation nextOrientation;
     private final TetrominoType type;
 
     Tetromino(final TetrominoType type, final Coordinate spawnPosition) {
@@ -58,12 +58,8 @@ public class Tetromino {
         updatePixelCoordinates();
     }
 
-    private void updateStateCoordination() {
-        stateCoordination = ShapeProvider.getTetrominoState(type, rotationState);
-    }
-
-    public String getTypeValue() {
-        return type.name();
+    public TetrominoType getType() {
+        return type;
     }
 
     public Color getColor() {
@@ -79,26 +75,6 @@ public class Tetromino {
     }
 
     /**
-     * Updates the pixel coordinates of the tetromino based on its current state
-     * and position. The method takes the state coordinates, scales them by the
-     * block size, and then applies the position offset to get the final
-     * pixel coordinates.
-     */
-    private void updatePixelCoordinates() {
-        final int sizeCord = 2;
-        final int next = 1;
-        final int pX = positionX * GameParameters.BLOCK_SIZE;
-        final int pY = (positionY - GameParameters.HIDDEN_ROWS) * GameParameters.BLOCK_SIZE;
-        final int blockSize = GameParameters.BLOCK_SIZE;
-        for (int i = 0; i < stateCoordination.size(); i++) {
-            final int x = stateCoordination.get(i).x() * blockSize + pX;
-            final int y = stateCoordination.get(i).y() * blockSize + pY;
-            pixelCoordinates[i * sizeCord] = x;
-            pixelCoordinates[(i * sizeCord) + next] = y;
-        }
-    }
-
-    /**
      * Returns the X (column) coordinate of the tetromino's position.
      *
      * @return The column position of the tetromino.
@@ -109,6 +85,11 @@ public class Tetromino {
 
     public int getPositionY() {
         return positionY;
+    }
+
+    public void setPosition(final int x, final int y) {
+        this.positionX = x;
+        this.positionY = y;
     }
 
     public void move(final DirectionFlag flag) {
@@ -134,13 +115,13 @@ public class Tetromino {
      *                 or {@code COUNTER_CLOCKWISE}
      * @return The new grid configuration of the Tetromino after rotation.
      */
-    public List<Coordinate> rotate(final RotationFlag rotation) {
-        return ShapeProvider.getTetrominoState(type, getNewOrientation(rotation));
+    public List<Coordinate> getNextState(final RotationFlag rotation) {
+        nextOrientation = getNewOrientation(rotation);
+        return ShapeProvider.getTetrominoState(type, nextOrientation);
     }
 
-    private Orientation getNewOrientation(final RotationFlag rotation) {
-        return rotation == RotationFlag.CLOCKWISE ? rotationState.rotateClockwise()
-                : rotationState.rotateCounterClockwise();
+    public Orientation getNextOrientation() {
+        return nextOrientation;
     }
 
     /**
@@ -167,9 +148,36 @@ public class Tetromino {
         updatePixelCoordinates();
     }
 
-    
-
-    Orientation getCurrentState() {
+    Orientation getCurrentOrientation() {
         return rotationState;
+    }
+
+    private void updateStateCoordination() {
+        stateCoordination = ShapeProvider.getTetrominoState(type, rotationState);
+    }
+
+    /**
+     * Updates the pixel coordinates of the tetromino based on its current state
+     * and position. The method takes the state coordinates, scales them by the
+     * block size, and then applies the position offset to get the final
+     * pixel coordinates.
+     */
+    private void updatePixelCoordinates() {
+        final int sizeCord = 2;
+        final int next = 1;
+        final int pX = positionX * GameParameters.BLOCK_SIZE;
+        final int pY = (positionY - GameParameters.HIDDEN_ROWS) * GameParameters.BLOCK_SIZE;
+        final int blockSize = GameParameters.BLOCK_SIZE;
+        for (int i = 0; i < stateCoordination.size(); i++) {
+            final int x = stateCoordination.get(i).x() * blockSize + pX;
+            final int y = stateCoordination.get(i).y() * blockSize + pY;
+            pixelCoordinates[i * sizeCord] = x;
+            pixelCoordinates[(i * sizeCord) + next] = y;
+        }
+    }
+
+    private Orientation getNewOrientation(final RotationFlag rotation) {
+        return rotation == RotationFlag.CLOCKWISE ? rotationState.rotateClockwise()
+                : rotationState.rotateCounterClockwise();
     }
 }
