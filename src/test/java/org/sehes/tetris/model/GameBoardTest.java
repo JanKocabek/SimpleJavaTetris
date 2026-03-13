@@ -219,7 +219,7 @@ class GameBoardTest {
          * @param rotation The direction to rotate the tetromino.
          */
         @ParameterizedTest
-        @EnumSource(value = RotationFlag.class, names = { "CLOCKWISE", "COUNTERCLOCKWISE" })
+        @EnumSource(value = RotationFlag.class, names = { "CLOCKWISE", "COUNTER_CLOCKWISE" })
         void testPositionIsTheSameAfterRotation(RotationFlag rotation) {
             // given
             Tetromino tetromino = Tetromino.spawnSpecificTetromino(TetrominoType.T, new Coordinate(4, 1));
@@ -242,7 +242,7 @@ class GameBoardTest {
             Tetromino tetromino = Tetromino.spawnSpecificTetromino(type, new Coordinate(4, 2));
             gameBoard.spawnTetrominoForTestOnly(tetromino);
             var baseCord = tetromino.getStateCord();
-            Rotation tetrominoState = tetromino.getCurrentState();
+            Orientation tetrominoState = tetromino.getCurrentState();
             // when
             for (int i = 0; i < 4; i++) {
                 gameBoard.tryRotatePiece(RotationFlag.CLOCKWISE);
