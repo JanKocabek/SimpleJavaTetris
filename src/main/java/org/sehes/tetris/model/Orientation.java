@@ -1,7 +1,10 @@
 package org.sehes.tetris.model;
 
+import org.sehes.tetris.model.ShapeProvider.WallKicks.Transition;
+
 /**
- * The Orientation enum represents the possible Orientations state of a Tetromino piece in game<br>
+ * The Orientation enum represents the possible Orientations state of a
+ * Tetromino piece in game<br>
  * It represents them as {@code NORTH}, {@code EAST}, {@code SOUTH},
  * and {@code WEST}.<br>
  * it exposes methods to rotate clockwise and counter-clockwise.
@@ -17,7 +20,9 @@ public enum Orientation {
         this.state = state;
     }
 
-    
+    public Transition getTransitionTo(final Orientation next) {
+        return Transition.valueOf(this.name() + "_TO_" + next.name());
+    }
 
     public Orientation rotateClockwise() {
         return next();
