@@ -12,14 +12,13 @@ public enum TetrominoType {
             { new Coordinate(0, 1), new Coordinate(-1, 1), new Coordinate(1, 1), new Coordinate(2, 1) }, // State 2
             { new Coordinate(0, 0), new Coordinate(0, -1), new Coordinate(0, 1), new Coordinate(0, 2) }// State 3
     },
-            Color.CYAN
-            ),
+            Color.CYAN),
     J(new Coordinate[][] {
             { new Coordinate(-1, -1), new Coordinate(-1, 0), new Coordinate(0, 0), new Coordinate(1, 0) }, // 0°
             { new Coordinate(1, -1), new Coordinate(0, -1), new Coordinate(0, 0), new Coordinate(0, 1) }, // 90°
             { new Coordinate(1, 1), new Coordinate(1, 0), new Coordinate(0, 0), new Coordinate(-1, 0) }, // 180°
             { new Coordinate(-1, 1), new Coordinate(0, 1), new Coordinate(0, 0), new Coordinate(0, -1) }// 270°
-    }, Color.BLUE ),
+    }, Color.BLUE),
 
     L(new Coordinate[][] {
             { new Coordinate(-1, 0), new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(1, -1) }, // 0°
@@ -56,16 +55,29 @@ public enum TetrominoType {
             { new Coordinate(-1, 1), new Coordinate(-1, 0), new Coordinate(0, 0), new Coordinate(0, -1) }// 270°
     }, Color.RED);
 
-    private static final TetrominoType[] map = TetrominoType.values();
+    /**
+     * the cached tetromino types
+     */
+    private static final TetrominoType[] cachedEnum = TetrominoType.values();
+
+    /**
+     * 
+     * @return the number of tetromino types used in the tetromino factory method for random number of tetromino type
+     */
     public static int size() {
-        return map.length;
+        return cachedEnum.length;
     }
 
+    /**
+     * 
+     * @param intValue
+     * @return returns the tetromino type based on the intValue
+     */
     public static TetrominoType get(final int intValue) {
-        if (intValue < 0 || intValue >= map.length) {
+        if (intValue < 0 || intValue >= cachedEnum.length) {
             throw new IllegalArgumentException("Invalid intValue: " + intValue);
         }
-        return map[intValue];
+        return cachedEnum[intValue];
     }
 
     private final Color color;
