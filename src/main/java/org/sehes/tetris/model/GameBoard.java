@@ -123,8 +123,10 @@ public class GameBoard {
      * the new rotated configuration. Finally, it prints the position of the
      * tetromino before and after rotation for debugging purposes
      *
-     * @param rotation The direction in which to rotate the tetromino (e.g.,
-     *             ROTATE_R for right rotation, ROTATE_L for left rotation)
+     * @param rotation The direction in which to rotate the tetromino (
+     *                 {@code CLOCKWISE} for right rotation,
+     *                 {@code COUNTER_CLOCKWISE}
+     *                 for left rotation)
      */
     public boolean tryRotatePiece(final RotationFlag rotation) {
         if (this.currentTetromino == null || rotation == null) {
