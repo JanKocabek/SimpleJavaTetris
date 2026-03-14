@@ -131,10 +131,7 @@ public class GameBoard {
      *                 for left rotation)
      */
     public boolean tryRotatePiece(final RotationFlag rotation) {
-        if (this.currentTetromino == null || rotation == null) {
-            return false;
-        }
-        if (currentTetromino.getType()==TetrominoType.O) {
+        if (this.currentTetromino == null || rotation == null || currentTetromino.getType() == TetrominoType.O) {
             return false;
         }
         currentTetromino.setNextOrientation(rotation);
@@ -144,36 +141,6 @@ public class GameBoard {
         }
         currentTetromino.setState(rotatedPosition, rotation);
         return true;
-    }
-
-    /**
-     * This method is responsible for attempting to wall kick the current tetromino
-     * if it cannot be rotated into its next orientation without collision. It uses
-     * the wall kick table to find the possible wall kicks that can be applied to
-     * the current tetromino, and then checks each wall kick to see if it results in
-     * a valid position for the tetromino. If a valid wall kick is found, it updates
-     * the tetromino's position accordingly and returns true. If no valid wall kick
-     * is found, it returns false.
-     * 
-     * @param rotatedPosition the grid configuration of the tetromino after
-     *                        rotation
-     * @return true if a valid wall kick is found, false otherwise
-     */
-    private boolean tryWallKick(List<Coordinate> rotatedPosition) {
-        WallKickType wallKickType = currentTetromino.getType() == TetrominoType.I ? WallKickType.I_KICKS
-                : WallKickType.NORMAL;
-        List<Coordinate> wallKicks = WallKicks.getWallKicks(wallKickType,
-                currentTetromino.getCurrentOrientation().getTransitionTo(currentTetromino.getNextOrientation()));
-        for (Coordinate cord : wallKicks) {
-            int testX = currentTetromino.getPositionX() + cord.x();
-            int testY = currentTetromino.getPositionY() + cord.y();
-            if (!isOutOfBoundaries(rotatedPosition, testX, testY)
-                    && !isCollisionDetected(rotatedPosition, testX, testY)) {
-                currentTetromino.setPosition(testX, testY);
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -245,6 +212,36 @@ public class GameBoard {
      */
     void spawnTetrominoForTestOnly(final Tetromino tetromino) {
         this.currentTetromino = tetromino;
+    }
+
+    /**
+     * This method is responsible for attempting to wall kick the current tetromino
+     * if it cannot be rotated into its next orientation without collision. It uses
+     * the wall kick table to find the possible wall kicks that can be applied to
+     * the current tetromino, and then checks each wall kick to see if it results in
+     * a valid position for the tetromino. If a valid wall kick is found, it updates
+     * the tetromino's position accordingly and returns true. If no valid wall kick
+     * is found, it returns false.
+     * 
+     * @param rotatedPosition the grid configuration of the tetromino after
+     *                        rotation
+     * @return true if a valid wall kick is found, false otherwise
+     */
+    private boolean tryWallKick(List<Coordinate> rotatedPosition) {
+        WallKickType wallKickType = currentTetromino.getType() == TetrominoType.I ? WallKickType.I_KICKS
+                : WallKickType.NORMAL;
+        List<Coordinate> wallKicks = WallKicks.getWallKicks(wallKickType,
+                currentTetromino.getCurrentOrientation().getTransitionTo(currentTetromino.getNextOrientation()));
+        for (Coordinate cord : wallKicks) {
+            int testX = currentTetromino.getPositionX() + cord.x();
+            int testY = currentTetromino.getPositionY() + cord.y();
+            if (!isOutOfBoundaries(rotatedPosition, testX, testY)
+                    && !isCollisionDetected(rotatedPosition, testX, testY)) {
+                currentTetromino.setPosition(testX, testY);
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
