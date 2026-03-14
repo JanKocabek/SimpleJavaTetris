@@ -138,12 +138,13 @@ public class Tetromino {
      * @param directionFlag the rotation flag to determine the next or previous
      *                      state of the Tetromino
      */
-    void setState(final List<Coordinate> coordinates, final RotationFlag rotation) {
-        if (coordinates == null || rotation == null) {
+    void setState(final List<Coordinate> coordinates , final RotationFlag rotationFlag) {
+        if (coordinates == null ) {
             throw new IllegalArgumentException("Coordinates and direction flag cannot be null.");
         }
         this.stateCoordination = coordinates;
-        this.rotationState = nextOrientation;
+        this.rotationState = nextOrientation!= null     ? nextOrientation :setNextOrientation(rotationFlag);
+        nextOrientation = null;
         updatePixelCoordinates();
     }
 
