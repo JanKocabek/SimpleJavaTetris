@@ -117,6 +117,9 @@ public class Tetromino {
      * @return The new grid configuration of the Tetromino after rotation.
      */
     public List<Coordinate> getNextState(final RotationFlag rotation) {
+        if(nextOrientation == null) {
+            setNextOrientation(rotation);
+        }
         return ShapeProvider.getTetrominoState(type, nextOrientation);
     }
 
