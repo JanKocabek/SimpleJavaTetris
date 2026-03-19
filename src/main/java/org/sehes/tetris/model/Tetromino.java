@@ -14,9 +14,7 @@ import org.sehes.tetris.config.GameParameters;
  * standard Tetris pieces (I, J, L, O, S, T, Z), each with its own shape and
  * color. The Tetromino class interacts with the GameBoard to manage the current
  * piece's state and position during gameplay.
- */
-
-/**
+ * <p>
  * tetromino is defined by list of points where y is row and x is column
  * <p>
  * the base level is y = 0 and upper one is -1
@@ -42,7 +40,6 @@ public class Tetromino {
     private List<Coordinate> stateCoordination;
     private Orientation rotationState; // enum represent current rotation state
     private final int[] pixelCoordinates;// pixel coordination of the blocks for the drawing
-    private Orientation nextOrientation;
     private final TetrominoType type;
 
     Tetromino(final TetrominoType type, final Coordinate spawnPosition) {
@@ -102,52 +99,19 @@ public class Tetromino {
         updatePixelCoordinates();
     }
 
-    /**
-     * Rotates the Tetromino in the specified direction (clockwise or
-     * counter-clockwise) and returns the new grid configuration.
-     * The method first calculates the new orientation of the Tetromino based on the
-     * given rotation flag.
-     * Then, it retrieves the new grid configuration of the Tetromino using the
-     * ShapeProvider class and the new orientation.
-     * Finally, it returns the new grid configuration.
-     * 
-     * @param rotation enum representing the rotation direction
-     *                 {@link RotationFlag} can be either {@code CLOCKWISE}
-     *                 or {@code COUNTER_CLOCKWISE}
-     * @return The new grid configuration of the Tetromino after rotation.
-     */
-    public List<Coordinate> getNextState(final RotationFlag rotation) {
-        if(nextOrientation == null) {
-            setNextOrientation(rotation);
-        }
-        return ShapeProvider.getTetrominoState(type, nextOrientation);
-    }
-
-    public Orientation getNextOrientation() {
-        return nextOrientation;
-    }
 
     /**
-     * Sets the state of the Tetromino to the given coordinates and rotation flag.
-     * If the flag is ROTATE_R, it sets the next state of the Tetromino based on the
-     * given coordinates.
-     * If the flag is ROTATE_L, it sets the previous state of the Tetromino based on
-     * the given coordinates.
-     * If the flag is neither ROTATE_R nor ROTATE_L, it does nothing.
-     * After setting the state, it updates the shape and pixel coordinates
-     * accordingly.
-     * 
-     * @param coordinates   the new state of the Tetromino
-     * @param directionFlag the rotation flag to determine the next or previous
-     *                      state of the Tetromino
-     */
-    void setState(final List<Coordinate> coordinates , final RotationFlag rotationFlag) {
-        if (coordinates == null ) {
-            throw new IllegalArgumentException("Coordinates and direction flag cannot be null.");
+     * Sets the state of the Tetromino to the specified coordinates and orientation.
+     *
+     * @param coordinates The new grid configuration of the Tetromino.
+     * @throws IllegalArgumentException If the coordinates are null or missing any type of next orientation.
+     * * */
+    void setNewState(final List<Coordinate> coordinates, final Orientation nextOrientation) {
+        if (coordinates == null || nextOrientation == null) {
+            throw new IllegalArgumentException("Coordinates and next orientation cannot be null.");
         }
         this.stateCoordination = coordinates;
-        this.rotationState = nextOrientation!= null     ? nextOrientation :setNextOrientation(rotationFlag);
-        nextOrientation = null;
+        this.rotationState = nextOrientation;
         updatePixelCoordinates();
     }
 
@@ -176,12 +140,5 @@ public class Tetromino {
             pixelCoordinates[i * COORDS_PER_BLOCK] = x;
             pixelCoordinates[(i * COORDS_PER_BLOCK) + 1] = y;
         }
-    }
-
-    public Orientation setNextOrientation(final RotationFlag rotation) {
-        Orientation newOrientation = rotation == RotationFlag.CLOCKWISE ? rotationState.rotateClockwise()
-                : rotationState.rotateCounterClockwise();
-        nextOrientation = newOrientation;
-        return newOrientation;
     }
 }

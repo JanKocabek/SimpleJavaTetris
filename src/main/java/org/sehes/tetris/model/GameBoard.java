@@ -33,7 +33,7 @@ public class GameBoard {
     private Tetromino currentTetromino;
     private final BlockContent[][] board;
     /*
-     * make the start posiiton dynamic based on tetromino type instead of one fixed
+     * make the start position dynamic based on tetromino type instead of one fixed
      * position
      */
     private final BoardView boardView;
@@ -76,7 +76,7 @@ public class GameBoard {
     /**
      * This method returns the IBoardView instance that provides a <b> read-only
      * view of the game board.</b> <br>
-     * Dont use for the changes of the Board state or its components!!!<br>
+     * Don't use for the changes of the Board state or its components!!!<br>
      * The IBoardView interface allows other components of the game, such as the
      * GUI, to access the state of the board without being able to modify it
      * directly. This encapsulation ensures that all changes to the board state
@@ -135,13 +135,18 @@ public class GameBoard {
         if (this.currentTetromino == null || rotation == null || currentTetromino.getType() == TetrominoType.O) {
             return false;
         }
-        currentTetromino.setNextOrientation(rotation);
-        final List<Coordinate> rotatedPosition = currentTetromino.getNextState(rotation);
-        if (!canRotate(rotatedPosition) && !tryWallKick(rotatedPosition)) {
+        final var nextOrientation = getNextOrientation(rotation);
+        final List<Coordinate> rotatedPosition = ShapeProvider.getTetrominoState(currentTetromino.getType(), nextOrientation);
+        if (!canRotate(rotatedPosition) && !tryWallKick(rotatedPosition, nextOrientation)) {
             return false;
         }
-        currentTetromino.setState(rotatedPosition, rotation);
+        currentTetromino.setNewState(rotatedPosition, nextOrientation);
         return true;
+    }
+
+    private Orientation getNextOrientation(RotationFlag rotation) {
+        return rotation == RotationFlag.CLOCKWISE ? currentTetromino.getCurrentOrientation().rotateClockwise()
+                : currentTetromino.getCurrentOrientation().rotateCounterClockwise();
     }
 
     /**
@@ -209,11 +214,11 @@ public class GameBoard {
      *                        rotation
      * @return true if a valid wall kick is found, false otherwise
      */
-    private boolean tryWallKick(List<Coordinate> rotatedPosition) {
+    private boolean tryWallKick(List<Coordinate> rotatedPosition, Orientation nextOrientation) {
         WallKickType wallKickType = currentTetromino.getType() == TetrominoType.I ? WallKickType.I_KICKS
                 : WallKickType.NORMAL;
         List<Coordinate> wallKicks = WallKicks.getWallKicks(wallKickType,
-                currentTetromino.getCurrentOrientation().getTransitionTo(currentTetromino.getNextOrientation()));
+                currentTetromino.getCurrentOrientation().getTransitionTo(nextOrientation));
         for (Coordinate cord : wallKicks) {
             int testX = currentTetromino.getPositionX() + cord.x();
             int testY = currentTetromino.getPositionY() + cord.y();
@@ -282,8 +287,7 @@ public class GameBoard {
      *                    board
      * @return {@code true} if there is a collision, {@code false} otherwise
      */
-    private boolean isCollisionDetected(final List<Coordinate> stateCord, final int newPositionX,
-                                        final int newPositionY) {
+    private boolean isCollisionDetected(final List<Coordinate> stateCord, final int newPositionX, final int newPositionY) {
 
         for (final var cord : stateCord) {
             if (this.board[newPositionY + cord.y()][newPositionX + cord.x()] != BlockContent.EMPTY) {
