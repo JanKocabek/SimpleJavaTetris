@@ -57,7 +57,8 @@ public class GameBoard {
             @Override
             public BlockContent getBlockContent(final int row, final int column) {
                 if (row < 0 || row >= board.length || column < 0 || column >= board[row].length) {
-                    throw new IndexOutOfBoundsException("Coordinates are out of bounds.");
+                    throw new IndexOutOfBoundsException("Coordinates are out of bounds. Row: " + row + ", Column: "
+                                                        + column + ". Board size: " + board.length + "x" + board[0].length);
                 }
                 return board[row][column];
             }
@@ -185,7 +186,7 @@ public class GameBoard {
                 linesClearedCount++;
                 lineCleared = true;
                 row--;// todo: in future make the counting of line and clearing of lines separated to
-                      // prevent this
+                // prevent this
             }
         }
         if (lineCleared) {
@@ -194,25 +195,6 @@ public class GameBoard {
         return lineCleared;
     }
 
-    /**
-     * JUNIT TEST ONLY<br>
-     * this method fill last line with blocks
-     */
-
-    void fillLineForTestOnly() {
-        int lastLine = board.length - 1;
-        Arrays.fill(board[lastLine], BlockContent.CYAN);
-    }
-
-    /**
-     * JUNIT TEST ONLY<br>
-     * this method set the current tetromino to the specific tetromino
-     * 
-     * @param tetromino the tetromino you need to spawn
-     */
-    void spawnTetrominoForTestOnly(final Tetromino tetromino) {
-        this.currentTetromino = tetromino;
-    }
 
     /**
      * This method is responsible for attempting to wall kick the current tetromino
@@ -222,7 +204,7 @@ public class GameBoard {
      * a valid position for the tetromino. If a valid wall kick is found, it updates
      * the tetromino's position accordingly and returns true. If no valid wall kick
      * is found, it returns false.
-     * 
+     *
      * @param rotatedPosition the grid configuration of the tetromino after
      *                        rotation
      * @return true if a valid wall kick is found, false otherwise
@@ -236,7 +218,7 @@ public class GameBoard {
             int testX = currentTetromino.getPositionX() + cord.x();
             int testY = currentTetromino.getPositionY() + cord.y();
             if (!isOutOfBoundaries(rotatedPosition, testX, testY)
-                    && !isCollisionDetected(rotatedPosition, testX, testY)) {
+                && !isCollisionDetected(rotatedPosition, testX, testY)) {
                 currentTetromino.setPosition(testX, testY);
                 return true;
             }
@@ -256,7 +238,7 @@ public class GameBoard {
             case 3 -> score += 500;
             case 4 -> score += 800;
             default -> // shouldn't happen in current implementation
-                myLogger.log(WARNING, () -> "Invalid number of lines cleared: " + linesCleared);
+                    myLogger.log(WARNING, () -> "Invalid number of lines cleared: " + linesCleared);
         }
     }
 
@@ -287,7 +269,7 @@ public class GameBoard {
         final int futureX = tetromino.getPositionX() + direction.getX();
         final int futureY = tetromino.getPositionY() + direction.getY();
         return !isOutOfBoundaries(tetromino.getStateCord(), futureX, futureY)
-                && !isCollisionDetected(tetromino.getStateCord(), futureX, futureY);
+               && !isCollisionDetected(tetromino.getStateCord(), futureX, futureY);
     }
 
     /**
@@ -301,7 +283,7 @@ public class GameBoard {
      * @return {@code true} if there is a collision, {@code false} otherwise
      */
     private boolean isCollisionDetected(final List<Coordinate> stateCord, final int newPositionX,
-            final int newPositionY) {
+                                        final int newPositionY) {
 
         for (final var cord : stateCord) {
             if (this.board[newPositionY + cord.y()][newPositionX + cord.x()] != BlockContent.EMPTY) {
@@ -326,14 +308,14 @@ public class GameBoard {
         }
 
         return !isOutOfBoundaries(rotatedStateCord, currentTetromino.getPositionX(), currentTetromino.getPositionY()) &&
-                !isCollisionDetected(rotatedStateCord, currentTetromino.getPositionX(),
-                        currentTetromino.getPositionY());
+               !isCollisionDetected(rotatedStateCord, currentTetromino.getPositionX(),
+                       currentTetromino.getPositionY());
     }
 
     /**
      * Checks if the position of the tetromino after a move or rotation is out of
      * the game board boundaries. *
-     * 
+     *
      * @param newStateCord The coordinates of the tetromino after the move or
      *                     rotation.
      * @param position     The position of the tetromino pivot on the board after
@@ -364,5 +346,43 @@ public class GameBoard {
         }
         Arrays.fill(board[0], BlockContent.EMPTY);
     }
+
+    /*below are JUNIT TEST ONLY methods
+    after future decoupling logic from state they need to be transfer out of this class to don't pollute
+    production code*/
+
+    /**
+     * JUNIT TEST ONLY<br>
+     * this method set the current tetromino to the specific tetromino
+     *
+     * @param tetromino the tetromino you need to spawn
+     */
+
+    void spawnTetrominoForTestOnly(final Tetromino tetromino) {
+        this.currentTetromino = tetromino;
+    }
+
+    /**
+     * JUNIT TEST ONLY<br>
+     * this method fill last line with blocks
+     */
+    void fillLineForTestOnly() {
+        int lastLine = board.length - 1;
+        Arrays.fill(board[lastLine], BlockContent.CYAN);
+    }
+
+    /**
+     * JUNIT TEST ONLY<br>
+     * This method sets a specific {@link BlockContent} to a specific position on the game board.
+     * This method is used for testing purposes to fill the game board with {@link BlockContent}s.
+     *
+     * @param row the row of the block to be set
+     * @param column the column of the block to be set
+     * @param blockContent the {@link BlockContent} to be set
+     */
+    void fillBlockForTestOnly(final int row, final int column, final BlockContent blockContent) {
+        board[row][column] = blockContent;
+    }
+
 
 }
