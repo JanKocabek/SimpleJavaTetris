@@ -350,7 +350,17 @@ class GameBoardTest {
             //then
             assertTrue(result);
             printBoardState(gameBoard.getBoardView(), gameBoard.getCurrentTetromino());
-            assertTrue(List.of(new Coordinate(0, -1), new Coordinate(0, 0), new Coordinate(0, 1), new Coordinate(1, 0)).containsAll(gameBoard.getCurrentTetromino().getStateCord()));
+
+            List<Coordinate> expected = List.of(
+                    new Coordinate(0, -1),
+                    new Coordinate(0, 0),
+                    new Coordinate(0, 1),
+                    new Coordinate(1, 0)
+            );
+            List<Coordinate> actual = gameBoard.getCurrentTetromino().getStateCord();
+
+            assertEquals(expected.size(), actual.size());
+            assertTrue(actual.containsAll(expected) && expected.containsAll(actual));
         }
 
 
