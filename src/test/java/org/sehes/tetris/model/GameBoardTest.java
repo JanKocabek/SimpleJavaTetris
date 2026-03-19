@@ -12,6 +12,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -344,10 +345,14 @@ class GameBoardTest {
             //given
             gameBoard.spawnTetrominoForTestOnly(TetrominoFactory.spawnSpecificTetromino(TetrominoType.T, new Coordinate(2, 4)));
             prepareBoard2T(gameBoard);
+            final var t=gameBoard.getCurrentTetromino();
+            final var basePos = new Coordinate(t.getPositionX(), t.getPositionY());
             //when
-            printBoardState(gameBoard.getBoardView(), gameBoard.getCurrentTetromino());
+            printBoardState(gameBoard.getBoardView(), t);
             final var result = gameBoard.tryRotatePiece(RotationFlag.CLOCKWISE);
+            final var afterPosition = new Coordinate(t.getPositionX(), t.getPositionY());
             //then
+            assertNotEquals(basePos, afterPosition);
             assertTrue(result);
             printBoardState(gameBoard.getBoardView(), gameBoard.getCurrentTetromino());
 
@@ -358,7 +363,6 @@ class GameBoardTest {
                     new Coordinate(1, 0)
             );
             List<Coordinate> actual = gameBoard.getCurrentTetromino().getStateCord();
-
             assertEquals(expected.size(), actual.size());
             assertTrue(actual.containsAll(expected) && expected.containsAll(actual));
         }
@@ -370,13 +374,16 @@ class GameBoardTest {
             prepareBoard(gameBoard);
             gameBoard.spawnTetrominoForTestOnly(TetrominoFactory.spawnSpecificTetromino(TetrominoType.L, new Coordinate(2, 4)));
             final var t = gameBoard.getCurrentTetromino();
+            final var basePos = new Coordinate(t.getPositionX(), t.getPositionY());
             printBoardState(gameBoard.getBoardView(), t);
             // when
-            final var result = gameBoard.tryRotatePiece(RotationFlag.CLOCKWISE);
-            // then
-            assertTrue(result);
+            gameBoard.tryRotatePiece(RotationFlag.CLOCKWISE);
             printBoardState(gameBoard.getBoardView(), t);
-            assertTrue(gameBoard.tryRotatePiece(RotationFlag.CLOCKWISE));
+            final var secrotate = gameBoard.tryRotatePiece(RotationFlag.CLOCKWISE);
+            final var afterPosition = new Coordinate(t.getPositionX(), t.getPositionY());
+            // then
+            assertNotEquals(basePos, afterPosition);
+            assertTrue(secrotate);
             printBoardState(gameBoard.getBoardView(), t);
         }
     }
