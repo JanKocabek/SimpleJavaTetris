@@ -7,7 +7,7 @@ public class ShapeProvider {
 
         private static final EnumMap<TetrominoType, EnumMap<Orientation, List<Coordinate>>> tetrominoStates = new EnumMap<>(
                         TetrominoType.class);
-        /**
+        /*
          * static block to initialize the tetrominoStates map with the default shapes in
          * each orientation for each tetromino type.<br>
          */
@@ -17,7 +17,7 @@ public class ShapeProvider {
                 }
 
                 final List<Coordinate> shapeO = List.of(new Coordinate(-1, -1), new Coordinate(-1, 0),
-                        new Coordinate(0, 0), new Coordinate(0, -1));
+                                new Coordinate(0, 0), new Coordinate(0, -1));
                 for (Orientation o : Orientation.values()) {
                         tetrominoStates.get(TetrominoType.O).put(o, shapeO);
                 }
@@ -134,26 +134,40 @@ public class ShapeProvider {
                                 wallKicks.put(type, new EnumMap<>(Transition.class));
                         }
                         wallKicks.get(WallKickType.NORMAL).put(Transition.NORTH_TO_EAST, List.of(
-                                        new Coordinate(-1, 0), new Coordinate(-1, -1),
-                                        new Coordinate(0, 2), new Coordinate(-1, 2)));
+                                        new Coordinate(-1, 0),
+                                        new Coordinate(-1, -1),
+                                        new Coordinate(0, 2),
+                                        new Coordinate(-1, 2)));
                         wallKicks.get(WallKickType.NORMAL).put(Transition.EAST_TO_NORTH, List.of(
-                                        new Coordinate(1, 0), new Coordinate(1, 1),
-                                        new Coordinate(0, -2), new Coordinate(1, -2)));
+                                        new Coordinate(1, 0),
+                                        new Coordinate(1, 1),
+                                        new Coordinate(0, -2),
+                                        new Coordinate(1, -2)));
                         wallKicks.get(WallKickType.NORMAL).put(Transition.EAST_TO_SOUTH, List.of(
-                                        new Coordinate(1, 0), new Coordinate(1, 1),
-                                        new Coordinate(0, -2), new Coordinate(1, -2)));
+                                        new Coordinate(1, 0),
+                                        new Coordinate(1, 1),
+                                        new Coordinate(0, -2),
+                                        new Coordinate(1, -2)));
                         wallKicks.get(WallKickType.NORMAL).put(Transition.SOUTH_TO_WEST, List.of(
-                                        new Coordinate(-1, 0), new Coordinate(-1, -1),
-                                        new Coordinate(0, 2), new Coordinate(-1, 2)));
+                                        new Coordinate(-1, 0),
+                                        new Coordinate(-1, -1),
+                                        new Coordinate(0, 2),
+                                        new Coordinate(-1, 2)));
                         wallKicks.get(WallKickType.NORMAL).put(Transition.SOUTH_TO_EAST, List.of(
-                                        new Coordinate(1, 0), new Coordinate(1, -1),
-                                        new Coordinate(0, 2), new Coordinate(1, 2)));
+                                        new Coordinate(1, 0),
+                                        new Coordinate(1, -1),
+                                        new Coordinate(0, 2),
+                                        new Coordinate(1, 2)));
                         wallKicks.get(WallKickType.NORMAL).put(Transition.WEST_TO_SOUTH, List.of(
-                                        new Coordinate(-1, 0), new Coordinate(-1, 1),
-                                        new Coordinate(0, -2), new Coordinate(-1, -2)));
+                                        new Coordinate(-1, 0),
+                                        new Coordinate(-1, 1),
+                                        new Coordinate(0, -2),
+                                        new Coordinate(-1, -2)));
                         wallKicks.get(WallKickType.NORMAL).put(Transition.WEST_TO_NORTH, List.of(
-                                        new Coordinate(-1, 0), new Coordinate(-1, 1),
-                                        new Coordinate(0, -2), new Coordinate(-1, -2)));
+                                        new Coordinate(-1, 0),
+                                        new Coordinate(-1, 1),
+                                        new Coordinate(0, -2),
+                                        new Coordinate(-1, -2)));
                         wallKicks.get(WallKickType.NORMAL).put(Transition.NORTH_TO_WEST, List.of(
                                         new Coordinate(1, 0), new Coordinate(1, -1),
                                         new Coordinate(0, 2), new Coordinate(1, 2)));

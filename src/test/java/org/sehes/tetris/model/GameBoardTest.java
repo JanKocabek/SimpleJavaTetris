@@ -1,14 +1,5 @@
 package org.sehes.tetris.model;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.List;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -16,6 +7,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.sehes.tetris.config.GameParameters;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.sehes.tetris.model.TestUtil.prepareBoard;
+import static org.sehes.tetris.model.TestUtil.prepareBoard2T;
+import static org.sehes.tetris.model.TestUtil.printBoardState;
 
 class GameBoardTest {
 
@@ -70,16 +73,18 @@ class GameBoardTest {
     @DisplayName("crash cases")
     class CrashCases {
 
-        @Test
-        void testTryMovePieceWithoutTetromino() {
-            boolean result = gameBoard.tryMovePiece(DirectionFlag.LEFT);
-            assertFalse(result);
+        @ParameterizedTest
+        @EnumSource(value = DirectionFlag.class, names = {"LEFT", "RIGHT", "DOWN"})
+        void testTryMovePieceWithoutTetromino(DirectionFlag flag) {
+            boolean result = gameBoard.tryMovePiece(flag);
+            assertFalse(result, "Movement should not be possible without a tetromino");
         }
 
-        @Test
-        void testTryRotatePieceWithoutTetromino() {
-            boolean result = gameBoard.tryRotatePiece(RotationFlag.CLOCKWISE);
-            assertFalse(result);
+        @ParameterizedTest
+        @EnumSource(value = RotationFlag.class, names = {"CLOCKWISE", "COUNTER_CLOCKWISE"})
+        void testTryRotatePieceWithoutTetromino(RotationFlag flag) {
+            boolean result = gameBoard.tryRotatePiece(flag);
+            assertFalse(result, "Rotation should not be possible without a tetromino");
         }
 
         @Test
@@ -94,27 +99,26 @@ class GameBoardTest {
         }
     }
 
+    /**
+     * Tests that the board is updated correctly after adding a tetromino to it.
+     * It checks that all the blocks of the tetromino are added to the correct
+     * positions
+     * on the board and that the current tetromino is null after adding it to the
+     * board.
+     */
     @Test
-    void testAddBlockToBoard() {
+    void testLockTetrominoInPlace() {
         // given
         gameBoard.trySetNewTetromino();
-        Tetromino tetromino = gameBoard.getCurrentTetromino();
+        final var tetromino = gameBoard.getCurrentTetromino();
+        final var cord = tetromino.getStateCord();
         // when
         gameBoard.lockTetrominoInPlace();
-        BoardView boardView = gameBoard.getBoardView();
+        final var boardView = gameBoard.getBoardView();
         // then
-        assertNotNull(tetromino);
-        assertNotNull(boardView);
-        boolean hasNonEmptyBlock = false;
-        for (int row = 0; row < GameParameters.ROWS; row++) {
-            for (int col = 0; col < GameParameters.COLUMNS; col++) {
-                if (boardView.getBlockContent(row, col) != BlockContent.EMPTY) {
-                    hasNonEmptyBlock = true;
-                    break;
-                }
-            }
-        }
-        assertTrue(hasNonEmptyBlock, "Board should have at least one non-empty block after adding tetromino");
+        cord.forEach(coordinate -> assertEquals(BlockContent.fromColor(tetromino.getColor()), boardView
+                        .getBlockContent(tetromino.getPositionY() + coordinate.y(), tetromino.getPositionX() + coordinate.x()),
+                "Block should be added to board"));
         assertNull(gameBoard.getCurrentTetromino(), "Current tetromino should be null after adding to board");
     }
 
@@ -212,6 +216,17 @@ class GameBoardTest {
     @DisplayName("rotation cases")
     class RotationCases {
 
+        @Test
+        void testTryRotatePiece() {
+            // given
+            gameBoard.spawnTetrominoForTestOnly(
+                    TetrominoFactory.spawnSpecificTetromino(TetrominoType.O, new Coordinate(4, 1)));
+            // when
+            boolean rotated = gameBoard.tryRotatePiece(RotationFlag.CLOCKWISE);
+            // then
+            assertFalse(rotated, "O tetromino cannot be rotated");
+        }
+
         /**
          * Tests that the position of the tetromino is not changed after rotation. it
          * tests both directions
@@ -219,7 +234,7 @@ class GameBoardTest {
          * @param rotation The direction to rotate the tetromino.
          */
         @ParameterizedTest
-        @EnumSource(value = RotationFlag.class, names = { "CLOCKWISE", "COUNTER_CLOCKWISE" })
+        @EnumSource(value = RotationFlag.class, names = {"CLOCKWISE", "COUNTER_CLOCKWISE"})
         void testPositionIsTheSameAfterRotation(RotationFlag rotation) {
             // given
             Tetromino tetromino = TetrominoFactory.spawnSpecificTetromino(TetrominoType.T, new Coordinate(4, 1));
@@ -236,7 +251,7 @@ class GameBoardTest {
         }
 
         @ParameterizedTest
-        @EnumSource(value = TetrominoType.class, names = { "I", "O", "S", "Z", "L", "J", "T" })
+        @EnumSource(value = TetrominoType.class, names = {"I", "O", "S", "Z", "L", "J", "T"})
         void testTryReturnIntoBaseState(TetrominoType type) {
             // given
             Tetromino tetromino = TetrominoFactory.spawnSpecificTetromino(type, new Coordinate(4, 2));
@@ -291,6 +306,68 @@ class GameBoardTest {
                     new Coordinate(-1, 0));
             assertEquals(4, afterCord.size());
             assertTrue(afterCord.containsAll(expected));
+        }
+
+        @ParameterizedTest
+        @EnumSource(value = RotationFlag.class, names = {"CLOCKWISE", "COUNTER_CLOCKWISE"})
+        void testTryRotateOPiece(RotationFlag flag) {
+            // given
+            Tetromino tetromino = TetrominoFactory.spawnSpecificTetromino(TetrominoType.O, new Coordinate(4, 1));
+            gameBoard.spawnTetrominoForTestOnly(tetromino);
+            // when
+            boolean rotated = gameBoard.tryRotatePiece(flag);
+            // then
+            assertFalse(rotated);
+        }
+    }
+
+    @Nested
+    @DisplayName("WallKicks")
+    class WallKicksTest {
+
+
+        @Test
+        void testWallKicks_T() {
+            // given
+            prepareBoard(gameBoard);
+            gameBoard.spawnTetrominoForTestOnly(
+                    TetrominoFactory.spawnSpecificTetromino(TetrominoType.T, new Coordinate(2, 4)));
+
+            // when
+            gameBoard.tryRotatePiece(RotationFlag.COUNTER_CLOCKWISE);
+            // then
+            assertTrue(gameBoard.tryRotatePiece(RotationFlag.CLOCKWISE));
+        }
+
+        @Test
+        void testWallKicks_T2() {
+            //given
+            gameBoard.spawnTetrominoForTestOnly(TetrominoFactory.spawnSpecificTetromino(TetrominoType.T, new Coordinate(2, 4)));
+            prepareBoard2T(gameBoard);
+            //when
+            printBoardState(gameBoard.getBoardView(), gameBoard.getCurrentTetromino());
+            final var result = gameBoard.tryRotatePiece(RotationFlag.CLOCKWISE);
+            //then
+            assertTrue(result);
+            printBoardState(gameBoard.getBoardView(), gameBoard.getCurrentTetromino());
+            assertTrue(List.of(new Coordinate(0, -1), new Coordinate(0, 0), new Coordinate(0, 1), new Coordinate(1, 0)).containsAll(gameBoard.getCurrentTetromino().getStateCord()));
+        }
+
+
+        @Test
+        void testWallKicks_L() {
+            //given
+            prepareBoard(gameBoard);
+            gameBoard.spawnTetrominoForTestOnly(TetrominoFactory.spawnSpecificTetromino(TetrominoType.L, new Coordinate(2, 4)));
+            final var t = gameBoard.getCurrentTetromino();
+            printBoardState(gameBoard.getBoardView(), t);
+            // when
+            final var result = gameBoard.tryRotatePiece(RotationFlag.CLOCKWISE);
+            // then
+            assertTrue(result);
+            printBoardState(gameBoard.getBoardView(), t);
+            assertTrue(gameBoard.tryRotatePiece(RotationFlag.CLOCKWISE));
+            printBoardState(gameBoard.getBoardView(), t);
         }
     }
 
