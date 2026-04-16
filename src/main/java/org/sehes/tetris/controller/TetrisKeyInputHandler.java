@@ -4,6 +4,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 import org.sehes.tetris.model.DirectionFlag;
+import org.sehes.tetris.model.RotationFlag;
 
 /**
  * The TetrisKeyInputHandler class is responsible for handling keyboard input
@@ -102,9 +103,9 @@ public class TetrisKeyInputHandler extends KeyAdapter {
             case KeyEvent.VK_DOWN ->
                 gameManager.movePiece(DirectionFlag.DOWN);
             case KeyEvent.VK_UP ->
-                gameManager.rotatePiece(DirectionFlag.ROTATE_R);
+                gameManager.rotatePiece(RotationFlag.CLOCKWISE);
             case KeyEvent.VK_A ->
-                gameManager.rotatePiece(DirectionFlag.ROTATE_L);
+                gameManager.rotatePiece(RotationFlag.COUNTER_CLOCKWISE);
             case KeyEvent.VK_ENTER ->
                 gameManager.pauseGame();
             case KeyEvent.VK_ESCAPE ->

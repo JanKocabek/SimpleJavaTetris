@@ -70,17 +70,18 @@ public class InfoPanel extends JPanel {
     }
 
     private static class FpsLabel extends JLabel {
+        private static final String BASE_STRING = "FPS: ";
         private static final Font FPS_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 12);
 
         FpsLabel() {
             setFont(FPS_FONT);
             setForeground(Color.BLACK);
             setHorizontalAlignment(SwingConstants.RIGHT);
-            setText("FPS: 0");
+            setText(BASE_STRING + "0");
         }
 
         void updateFPS(int fps) {
-            setText("FPS: " + fps);
+            setText(BASE_STRING + fps);
         }
 
     }

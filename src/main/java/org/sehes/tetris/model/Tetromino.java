@@ -2,7 +2,6 @@ package org.sehes.tetris.model;
 
 import java.awt.Color;
 import java.util.List;
-import java.util.Random;
 
 import org.sehes.tetris.config.GameParameters;
 
@@ -15,9 +14,7 @@ import org.sehes.tetris.config.GameParameters;
  * standard Tetris pieces (I, J, L, O, S, T, Z), each with its own shape and
  * color. The Tetromino class interacts with the GameBoard to manage the current
  * piece's state and position during gameplay.
- */
-
-/**
+ * <p>
  * tetromino is defined by list of points where y is row and x is column
  * <p>
  * the base level is y = 0 and upper one is -1
@@ -38,37 +35,28 @@ import org.sehes.tetris.config.GameParameters;
  */
 public class Tetromino {
 
-    private static final Random random = new Random();
-    private static final TetrominoType[] TETROMINO_TYPES = TetrominoType.values();
-
-    public static Tetromino tetrominoFactory(final Coordinate position) {
-        final int tetrominoType = random.nextInt(TETROMINO_TYPES.length);
-        return new Tetromino(TETROMINO_TYPES[tetrominoType], position);
-    }
-
     private int positionX;
     private int positionY;
     private List<Coordinate> stateCoordination;
-    private int rotationState; // number represent curent rotation state of the tetromino
+    private Orientation rotationState; // enum represent current rotation state
     private final int[] pixelCoordinates;// pixel coordination of the blocks for the drawing
-
     private final TetrominoType type;
 
-    private Tetromino(final TetrominoType type, final Coordinate spawnPosition) {
+    Tetromino(final TetrominoType type, final Coordinate spawnPosition) {
         if (type == null || spawnPosition == null) {
             throw new IllegalArgumentException("Tetromino type and spawn position cannot be null.");
         }
-        this.rotationState = 0;// initial rotation state
-        stateCoordination = type.getTetrominoState(rotationState);
+        this.rotationState = Orientation.NORTH;
         this.positionX = spawnPosition.x();
         this.positionY = spawnPosition.y();
         this.type = type;
+        updateStateCoordination();
         pixelCoordinates = new int[stateCoordination.size() * 2];
         updatePixelCoordinates();
     }
 
-    public String getTypeValue() {
-        return type.name();
+    public TetrominoType getType() {
+        return type;
     }
 
     public Color getColor() {
@@ -84,26 +72,6 @@ public class Tetromino {
     }
 
     /**
-     * Updates the pixel coordinates of the tetromino based on its current state
-     * and position. The method takes the state coordinates, scales them by the
-     * block size, and then applies the position offset to get the final
-     * pixel coordinates.
-     */
-    private void updatePixelCoordinates() {
-        final int sizeCord = 2;
-        final int next = 1;
-        final int pX = positionX * GameParameters.BLOCK_SIZE;
-        final int pY = (positionY - GameParameters.HIDDEN_ROWS) * GameParameters.BLOCK_SIZE;
-        final int blockSize = GameParameters.BLOCK_SIZE;
-        for (int i = 0; i < stateCoordination.size(); i++) {
-            final int x = stateCoordination.get(i).x() * blockSize + pX;
-            final int y = stateCoordination.get(i).y() * blockSize + pY;
-            pixelCoordinates[i * sizeCord] = x;
-            pixelCoordinates[(i * sizeCord) + next] = y;
-        }
-    }
-
-    /**
      * Returns the X (column) coordinate of the tetromino's position.
      *
      * @return The column position of the tetromino.
@@ -116,6 +84,12 @@ public class Tetromino {
         return positionY;
     }
 
+    public void setPosition(final int x, final int y) {
+        this.positionX = x;
+        this.positionY = y;
+        updatePixelCoordinates();
+    }
+
     public void move(final DirectionFlag flag) {
         if (flag == null) {
             return;
@@ -125,77 +99,46 @@ public class Tetromino {
         updatePixelCoordinates();
     }
 
-    /**
-     * grab the next or previous state of the tetromino from {@link TetrominoType}
-     * and return as unmodifiable list of points.
-     * <p>
-     *
-     * @param flag ROTATE_R for next state, ROTATE_L for previous state
-     * @return the next or previous state of the tetromino based on the flag
-     */
-    public List<Coordinate> rotate(final DirectionFlag flag) {
-        return flag == DirectionFlag.ROTATE_R ? type.getNextState(rotationState) : type.getPreviousState(rotationState);
-    }
 
     /**
-     * Sets the state of the Tetromino to the given coordinates and rotation flag.
-     * If the flag is ROTATE_R, it sets the next state of the Tetromino based on the
-     * given coordinates.
-     * If the flag is ROTATE_L, it sets the previous state of the Tetromino based on
-     * the given coordinates.
-     * If the flag is neither ROTATE_R nor ROTATE_L, it does nothing.
-     * After setting the state, it updates the shape and pixel coordinates
-     * accordingly.
-     * 
-     * @param coordinates   the new state of the Tetromino
-     * @param directionFlag the rotation flag to determine the next or previous
-     *                      state of the Tetromino
-     */
-    void setState(final List<Coordinate> coordinates, final DirectionFlag directionFlag) {
-        if (coordinates == null || directionFlag == null) {
-            throw new IllegalArgumentException("Coordinates and direction flag cannot be null.");
+     * Sets the state of the Tetromino to the specified coordinates and orientation.
+     *
+     * @param coordinates The new grid configuration of the Tetromino.
+     * @throws IllegalArgumentException If the coordinates are null or missing any type of next orientation.
+     * * */
+    void setNewState(final List<Coordinate> coordinates, final Orientation nextOrientation) {
+        if (coordinates == null || nextOrientation == null) {
+            throw new IllegalArgumentException("Coordinates and next orientation cannot be null.");
         }
         this.stateCoordination = coordinates;
-        switch (directionFlag) {
-            case ROTATE_R:
-                setNextState();
-                break;
-            case ROTATE_L:
-                setPreviousState();
-                break;
-            default:
-                // do nothing
-        }
+        this.rotationState = nextOrientation;
         updatePixelCoordinates();
     }
 
-    /**
-     * Sets the next state of the tetromino by incrementing the current state.
-     * its modulus of 4 because there are 4 possible states and modulo 4 return the
-     * value between 0 and 3, this makes sure that the state is always between 0 and
-     * 3
-     */
-    private void setNextState() {
-        rotationState = (rotationState + 1) % 4;// 0,1,2,3
-    }
-
-    /**
-     * Sets the previous state of the tetromino by decrementing the current state.
-     * its +3 because 0+3= 3 and modulo of 4 makes it left 3 which assure that its
-     * return previous position
-     *
-     * @see #setNextState()
-     */
-    private void setPreviousState() {
-        rotationState = (rotationState + 3) % 4;// 0,3,2,1
-    }
-
-    // methods for junit testing purpose
-    static Tetromino spawnSpecificTetromino(final TetrominoType tetrominoType, final Coordinate startPos) {
-        return new Tetromino(tetrominoType, startPos);
-    }
-
-    int getCurrentState() {
+    Orientation getCurrentOrientation() {
         return rotationState;
+    }
+
+    private void updateStateCoordination() {
+        stateCoordination = ShapeProvider.getTetrominoState(type, rotationState);
+    }
+
+    /**
+     * Updates the pixel coordinates of the tetromino based on its current state
+     * and position. The method takes the state coordinates, scales them by the
+     * block size, and then applies the position offset to get the final
+     * pixel coordinates.
+     */
+    private void updatePixelCoordinates() {
+        final int COORDS_PER_BLOCK = 2;
+        final int pX = positionX * GameParameters.BLOCK_SIZE;
+        final int pY = (positionY - GameParameters.HIDDEN_ROWS) * GameParameters.BLOCK_SIZE;
+        final int blockSize = GameParameters.BLOCK_SIZE;
+        for (int i = 0; i < stateCoordination.size(); i++) {
+            final int x = stateCoordination.get(i).x() * blockSize + pX;
+            final int y = stateCoordination.get(i).y() * blockSize + pY;
+            pixelCoordinates[i * COORDS_PER_BLOCK] = x;
+            pixelCoordinates[(i * COORDS_PER_BLOCK) + 1] = y;
+        }
     }
 }

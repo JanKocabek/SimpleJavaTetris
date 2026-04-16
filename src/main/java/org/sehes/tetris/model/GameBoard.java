@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.sehes.tetris.config.GameParameters;
+import org.sehes.tetris.model.ShapeProvider.WallKicks;
+import org.sehes.tetris.model.ShapeProvider.WallKicks.WallKickType;
 
 /**
  * The GameBoard class represents the game board in a Tetris game. It manages
@@ -27,11 +29,11 @@ import org.sehes.tetris.config.GameParameters;
 public class GameBoard {
 
     private static final System.Logger myLogger = System.getLogger(GameBoard.class.getName());
-
+    private final TetrominoFactory factory = new TetrominoFactory();
     private Tetromino currentTetromino;
     private final BlockContent[][] board;
     /*
-     * make the start posiiton dynamic based on tetromino type instead of one fixed
+     * make the start position dynamic based on tetromino type instead of one fixed
      * position
      */
     private final BoardView boardView;
@@ -55,7 +57,8 @@ public class GameBoard {
             @Override
             public BlockContent getBlockContent(final int row, final int column) {
                 if (row < 0 || row >= board.length || column < 0 || column >= board[row].length) {
-                    throw new IndexOutOfBoundsException("Coordinates are out of bounds.");
+                    throw new IndexOutOfBoundsException("Coordinates are out of bounds. Row: " + row + ", Column: "
+                                                        + column + ". Board size: " + board.length + "x" + board[0].length);
                 }
                 return board[row][column];
             }
@@ -73,7 +76,7 @@ public class GameBoard {
     /**
      * This method returns the IBoardView instance that provides a <b> read-only
      * view of the game board.</b> <br>
-     * Dont use for the changes of the Board state or its components!!!<br>
+     * Don't use for the changes of the Board state or its components!!!<br>
      * The IBoardView interface allows other components of the game, such as the
      * GUI, to access the state of the board without being able to modify it
      * directly. This encapsulation ensures that all changes to the board state
@@ -89,7 +92,7 @@ public class GameBoard {
 
     public boolean trySetNewTetromino() {
         final Coordinate startingPosition = GameParameters.SPAWN_POINT;
-        final Tetromino newTetromino = Tetromino.tetrominoFactory(startingPosition);
+        final Tetromino newTetromino = factory.createNewRandomTetromino(startingPosition);
         if (isOutOfBoundaries(newTetromino.getStateCord(), startingPosition.x(), startingPosition.y())) {
             return false;
         }
@@ -123,19 +126,27 @@ public class GameBoard {
      * the new rotated configuration. Finally, it prints the position of the
      * tetromino before and after rotation for debugging purposes
      *
-     * @param flag The direction in which to rotate the tetromino (e.g.,
-     *             ROTATE_R for right rotation, ROTATE_L for left rotation)
+     * @param rotation The direction in which to rotate the tetromino (
+     *                 {@code CLOCKWISE} for right rotation,
+     *                 {@code COUNTER_CLOCKWISE}
+     *                 for left rotation)
      */
-    public boolean tryRotatePiece(final DirectionFlag flag) {
-        if (this.currentTetromino == null) {
+    public boolean tryRotatePiece(final RotationFlag rotation) {
+        if (this.currentTetromino == null || rotation == null || currentTetromino.getType() == TetrominoType.O) {
             return false;
         }
-        final List<Coordinate> rotatedPosition = currentTetromino.rotate(flag);
-        if (!canRotate(rotatedPosition)) {
+        final Orientation nextOrientation = getNextOrientation(rotation);
+        final List<Coordinate> rotatedPosition = ShapeProvider.getTetrominoState(currentTetromino.getType(), nextOrientation);
+        if (!canRotate(rotatedPosition) && !tryWallKick(rotatedPosition, nextOrientation)) {
             return false;
         }
-        currentTetromino.setState(rotatedPosition, flag);
+        currentTetromino.setNewState(rotatedPosition, nextOrientation);
         return true;
+    }
+
+    private Orientation getNextOrientation(RotationFlag rotation) {
+        return rotation == RotationFlag.CLOCKWISE ? currentTetromino.getCurrentOrientation().rotateClockwise()
+                : currentTetromino.getCurrentOrientation().rotateCounterClockwise();
     }
 
     /**
@@ -180,13 +191,44 @@ public class GameBoard {
                 linesClearedCount++;
                 lineCleared = true;
                 row--;// todo: in future make the counting of line and clearing of lines separated to
-                      // prevent this
+                // prevent this
             }
         }
         if (lineCleared) {
             updateScore(linesClearedCount);
         }
         return lineCleared;
+    }
+
+
+    /**
+     * This method is responsible for attempting to wall kick the current tetromino
+     * if it cannot be rotated into its next orientation without collision. It uses
+     * the wall kick table to find the possible wall kicks that can be applied to
+     * the current tetromino, and then checks each wall kick to see if it results in
+     * a valid position for the tetromino. If a valid wall kick is found, it updates
+     * the tetromino's position accordingly and returns true. If no valid wall kick
+     * is found, it returns false.
+     *
+     * @param rotatedPosition the grid configuration of the tetromino after
+     *                        rotation
+     * @return true if a valid wall kick is found, false otherwise
+     */
+    private boolean tryWallKick(List<Coordinate> rotatedPosition, Orientation nextOrientation) {
+        WallKickType wallKickType = currentTetromino.getType() == TetrominoType.I ? WallKickType.I_KICKS
+                : WallKickType.NORMAL;
+        List<Coordinate> wallKicks = WallKicks.getWallKicks(wallKickType,
+                currentTetromino.getCurrentOrientation().getTransitionTo(nextOrientation));
+        for (Coordinate cord : wallKicks) {
+            int testX = currentTetromino.getPositionX() + cord.x();
+            int testY = currentTetromino.getPositionY() + cord.y();
+            if (!isOutOfBoundaries(rotatedPosition, testX, testY)
+                && !isCollisionDetected(rotatedPosition, testX, testY)) {
+                currentTetromino.setPosition(testX, testY);
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -201,7 +243,7 @@ public class GameBoard {
             case 3 -> score += 500;
             case 4 -> score += 800;
             default -> // shouldn't happen in current implementation
-                myLogger.log(WARNING, () -> "Invalid number of lines cleared: " + linesCleared);
+                    myLogger.log(WARNING, () -> "Invalid number of lines cleared: " + linesCleared);
         }
     }
 
@@ -232,7 +274,7 @@ public class GameBoard {
         final int futureX = tetromino.getPositionX() + direction.getX();
         final int futureY = tetromino.getPositionY() + direction.getY();
         return !isOutOfBoundaries(tetromino.getStateCord(), futureX, futureY)
-                && !isCollisionDetected(tetromino.getStateCord(), futureX, futureY);
+               && !isCollisionDetected(tetromino.getStateCord(), futureX, futureY);
     }
 
     /**
@@ -245,8 +287,7 @@ public class GameBoard {
      *                    board
      * @return {@code true} if there is a collision, {@code false} otherwise
      */
-    private boolean isCollisionDetected(final List<Coordinate> stateCord, final int newPositionX,
-            final int newPositionY) {
+    private boolean isCollisionDetected(final List<Coordinate> stateCord, final int newPositionX, final int newPositionY) {
 
         for (final var cord : stateCord) {
             if (this.board[newPositionY + cord.y()][newPositionX + cord.x()] != BlockContent.EMPTY) {
@@ -271,14 +312,14 @@ public class GameBoard {
         }
 
         return !isOutOfBoundaries(rotatedStateCord, currentTetromino.getPositionX(), currentTetromino.getPositionY()) &&
-                !isCollisionDetected(rotatedStateCord, currentTetromino.getPositionX(),
-                        currentTetromino.getPositionY());
+               !isCollisionDetected(rotatedStateCord, currentTetromino.getPositionX(),
+                       currentTetromino.getPositionY());
     }
 
     /**
      * Checks if the position of the tetromino after a move or rotation is out of
      * the game board boundaries. *
-     * 
+     *
      * @param newStateCord The coordinates of the tetromino after the move or
      *                     rotation.
      * @param position     The position of the tetromino pivot on the board after
@@ -310,11 +351,25 @@ public class GameBoard {
         Arrays.fill(board[0], BlockContent.EMPTY);
     }
 
+    /*below are JUNIT TEST ONLY methods
+    after future decoupling logic from state they need to be transfer out of this class to don't pollute
+    production code*/
+
+    /**
+     * JUNIT TEST ONLY<br>
+     * this method set the current tetromino to the specific tetromino
+     *
+     * @param tetromino the tetromino you need to spawn
+     */
+
+    void spawnTetrominoForTestOnly(final Tetromino tetromino) {
+        this.currentTetromino = tetromino;
+    }
+
     /**
      * JUNIT TEST ONLY<br>
      * this method fill last line with blocks
      */
-
     void fillLineForTestOnly() {
         int lastLine = board.length - 1;
         Arrays.fill(board[lastLine], BlockContent.CYAN);
@@ -322,12 +377,16 @@ public class GameBoard {
 
     /**
      * JUNIT TEST ONLY<br>
-     * this method set the current tetromino to the specific tetromino
-     * 
-     * @param tetromino the tetromino you need to spawn
+     * This method sets a specific {@link BlockContent} to a specific position on the game board.
+     * This method is used for testing purposes to fill the game board with {@link BlockContent}s.
+     *
+     * @param row the row of the block to be set
+     * @param column the column of the block to be set
+     * @param blockContent the {@link BlockContent} to be set
      */
-    void spawnTetrominoForTestOnly(final Tetromino tetromino) {
-        this.currentTetromino = tetromino;
+    void fillBlockForTestOnly(final int row, final int column, final BlockContent blockContent) {
+        board[row][column] = blockContent;
     }
+
 
 }
