@@ -45,7 +45,7 @@ public class GameManager {
 
         @Override
         public void actionPerformed(final ActionEvent e) {
-            var currentTime = System.nanoTime();
+            long currentTime = System.nanoTime();
             if (prevTime == 0) {
                 prevTime = currentTime;// Safety guard in case this is invoked before newGame() initializes timing
                                        // state
@@ -55,17 +55,7 @@ public class GameManager {
             var elapsedTime = currentTime - prevTime;
             prevTime = currentTime;
 
-            // --- FPS Logic Start ---
-            frameCount++;
-            fpsTimer += elapsedTime;
-
-            if (fpsTimer >= TimeUnit.SECONDS.toNanos(1)) {
-                currentFPS = frameCount; // This is your actual FPS for the last second
-                frameCount = 0;
-                fpsTimer = 0;
-                infoP.updateFPS(currentFPS);
-            }
-            // --- FPS Logic End ---
+            fpsCalculation(elapsedTime);
 
             gravityAccumulator += elapsedTime;
             while (gravityAccumulator >= movementSpeed) {
@@ -87,6 +77,18 @@ public class GameManager {
             tetrisCanvas.repaintCanvas(isDirty);
             isDirty = false;
         }
+
+        private void fpsCalculation(long elapsedTime) {
+            frameCount++;
+            fpsTimer += elapsedTime;
+
+            if (fpsTimer >= TimeUnit.SECONDS.toNanos(1)) {
+                int currentFPS = frameCount; // This is your actual FPS for the last second
+                frameCount = 0;
+                fpsTimer = 0;
+                infoP.updateFPS(currentFPS);
+            }
+        }
     }
 
     private static final int FPS = 60;
@@ -104,11 +106,10 @@ public class GameManager {
     // Loop Time vars
     private long prevTime;
     private long gravityAccumulator;
-    private long movementSpeed = TimeUnit.MILLISECONDS.toNanos(BASE_SPEED);
+    private final long movementSpeed = TimeUnit.MILLISECONDS.toNanos(BASE_SPEED);
     // FPS vars
     private int frameCount = 0;
     private long fpsTimer = 0;
-    private int currentFPS = 0;
 
     /**
      * Starts the Tetris application by initializing the game state, creating
@@ -209,7 +210,7 @@ public class GameManager {
                 gameLoopTimer.restart();
             }
             default -> {
-                break;
+                // Do nothing
             }
         }
     }
