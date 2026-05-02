@@ -1,95 +1,116 @@
-# Java-Swing Tetris
-
-A robust Java Tetris implementation built with Swing, designed to refine OOP principles and game architecture. This
-project follows the official Tetris guidelines and serves as the technical foundation for a future **Tetris-ARPG**
-hybrid.
-
----
-
-## 📝 Description
-
-This project focuses on building a modular, scalable Tetris engine. By implementing the **Standard Rotation System (SRS)
-** and a clean separation of concerns, the goal is to create a codebase that can easily transition into an ARPG
-featuring skill trees, bonus blocks, and character progression.
-
----
-
-## 📥 Installation & Running
-### Require at least java 21
-
-<p >
-  <a href="#">
-    <img src="https://img.shields.io/badge/Java-21-red?style=for-the-badge&logo=java" alt="Java Version" />
-  </a>
+<p align="center">
+  <img src="https://img.icons8.com/tetris" alt="Tetris Logo" />
 </p>
-1. Clone the repository.
-2. Compile the source files using `javac` or IDE.
-3. Run the `Main` class to start the game.
+
+<h1 align="center">🧩 Sehes_Tetris</h1>
+
+<p align="center">
+  <strong>A high-performance, modular Tetris engine built with Java & Swing.</strong><br />
+  Designed as a technical foundation for a future <b>Tetris-ARPG hybrid</b>.
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Java-21-red?style=for-the-badge&logo=java&logoColor=white" alt="Java Version" />
+  <img src="https://img.shields.io/badge/Maven-0.9-blue?style=for-the-badge&logo=apache-maven&logoColor=white" alt="Maven Version" />
+  <img src="https://img.shields.io/badge/License-Open--Source-brightgreen?style=for-the-badge" alt="License" />
+  <img src="https://img.shields.io/badge/Standard-SRS-orange?style=for-the-badge" alt="SRS Standard" />
+</p>
+
+---
+
+## 📖 Overview
+
+**SimpleTetris** is more than just a clone; it is a robust implementation focusing on clean OOP principles and game architecture. By strictly adhering to the **Official Tetris Guidelines** (including the **Super Rotation System**), this engine provides a smooth and competitive gameplay experience.
+
+The ultimate goal is to evolve this project into a **Tetris-ARPG**, introducing progression, skill trees, and monster-battling mechanics through row clears.
+
+---
+
+## ✨ Key Features
+
+- 🏗️ **Standard Rotation System (SRS):** Full implementation of wall-kicks and rotation logic.
+- ⚡ **Responsive Input:** Low-latency keyboard handling using Swing Key Bindings.
+- 📐 **Modular Architecture:** Clean separation of Model, View, and Controller (MVC).
+- 🧩 **Standard Tetrominoes:** All 7 official shapes (I, J, L, O, S, T, Z) with correct colors.
+- 📊 **Scoring System:** Basic scoring to track your performance.
+- ⏸️ **Game Flow:** Integrated Pause and Game Over states.
 
 ---
 
 ## 🎮 Controls
 
-The controls are designed for responsive play, following the logic of the Official Tetris Guidelines while allowing for
-custom counter-clockwise mapping.
-
-| Action                       | Input Key              |
-|:-----------------------------|:-----------------------|
-| **Start Game / Pause**       | `Enter` ↵              |
-| **Restart (Game Over)**      | `Enter` ↵              |
-| **Move Left / Right**        | `Left` / `Right` ⬅️ ➡️ |
-| **Soft Drop (Faster)**       | `Down` ⬇️              |
-| **Rotate Clockwise**         | `Up` ⬆️                |
-| **Rotate Counter-Clockwise** | `A` 🅰️                |
+| Action | Input Key | Icon |
+| :--- | :--- | :---: |
+| **Start / Pause / Restart** | `Enter` | ↵ |
+| **Move Left** | `Left Arrow` | ⬅️ |
+| **Move Right** | `Right Arrow` | ➡️ |
+| **Rotate Clockwise** | `Up Arrow` | ⬆️ |
+| **Rotate Counter-Clockwise** | `A` Key | 🅰️ |
+| **Soft Drop** | `Down Arrow` | ⬇️ |
 
 ---
 
 ## 🗺️ Roadmap
 
-The table below tracks the development progress, prioritized from core gameplay mechanics to advanced UI and "
-ARPG-ready" systems.
+The development journey from a core engine to an ARPG-ready platform.
 
-### Order of features doesnt mean order of development
-
-| Current & Future Goals<br/>(High to Low Priority)                               | Finished Steps                                |
-|:--------------------------------------------------------------------------------|:----------------------------------------------|
-| **- Ghost piece:** Visual guide for piece landing                               | ✅ SRS system for rotation (wall-kicks)        |
-| **- Hard drop:**                                                                |                                               |
-| **- Preview window:** Display of upcoming pieces                                | ✅Basic scoring system                         |
-| **- Auto-increasing difficulty:** Gravity/speed scaling                         | ✅ Implement all standard tetrominoes          |
-| **- Advanced scoring:** T-Spins, combos, and Back-to-Back                       | ✅ Proper basic rotation logic                 |
-| **- Main menu:** Game entry point and navigation                                | ✅ Moving and redrawing logic in JPanel        |
-| **- Options menu:** Custom key rebinding and settings                           | ✅ Collision detection (walls and pieces)      |
-| **- About screen:** Project information and credits                             | ✅ Simple game loop timer                      |
-| **- Saving system:** Local high scores and user settings                        | ✅ Rendering logic after game start            |
-| **- Better graphics:** Custom sprites and polished UI                           | ✅ Keyboard input handling (Key Bindings)      |
-| **- Separated Threads:** Decoupling logic from rendering                        | ✅ Basic shape rendering and board layout      |
-| **- Modular Refactoring:** Using inheritance/composition                        | ✅ Tracking pieces already placed on the board |
-| **- Local multiplayer:** 2-player split-screen                                  | ✅ Active tetromino tracking                   |
-| **- Simple AI:** Automated opponent                                             | ✅ simple pause / gameOver system              |
-| **- Network multiplayer:** 2-4 player online battles                            |                                               |
-| **- Bonus blocks:** Specialized blocks with power Ups                           |                                               |
-| **- more ARPG features later on:** **(monsters / stages / skill tree / etc..)** |                                               |
-
+| ✅ Completed Steps | 🚀 Future & Current Goals |
+| :--- | :--- |
+| **Core Mechanics** | **Enhanced Gameplay** |
+| ✔️ SRS Wall-kick system | ⬜ Ghost piece (Visual guide) |
+| ✔️ All 7 standard tetrominoes | ⬜ Hard drop implementation |
+| ✔️ Collision detection (Walls & Pieces) | ⬜ Preview window for next pieces |
+| ✔️ Basic scoring logic | ⬜ Auto-increasing difficulty (Gravity) |
+| ✔️ Simple Pause / Game Over system | ⬜ Advanced Scoring (T-Spins, Combos) |
+| **Technical Foundation** | **Menus & UI** |
+| ✔️ Keyboard input handling | ⬜ Main Menu & Options |
+| ✔️ Board state & Active tracking | ⬜ About & Credits screen |
+| ✔️ Basic Shape Rendering | ⬜ Local Saving (High scores) |
+| ✔️ Game loop (Timer-based) | ⬜ Professional Sprites & Visual Effects |
+| ✔️ Moving & Redrawing logic | ⬜ Separated Threads (Logic vs Render) |
+| **ARPG Vision (Planned)** | **Multiplayer & AI** |
+| 🚧 Modular Refactoring (In Progress) | ⬜ Local & Network Multiplayer |
+| | ⬜ Simple AI Opponent |
+| | ⬜ **ARPG:** Monsters, Bosses, Skill Trees |
 
 ---
 
 ## 🛠️ Technical Focus
 
-* **Scalability:** Refactoring the engine to use modular composition, allowing for the easy addition of "ARPG" features
-  like skill trees and power-ups.
-* **Accuracy:** Ensuring all rotations, wall-kicks, and lock-out timings strictly follow official Tetris guidelines.
-* **Performance:** Moving toward a multi-threaded architecture to ensure smooth 60FPS rendering independent of game
-  logic calculations.
+*   **Scalability:** Refactoring the engine to use modular composition, allowing for the easy addition of "ARPG" features like skill trees and power-ups.
+*   **Accuracy:** Ensuring all rotations, wall-kicks, and lock-out timings strictly follow official Tetris guidelines.
+*   **Performance:** Moving toward a multi-threaded architecture to ensure smooth 60FPS rendering independent of game logic calculations.
 
 ---
 
-## 🚀 Future Vision: Tetris-ARPG
+## 🚀 How to Run
 
-Once the core competitive Tetris mechanics are perfected, the project will expand into a full **Tetris-ARPG**. This
-transition will include:
+### 📋 Prerequisites
+*   **Java 21** or higher.
+*   **Maven** (optional, for building from source).
 
-* **Progression Systems:** Leveling up and unlocking abilities through line clears.
-* **Skill Trees:** Modular upgrades that change how blocks behave or provide defensive buffs.
-* **Power Ups:** different power Ups appear on tetrominoes through the progression
-* **monsters and bosses** by cleaning rows will be fighting against monsters and latter on bosses with different abilities
+### ⚙️ Execution
+1.  **Clone the Repo:**
+    ```bash
+    git clone https://github.com/your-username/SimpleTetris.git
+    ```
+2.  **Build with Maven:**
+    ```bash
+    mvn clean package
+    ```
+3.  **Run the JAR:**
+    ```bash
+    java -jar target/SimpleTetris-0.9.jar
+    ```
+    *Alternatively, run `org.sehes.tetris.Main` directly from your IDE.*
+
+---
+
+## 🛡️ License
+
+This project is currently available as **Open Source**. Feel free to explore, learn, and contribute!
+
+---
+<p align="center">
+  Developed by <b>sehes</b>
+</p>
