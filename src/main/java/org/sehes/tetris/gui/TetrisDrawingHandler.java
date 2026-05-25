@@ -4,10 +4,15 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
 import java.util.Map;
 
 import org.sehes.tetris.config.GameParameters;
+import org.sehes.tetris.graphic.BlockGraphic;
+import org.sehes.tetris.graphic.Config;
+import org.sehes.tetris.graphic.Renderable;
 import org.sehes.tetris.model.BlockContent;
 import org.sehes.tetris.model.BoardView;
 import org.sehes.tetris.model.Tetromino;
@@ -119,37 +124,29 @@ public class TetrisDrawingHandler {
     }
 
     /**
-     * Draws a single block of the Tetromino on the given Graphics2D object.
-     * The block is drawn with its assigned color at the specified pixel coordinates.
+     * Renders a single block of the Tetromino at the specified pixel coordinates with the given color.
+     * the block is rendered from {@link BlockGraphic} object  4 bevels and center square which are drawn
+     * by {@link Renderable} objects.
      *
-     * @param g the Graphics2D object to draw on
-     * @param c the color of the block
-     * @param x   the x-coordinate of the block's top-left pixel
-     * @param y   the y-coordinate of the block's top-left pixel
+     * @param g2d the {@link Graphics2D} object to draw on
+     * @param color the color of the block
+     * @param x the x-coordinate of the block's top-left pixel
+     * @param y the y-coordinate of the block's top-left pixel
      */
-    private void drawBlock(Graphics2D g, Color c, int x, int y) {
-        final int startFillX = x + 1;
-        final int startFillY = y + 1;
-        g.setColor(c);
-        g.fillRect(startFillX, startFillY, GameParameters.BLOCK_SIZE - 1, GameParameters.BLOCK_SIZE - 1);
-        addLight(g, c, x, y);
-        addShadow(g, c, x, y);
-    }
-
-    private void addShadow(Graphics2D g, Color c, int x, int y) {
-        final int bottom = y + GameParameters.BLOCK_SIZE - 1;// bottom of the block
-        final int right = x + GameParameters.BLOCK_SIZE - 1; // right of the block
-        final int left = x + 1; // left of the block
-        final int top = y + 1; // top of the block
-
-        g.setColor(c.darker());
-        g.drawLine(left, bottom, right, bottom);
-        g.drawLine(right, bottom, right, top);
-    }
-
-    private void addLight(Graphics2D g, Color c, int x, int y) {
-        g.setColor(c.brighter());
-        g.drawLine(x, y + GameParameters.BLOCK_SIZE - 1, x, y);
-        g.drawLine(x, y, x + GameParameters.BLOCK_SIZE - 1, y);
+    private void drawBlock(Graphics2D g2d, Color color, double x, double y) {
+        final AffineTransform originalTransform = g2d.getTransform();
+        g2d.setColor(color);
+        g2d.translate(x, y);
+        final BlockGraphic blockGraphic = new BlockGraphic(GameParameters.BLOCK_SIZE, Config.THICKNESS);
+        for (Renderable shape : blockGraphic.getShapes()) {
+            Path2D path = new Path2D.Double();
+            path.moveTo(shape.getPoints()[0][0], shape.getPoints()[0][1]);
+            for (int i = 1; i < shape.getVertexCount(); i++) {
+                path.lineTo(shape.getPoints()[i][0], shape.getPoints()[i][1]);
+            }
+            path.closePath();
+            g2d.fill(path);
+        }
+        g2d.setTransform(originalTransform);
     }
 }

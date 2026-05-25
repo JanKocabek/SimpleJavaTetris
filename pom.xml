@@ -6,11 +6,15 @@
 
     <groupId>org.sehes</groupId>
     <artifactId>SimpleTetris</artifactId>
-    <version>0.9</version>
+    <version>0.10</version>
+    <packaging>jar</packaging>
+
 
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
     </properties>
     <dependencyManagement>
         <dependencies>
