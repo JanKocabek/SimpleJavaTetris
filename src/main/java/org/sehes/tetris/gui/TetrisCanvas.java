@@ -26,7 +26,7 @@ public class TetrisCanvas extends JPanel {
     private final transient GameManager gameManager;
     private final transient TetrisDrawingHandler drawingHandler;
     private final AtomicBoolean isBoardDirty = new AtomicBoolean(false);
-    private static final Color backgroundColor = Color.BLACK;
+    private static final Color backgroundColor = new Color(15, 15, 25);
 
     TetrisCanvas(TetrisDrawingHandler drawingHandler, GameManager gameManager) {
         Dimension prefSize = new Dimension(GameParameters.BLOCK_SIZE * GameParameters.COLUMNS,
