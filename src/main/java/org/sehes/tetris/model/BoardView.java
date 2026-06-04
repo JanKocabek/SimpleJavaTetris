@@ -6,6 +6,6 @@ public interface BoardView {
 
     int getHeight();
 
-    BlockContent getBlockContent(int row, int column);
+    TetrominoType getBlockContent(int row, int column);
 
 }
