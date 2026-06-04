@@ -1,5 +1,14 @@
 package org.sehes.tetris.gui;
 
+import org.sehes.tetris.config.GameParameters;
+import org.sehes.tetris.graphic.BlockGraphic;
+import org.sehes.tetris.graphic.ColorPalette;
+import org.sehes.tetris.graphic.Config;
+import org.sehes.tetris.graphic.Renderable;
+import org.sehes.tetris.model.BoardView;
+import org.sehes.tetris.model.Tetromino;
+import org.sehes.tetris.model.TetrominoType;
+
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -8,14 +17,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
 import java.util.Map;
-
-import org.sehes.tetris.config.GameParameters;
-import org.sehes.tetris.graphic.BlockGraphic;
-import org.sehes.tetris.graphic.Config;
-import org.sehes.tetris.graphic.Renderable;
-import org.sehes.tetris.model.BlockContent;
-import org.sehes.tetris.model.BoardView;
-import org.sehes.tetris.model.Tetromino;
 
 /**
  * The TetrisDrawingHandler class is responsible for rendering the game state
@@ -96,11 +97,11 @@ public class TetrisDrawingHandler {
         g2d.setComposite(AlphaComposite.SrcOver);
         for (int row = boardView.getHeight() - 1; row >= GameParameters.HIDDEN_ROWS; row--) {
             for (int col = boardView.getWidth() - 1; col >= 0; col--) {
-                BlockContent content = boardView.getBlockContent(row, col);
-                if (content != BlockContent.EMPTY) {
+                TetrominoType content = boardView.getBlockContent(row, col);
+                if (content != TetrominoType.NON && content != null) {
                     int x = col * GameParameters.BLOCK_SIZE;
                     int y = (row - GameParameters.HIDDEN_ROWS) * GameParameters.BLOCK_SIZE;
-                    drawBlock(g2d, content.getColor(), x, y);
+                    drawBlock(g2d, content, x, y);
                 }
             }
         }
@@ -117,9 +118,10 @@ public class TetrisDrawingHandler {
      * @param t   the Tetromino to draw
      */
     public void drawCurrentTetromino(Graphics2D g2d, Tetromino t) {
+
         int[] pixelCoordinates = t.getPixelCoordinates();
         for (int i = 0; i < pixelCoordinates.length; i += 2) {
-            drawBlock(g2d, t.getColor(), pixelCoordinates[i], pixelCoordinates[i + 1]);
+            drawBlock(g2d, t.getType(), pixelCoordinates[i], pixelCoordinates[i + 1]);
         }
     }
 
@@ -129,20 +131,22 @@ public class TetrisDrawingHandler {
      * by {@link Renderable} objects.
      *
      * @param g2d the {@link Graphics2D} object to draw on
-     * @param color the color of the block
+     * @param type the tetromino shape
      * @param x the x-coordinate of the block's top-left pixel
      * @param y the y-coordinate of the block's top-left pixel
      */
-    private void drawBlock(Graphics2D g2d, Color color, double x, double y) {
+    private void drawBlock(Graphics2D g2d, TetrominoType type, double x, double y) {
         final AffineTransform originalTransform = g2d.getTransform();
-        g2d.setColor(color);
         g2d.translate(x, y);
         final BlockGraphic blockGraphic = new BlockGraphic(GameParameters.BLOCK_SIZE, Config.THICKNESS);
         for (Renderable shape : blockGraphic.getShapes()) {
+            final var side = shape.getSide();
+            final var points = shape.getPoints();
+            g2d.setPaint(ColorPalette.getPaint(type, side));
             Path2D path = new Path2D.Double();
-            path.moveTo(shape.getPoints()[0][0], shape.getPoints()[0][1]);
-            for (int i = 1; i < shape.getVertexCount(); i++) {
-                path.lineTo(shape.getPoints()[i][0], shape.getPoints()[i][1]);
+            path.moveTo(points[0][0], points[0][1]);
+            for (int i = 1; i < points.length; i++) {
+                path.lineTo(points[i][0], points[i][1]);
             }
             path.closePath();
             g2d.fill(path);

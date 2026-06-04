@@ -44,22 +44,16 @@ public class BlockGraphic {
 
     private static final int L_X = 0;
     private static final int T_Y = 0;
-    private final int rX;
-    private final int inRtx;
-    private final int inLtx;
-    private final int inTy;
-    private final int bY;
-    private final int inBy;
     private final int[][] vBuffer;
     private final Renderable[] shapes;
 
     public BlockGraphic(int blockSize, int thickness) {
-        rX = L_X + blockSize;
-        inRtx = rX - thickness;
-        inLtx = L_X + thickness;
-        inTy = T_Y + thickness;
-        bY = T_Y + blockSize;
-        inBy = bY - thickness;
+        final int rX = L_X + blockSize;
+        final int inRtx = rX - thickness;
+        final int inLtx = L_X + thickness;
+        final int inTy = T_Y + thickness;
+        final int bY = T_Y + blockSize;
+        final int inBy = bY - thickness;
         vBuffer = new int[][]{
                 {L_X, rX, inLtx, inRtx, inLtx, inRtx, L_X, rX},
                 {T_Y, T_Y, inTy, inTy, inBy, inBy, bY, bY}
@@ -73,6 +67,7 @@ public class BlockGraphic {
             final int sideValue = side.getSide();
             renderables[sideValue] =
                     new Renderable() {
+                        private final Side s = side;
                         private static final int VERTEX = 4;
                         final int[][] points = setPoints();
 
@@ -93,10 +88,11 @@ public class BlockGraphic {
                         }
 
                         @Override
-                        public int getVertexCount() {
-                            return VERTEX;
+                        public Side getSide() {
+                            return s;
                         }
                     };
+
         }
 
         return renderables;

@@ -1,6 +1,6 @@
 package org.sehes.tetris.graphic;
 
-enum Side {
+public enum Side {
     TOP(0),
     RIGHT(1),
     BOTTOM(2),

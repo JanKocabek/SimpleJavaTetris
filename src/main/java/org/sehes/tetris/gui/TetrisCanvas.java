@@ -23,10 +23,10 @@ import org.sehes.tetris.controller.GameManager.GameState;
  */
 public class TetrisCanvas extends JPanel {
 
-    private final GameManager gameManager;
-    private final TetrisDrawingHandler drawingHandler;
+    private final transient GameManager gameManager;
+    private final transient TetrisDrawingHandler drawingHandler;
     private final AtomicBoolean isBoardDirty = new AtomicBoolean(false);
-    private static final Color backgroundColor = Color.GRAY;
+    private static final Color backgroundColor = Color.BLACK;
 
     TetrisCanvas(TetrisDrawingHandler drawingHandler, GameManager gameManager) {
         Dimension prefSize = new Dimension(GameParameters.BLOCK_SIZE * GameParameters.COLUMNS,
@@ -47,7 +47,7 @@ public class TetrisCanvas extends JPanel {
         drawingHandler.initialize(g2d);
         switch (gameManager.getGameState()) {
             case GameState.PREPARED -> {
-              break;
+              //do nothing
             }
             case GameState.PLAYING -> {
                 final boolean wasDirty = isBoardDirty.getAndSet(false);
