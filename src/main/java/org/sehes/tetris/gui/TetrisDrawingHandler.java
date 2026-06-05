@@ -119,6 +119,7 @@ public class TetrisDrawingHandler {
      */
     public void drawCurrentTetromino(Graphics2D g2d, Tetromino t) {
 
+        //todo seperate pixel coordinates from tetromino object
         int[] pixelCoordinates = t.getPixelCoordinates();
         for (int i = 0; i < pixelCoordinates.length; i += 2) {
             drawBlock(g2d, t.getType(), pixelCoordinates[i], pixelCoordinates[i + 1]);

@@ -11,11 +11,7 @@ import org.sehes.tetris.model.Coordinate;
  * and maintenance of the game's settings, ensuring consistency across different
  * components of the application.
  */
-public final class GameParameters {
-
-    private GameParameters() {
-    }
-
+public record GameParameters() {
     public static final int BLOCK_SIZE = 40;//size of one cell of GameBoard grid, also the size of one block of tetromino
     public static final int COLUMNS = 10;//number of cell in row (columns)
     public static final int ROWS = 22;//number of cell in column (rows)
