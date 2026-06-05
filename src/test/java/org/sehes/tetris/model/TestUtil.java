@@ -16,7 +16,7 @@ public class TestUtil {
                 final var curY = y;
                 final var isTetromino = tetrominoBoardCord.stream().anyMatch(c -> c.x() == curX && c.y() == curY);
                 switch (boardView.getBlockContent(y, x)) {
-                    case EMPTY -> {
+                    case TetrominoType.NON -> {
                         if (isTetromino) System.out.print(TETROMINO);
                         else System.out.print(EMPTY);
                     }
@@ -38,47 +38,47 @@ public class TestUtil {
     }
 
     public static void prepareBoard(GameBoard gameBoard) {
-        gameBoard.fillBlockForTestOnly(3, 0, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(3, 1, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(3, 4, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(3, 5, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(4, 0, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(4, 4, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(4, 5, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(5, 0, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(5, 1, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(5, 4, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(6, 0, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(6, 1, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(6, 2, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(6, 3, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(6, 4, BlockContent.CYAN);
+        gameBoard.fillBlockForTestOnly(3, 0, TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(3, 1,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(3, 4,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(3, 5,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(4, 0,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(4, 4,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(4, 5,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(5, 0,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(5, 1,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(5, 4,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(6, 0,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(6, 1,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(6, 2,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(6, 3,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(6, 4,TetrominoType.T);
     }
 
     public static void prepareBoard2T(GameBoard gameBoard) {
-        gameBoard.fillBlockForTestOnly(3, 0, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(3, 1, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(3, 4, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(3, 5, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(4, 0, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(4, 4, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(4, 5, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(5, 0, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(5, 2, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(5, 3, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(5, 4, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(6, 0, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(6, 3, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(6, 4, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(7, 0, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(7, 2, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(7, 3, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(7, 4, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(8, 0, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(8, 1, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(8, 2, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(8, 3, BlockContent.CYAN);
-        gameBoard.fillBlockForTestOnly(8, 4, BlockContent.CYAN);
+        gameBoard.fillBlockForTestOnly(3, 0,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(3, 1,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(3, 4,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(3, 5,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(4, 0,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(4, 4,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(4, 5,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(5, 0,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(5, 2,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(5, 3,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(5, 4,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(6, 0,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(6, 3,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(6, 4,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(7, 0,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(7, 2,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(7, 3,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(7, 4,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(8, 0,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(8, 1,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(8, 2,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(8, 3,TetrominoType.T);
+        gameBoard.fillBlockForTestOnly(8, 4,TetrominoType.T);
     }
 }
 
