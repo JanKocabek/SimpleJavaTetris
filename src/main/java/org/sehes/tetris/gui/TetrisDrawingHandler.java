@@ -1,5 +1,6 @@
 package org.sehes.tetris.gui;
 
+import org.jspecify.annotations.NonNull;
 import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.graphic.BlockGraphic;
 import org.sehes.tetris.graphic.ColorPalette;
@@ -117,7 +118,7 @@ public class TetrisDrawingHandler {
      * @param g2d the Graphics2D object to draw on
      * @param t   the Tetromino to draw
      */
-    public void drawCurrentTetromino(Graphics2D g2d, Tetromino t) {
+    public void drawCurrentTetromino(Graphics2D g2d, @NonNull Tetromino t) {
 
         //todo seperate pixel coordinates from tetromino object
         int[] pixelCoordinates = t.getPixelCoordinates();
