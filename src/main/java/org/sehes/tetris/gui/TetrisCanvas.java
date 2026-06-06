@@ -1,16 +1,15 @@
 package org.sehes.tetris.gui;
 
+import org.sehes.tetris.config.GameParameters;
+import org.sehes.tetris.controller.GameManager;
+import org.sehes.tetris.controller.GameManager.GameState;
+
+import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.swing.JPanel;
-
-import org.sehes.tetris.config.GameParameters;
-import org.sehes.tetris.controller.GameManager;
-import org.sehes.tetris.controller.GameManager.GameState;
 
 /**
  * The TetrisCanvas class is responsible for rendering the game state onto the
@@ -45,21 +44,13 @@ public class TetrisCanvas extends JPanel {
         super.paintComponent(g);
         final Graphics2D g2d = (Graphics2D) g;
         drawingHandler.initialize(g2d);
-        switch (gameManager.getGameState()) {
-            case GameState.PREPARED -> {
-              //do nothing
-            }
-            case GameState.PLAYING -> {
-                final boolean wasDirty = isBoardDirty.getAndSet(false);
-                drawingHandler.paintGameBoard(g2d, gameManager.getBoardView(), wasDirty);
-                if (gameManager.getGameState() == GameState.PLAYING) {
-                    drawingHandler.drawCurrentTetromino(g2d, gameManager.getCurrentTetromino());
-                }
-            }
-            default -> {
-                final boolean wasDirty = isBoardDirty.getAndSet(false);
-                drawingHandler.paintGameBoard(g2d, gameManager.getBoardView(), wasDirty);
-            }
+        if (gameManager.getGameState() == GameState.PREPARED) {
+            return;
+        }
+        final boolean wasDirty = isBoardDirty.getAndSet(false);
+        drawingHandler.paintGameBoard(g2d, gameManager.getBoardView(), wasDirty);
+        if (gameManager.getGameState() == GameState.PLAYING) {
+            drawingHandler.drawCurrentTetromino(g2d, gameManager.getCurrentTetromino());
         }
     }
 
