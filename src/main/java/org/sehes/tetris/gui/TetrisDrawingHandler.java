@@ -31,6 +31,11 @@ public class TetrisDrawingHandler {
     private BufferedImage backgroundGrid = null;
     private BufferedImage boardImg = null;
     private final RenderingHints hints = createFastRenderingHints();
+    private final BlockGraphic block;
+
+    public TetrisDrawingHandler() {
+        block = new BlockGraphic(GameParameters.BLOCK_SIZE, Config.THICKNESS);
+    }
 
     /**
      * Creates a RenderingHints object with settings optimized for fast rendering
@@ -127,6 +132,8 @@ public class TetrisDrawingHandler {
         }
     }
 
+
+
     /**
      * Renders a single block of the Tetromino at the specified pixel coordinates with the given color.
      * the block is rendered from {@link BlockGraphic} object  4 bevels and center square which are drawn
@@ -140,8 +147,7 @@ public class TetrisDrawingHandler {
     private void drawBlock(Graphics2D g2d, TetrominoType type, double x, double y) {
         final AffineTransform originalTransform = g2d.getTransform();
         g2d.translate(x, y);
-        final BlockGraphic blockGraphic = new BlockGraphic(GameParameters.BLOCK_SIZE, Config.THICKNESS);
-        for (Renderable shape : blockGraphic.getShapes()) {
+        for (Renderable shape : block.getShapes()) {
             final var side = shape.getSide();
             final var points = shape.getPoints();
             g2d.setPaint(ColorPalette.getPaint(type, side));
