@@ -1,5 +1,8 @@
 package org.sehes.tetris.graphic;
 
-public record Config() {
+public final class Config {
+    private Config() {
+    }
+
     public static final int THICKNESS = 12;
 }
