@@ -19,6 +19,8 @@ import org.sehes.tetris.model.RotationFlag;
 import org.sehes.tetris.model.BoardView;
 import org.sehes.tetris.model.Tetromino;
 
+import static org.sehes.tetris.controller.GameManager.GameState.*;
+
 /**
  * The GameManager class is responsible for managing the overall game state,
  * handling user input, and coordinating the game loop. It initializes the game
@@ -94,7 +96,7 @@ public class GameManager {
     private static final int FPS = 60;
     private static final int FRAME_TIME_MS = 1000 / FPS;
     private static final int BASE_SPEED = 600;
-    private GameState gameState;// Current state of the game
+    private final State currentState = new State(INIT);// Current state of the game
     private TetrisCanvas tetrisCanvas; // Reference to the canvas for repainting
     private GameBoard gameBoard; // reference to the game board for managing game logic
     private Timer gameLoopTimer; // Timer for the main game loop to control the game speed
@@ -124,7 +126,6 @@ public class GameManager {
      *
      */
     public GameManager() {
-        this.gameState = GameState.INIT;
         SwingUtilities.invokeLater(() -> {
             final ActionListener gameLoopListener = new MainLoopListener();
             gameLoopTimer = new Timer(FRAME_TIME_MS, gameLoopListener);
@@ -133,7 +134,7 @@ public class GameManager {
     }
 
     public GameState getGameState() {
-        return gameState;
+        return currentState.get();
     }
 
     public BoardView getBoardView() {
@@ -153,7 +154,7 @@ public class GameManager {
      *                  DOWN).
      */
     public void movePiece(final DirectionFlag direction) {
-        if (gameState != GameState.PLAYING) {
+        if (currentState.get() != PLAYING) {
             return;
         }
         if (gameBoard.tryMovePiece(direction)) {
@@ -169,7 +170,7 @@ public class GameManager {
      * @param rotate The direction to rotate the piece (CLOCKWISE, COUN
      */
     public void rotatePiece(final RotationFlag rotate) {
-        if (gameState != GameState.PLAYING) {
+        if (currentState.get() != PLAYING) {
             return;
         }
         if (gameBoard.tryRotatePiece(rotate)) {
@@ -178,17 +179,17 @@ public class GameManager {
     }
 
     public void pauseGame() {
-        if (gameState == GameState.PLAYING) {
+        if (currentState.get() == PLAYING) {
             gameLoopTimer.stop();
-            updateState(GameState.PAUSED);
+            currentState.set(PAUSED);
         }
     }
 
     public void resumeGame() {
-        if (gameState == GameState.PAUSED) {
+        if (currentState.get() == PAUSED) {
             resetTime();
             gameLoopTimer.start();
-            updateState(GameState.PLAYING);
+            currentState.set(PLAYING);
         }
     }
 
@@ -199,7 +200,7 @@ public class GameManager {
      * new game while one is already in progress.
      */
     void startGame() {
-        switch (gameState) {
+        switch (currentState.get()) {
             case PREPARED -> {
                 newGame();
                 gameLoopTimer.start();
@@ -231,7 +232,7 @@ public class GameManager {
         if (tetrisDrawingHandler.getBackgroundGrid() == null) {
             tetrisDrawingHandler.drawGrid();
         }
-        updateState(GameState.PLAYING);
+        currentState.set(PLAYING);
         if (!gameBoard.trySetNewTetromino()) {
             setGameOver();
             return;
@@ -242,7 +243,7 @@ public class GameManager {
 
     private void setGameOver() {
         gameLoopTimer.stop();
-        updateState(GameState.GAME_OVER);
+        currentState.set(GAME_OVER);
     }
 
     /**
@@ -263,7 +264,7 @@ public class GameManager {
         this.tetrisCanvas = gui.canvas();
         this.scoreUI = gui.scoreUI();
         this.infoP = gui.infoP();
-        updateState(GameState.PREPARED);
+        currentState.set(PREPARED);
         showGui(gui.window());
     }
 
@@ -283,25 +284,23 @@ public class GameManager {
                                                                        // events
     }
 
-    //todo: Smell code replace it in next PR #28
-    /**
-     * !!!except before UI is initialization CALL THIS METHOD TO UPDATE THE GAME
-     * STATE!!! NOT the {@link GameState} field directly unless its necessary. then
-     * document it please why was it necessary.
-     *
-     * @param newState new state game is set to. this method ensures that whenever
-     *                 the game state is updated, the information panel is also
-     *                 refreshed to reflect the new state.
-     *                 Updates the game state and refreshes the information panel to
-     *                 reflect the new state.
-     *
-     */
-    private void updateState(final GameState newState) {
-        this.gameState = newState;
-        if (infoP == null) {
-            return;
+    private final class State{
+        private  GameState gameState;
+
+        private State(final GameState gameState) {
+            this.gameState = gameState;
         }
-        infoP.updateInfo(gameState);
+
+        public GameState get() {
+            return gameState;
+        }
+        private void set(final GameState gameState) {
+            this.gameState = gameState;
+            updateInfo();
+        }
+        private void updateInfo() {
+            if (infoP != null) infoP.updateInfo(this.gameState);
+        }
     }
 
 }
