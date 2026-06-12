@@ -104,11 +104,11 @@ public class GuiFactory {
      * method is called when initializing the GUI to ensure that the canvas is
      * properly added to the window and displayed to the user.
      *
-     * @param canvas The TetrisCanvas to be set as the current canvas for the
-     * game.
+     * @param drawingHandler handler which is responsible for drawing stuff on the canvas
      * @param keyInputHandler The TetrisKeyInputHandler responsible for handling
      * keyboard input for the game.
-     * @param window The GameWindow to which the canvas will be added.
+     * @param gm gameManager from which the canvas will be getting the current game state
+     * @return the TetrisCanvas that has been added to the window
      */
     private static TetrisCanvas assemblyCanvas(final TetrisDrawingHandler drawingHandler, final TetrisKeyInputHandler keyInputHandler, final GameManager gm) {
         final TetrisCanvas canvas = new TetrisCanvas(drawingHandler, gm);
