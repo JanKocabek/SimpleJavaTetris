@@ -44,7 +44,7 @@ public class TetrisCanvas extends JPanel {
         super.paintComponent(g);
         final Graphics2D g2d = (Graphics2D) g;
         drawingHandler.initialize(g2d);
-        if (gameManager.getGameState() == GameState.PREPARED) {
+        if (gameManager.getGameState() == GameState.PREPARED || gameManager.getGameState() ==GameState.INIT) {
             return;
         }
         final boolean wasDirty = isBoardDirty.getAndSet(false);
