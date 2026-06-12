@@ -1,9 +1,8 @@
 package org.sehes.tetris.model;
 
-import java.awt.Color;
-import java.util.List;
-
 import org.sehes.tetris.config.GameParameters;
+
+import java.util.List;
 
 /**
  * The Tetromino class represents the individual Tetris pieces in the game. Each
@@ -59,9 +58,6 @@ public class Tetromino {
         return type;
     }
 
-    public Color getColor() {
-        return type.getColor();
-    }
 
     public List<Coordinate> getStateCord() {
         return stateCoordination;

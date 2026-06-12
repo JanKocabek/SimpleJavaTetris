@@ -33,3 +33,12 @@ build/
 
 ### Mac OS ###
 .DS_Store
+### Build & Analysis Tools ###
+profilers/
+qodana.yaml
+jars/
+orderTasks.txt
+/archive/
+
+/2d graphic test/*
+/colors

@@ -51,7 +51,7 @@ class GameBoardTest {
         @Test
         void testBoardViewGetBlockContent() {
             BoardView boardView = gameBoard.getBoardView();
-            assertEquals(BlockContent.EMPTY, boardView.getBlockContent(0, 0));
+            assertEquals(TetrominoType.NON, boardView.getBlockContent(0, 0));
         }
 
         @Test
@@ -117,7 +117,7 @@ class GameBoardTest {
         gameBoard.lockTetrominoInPlace();
         final var boardView = gameBoard.getBoardView();
         // then
-        cord.forEach(coordinate -> assertEquals(BlockContent.fromColor(tetromino.getColor()), boardView
+        cord.forEach(coordinate -> assertEquals(tetromino.getType(), boardView
                         .getBlockContent(tetromino.getPositionY() + coordinate.y(), tetromino.getPositionX() + coordinate.x()),
                 "Block should be added to board"));
         assertNull(gameBoard.getCurrentTetromino(), "Current tetromino should be null after adding to board");

@@ -10,7 +10,8 @@ public class TetrominoFactory {
         return new Tetromino(TetrominoType.get(piece), startingPosition);
     }
 
-    // methods for junit testing purpose
+    // methods for JUnit testing purpose
+    //todo: make changes so this section is in test classes instead
     static Tetromino spawnSpecificTetromino(final TetrominoType tetrominoType, final Coordinate startPos) {
         return new Tetromino(tetrominoType, startPos);
     }

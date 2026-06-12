@@ -31,7 +31,7 @@ public class GameBoard {
     private static final System.Logger myLogger = System.getLogger(GameBoard.class.getName());
     private final TetrominoFactory factory = new TetrominoFactory();
     private Tetromino currentTetromino;
-    private final BlockContent[][] board;
+    private final TetrominoType[][] board;
     /*
      * make the start position dynamic based on tetromino type instead of one fixed
      * position
@@ -40,7 +40,7 @@ public class GameBoard {
     private int score;
 
     public GameBoard() {
-        board = new BlockContent[GameParameters.ROWS][GameParameters.COLUMNS];
+        board = new TetrominoType[GameParameters.ROWS][GameParameters.COLUMNS];
         score = 0;
         fillBoard();
         this.boardView = new BoardView() {
@@ -55,7 +55,7 @@ public class GameBoard {
             }
 
             @Override
-            public BlockContent getBlockContent(final int row, final int column) {
+            public TetrominoType getBlockContent(final int row, final int column) {
                 if (row < 0 || row >= board.length || column < 0 || column >= board[row].length) {
                     throw new IndexOutOfBoundsException("Coordinates are out of bounds. Row: " + row + ", Column: "
                                                         + column + ". Board size: " + board.length + "x" + board[0].length);
@@ -166,7 +166,7 @@ public class GameBoard {
         for (Coordinate coordinate : currentTetromino.getStateCord()) {
             final int x = currentTetromino.getPositionX() + coordinate.x();
             final int y = currentTetromino.getPositionY() + coordinate.y();
-            this.board[y][x] = BlockContent.fromColor(currentTetromino.getColor());
+            this.board[y][x] = currentTetromino.getType();
         }
         currentTetromino = null;
     }
@@ -247,9 +247,9 @@ public class GameBoard {
         }
     }
 
-    private boolean isLineFull(final BlockContent[] boardRow) {
-        for (final BlockContent cell : boardRow) {
-            if (cell == BlockContent.EMPTY) {
+    private boolean isLineFull(final TetrominoType[] boardRow) {
+        for (final var cell : boardRow) {
+            if (cell == TetrominoType.NON) {
                 return false;
             }
         }
@@ -257,8 +257,8 @@ public class GameBoard {
     }
 
     private void fillBoard() {
-        for (final BlockContent[] blockContents : board) {
-            Arrays.fill(blockContents, BlockContent.EMPTY);
+        for (final var cell : board) {
+            Arrays.fill(cell, TetrominoType.NON);
         }
     }
 
@@ -283,14 +283,16 @@ public class GameBoard {
      *
      * @param stateCord   The list of coordinates representing the tetromino's new
      *                    state
-     * @param newPosition The expected new position of the tetromino pivot on the
+     * @param newPositionX The expected new X coordination of the tetromino pivot on the
+     *                    board
+     * @param newPositionY The expected new position of the tetromino pivot on the
      *                    board
      * @return {@code true} if there is a collision, {@code false} otherwise
      */
     private boolean isCollisionDetected(final List<Coordinate> stateCord, final int newPositionX, final int newPositionY) {
 
         for (final var cord : stateCord) {
-            if (this.board[newPositionY + cord.y()][newPositionX + cord.x()] != BlockContent.EMPTY) {
+            if (this.board[newPositionY + cord.y()][newPositionX + cord.x()] != TetrominoType.NON) {
                 return true;
             }
         }
@@ -322,8 +324,8 @@ public class GameBoard {
      *
      * @param newStateCord The coordinates of the tetromino after the move or
      *                     rotation.
-     * @param position     The position of the tetromino pivot on the board after
-     *                     the move or rotation.
+     * @param positionX The current X Coordinate of the tetromino on the board
+     * @param positionY The current Y Coordinate of the tetromino on the board
      * @return {@code true} if the final position is out of the board
      *         boundaries, {@code false} otherwise.
      */
@@ -348,7 +350,7 @@ public class GameBoard {
         for (int cr = currentRow; cr > 0; cr--) {
             System.arraycopy(board[cr - 1], 0, board[cr], 0, board[cr].length);
         }
-        Arrays.fill(board[0], BlockContent.EMPTY);
+        Arrays.fill(board[0], TetrominoType.NON);
     }
 
     /*below are JUNIT TEST ONLY methods
@@ -372,7 +374,7 @@ public class GameBoard {
      */
     void fillLineForTestOnly() {
         int lastLine = board.length - 1;
-        Arrays.fill(board[lastLine], BlockContent.CYAN);
+        Arrays.fill(board[lastLine], TetrominoType.L);
     }
 
     /**
@@ -384,7 +386,7 @@ public class GameBoard {
      * @param column the column of the block to be set
      * @param blockContent the {@link BlockContent} to be set
      */
-    void fillBlockForTestOnly(final int row, final int column, final BlockContent blockContent) {
+    void fillBlockForTestOnly(final int row, final int column, final TetrominoType blockContent) {
         board[row][column] = blockContent;
     }
 

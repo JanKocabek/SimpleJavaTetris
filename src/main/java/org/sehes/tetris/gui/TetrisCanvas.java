@@ -1,15 +1,15 @@
 package org.sehes.tetris.gui;
 
+import org.sehes.tetris.config.GameParameters;
+import org.sehes.tetris.controller.GameManager;
+import org.sehes.tetris.controller.GameManager.GameState;
+
+import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.swing.JPanel;
-
-import org.sehes.tetris.config.GameParameters;
-import org.sehes.tetris.controller.GameManager;
 
 /**
  * The TetrisCanvas class is responsible for rendering the game state onto the
@@ -22,9 +22,10 @@ import org.sehes.tetris.controller.GameManager;
  */
 public class TetrisCanvas extends JPanel {
 
-    private final GameManager gameManager;
-    private final TetrisDrawingHandler drawingHandler;
+    private final transient GameManager gameManager;
+    private final transient TetrisDrawingHandler drawingHandler;
     private final AtomicBoolean isBoardDirty = new AtomicBoolean(false);
+    private static final Color backgroundColor = new Color(15, 15, 25);
 
     TetrisCanvas(TetrisDrawingHandler drawingHandler, GameManager gameManager) {
         Dimension prefSize = new Dimension(GameParameters.BLOCK_SIZE * GameParameters.COLUMNS,
@@ -34,7 +35,7 @@ public class TetrisCanvas extends JPanel {
         this.setMaximumSize(prefSize);
         this.drawingHandler = drawingHandler;
         this.gameManager = gameManager;
-        setBackground(Color.BLACK);
+        setBackground(backgroundColor);
         this.setFocusable(true);
     }
 
@@ -43,16 +44,25 @@ public class TetrisCanvas extends JPanel {
         super.paintComponent(g);
         final Graphics2D g2d = (Graphics2D) g;
         drawingHandler.initialize(g2d);
-        if (gameManager.getGameState() == GameManager.GameState.PREPARED) {
-            return; // Not at the beginning: super.paintComponent() must run first to clear the
-                    // canvas.
+        if (gameManager.getGameState() == GameState.PREPARED) {
+            return;
         }
-        g2d.drawImage(drawingHandler.getGrid(), 0, 0, null);
         final boolean wasDirty = isBoardDirty.getAndSet(false);
         drawingHandler.paintGameBoard(g2d, gameManager.getBoardView(), wasDirty);
-        drawingHandler.drawCurrentTetromino(g2d, gameManager.getCurrentTetromino());
+        if (gameManager.getGameState() == GameState.PLAYING) {
+            drawingHandler.drawCurrentTetromino(g2d, gameManager.getCurrentTetromino());
+        }
     }
 
+    /**
+     * Repaints the canvas with precise control over the dirty flag state.
+     * Unlike the default {@link #repaint()} method, this method also manages
+     * the internal dirty flag, which is used to optimize rendering by indicating
+     * whether the game board has changed and requires redrawing.
+     *
+     * @param boardDirty true if the board has been modified and requires redrawing,
+     *                   false otherwise
+     */
     public void repaintCanvas(boolean boardDirty) {
         if (boardDirty) {
             this.isBoardDirty.compareAndSet(false, true);
