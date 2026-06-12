@@ -1,6 +1,7 @@
 package org.sehes.tetris.gui;
 
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.graphic.BlockGraphic;
 import org.sehes.tetris.graphic.ColorPalette;
@@ -27,15 +28,20 @@ import java.util.Map;
  * necessary information about the game state and ensures that the visual
  * representation of the game is accurate and up to date.
  */
+@NullMarked
 public class TetrisDrawingHandler {
+    @Nullable
     private BufferedImage backgroundGrid = null;
-    private BufferedImage boardImg = null;
+    private final BufferedImage boardImg;
     private final RenderingHints hints = createFastRenderingHints();
     private final BlockGraphic block;
 
     public TetrisDrawingHandler() {
         block = new BlockGraphic(GameParameters.BLOCK_SIZE, Config.THICKNESS);
+        boardImg = new BufferedImage(GameParameters.COLUMNS * GameParameters.BLOCK_SIZE,
+                GameParameters.VISIBLE_ROWS * GameParameters.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
     }
+
 
     /**
      * Creates a RenderingHints object with settings optimized for fast rendering
@@ -57,7 +63,9 @@ public class TetrisDrawingHandler {
         g2d.setRenderingHints(hints);
     }
 
-    public BufferedImage getGrid() {
+    //TODO: decided if we will use backgroundGrid or not
+    @Nullable
+    public BufferedImage getBackgroundGrid() {
         return backgroundGrid;
     }
 
@@ -79,10 +87,6 @@ public class TetrisDrawingHandler {
     }
 
     public void paintGameBoard(Graphics2D g2d, BoardView boardView, boolean isBoardDirty) {
-        if (boardImg == null) {
-            boardImg = new BufferedImage(GameParameters.COLUMNS * GameParameters.BLOCK_SIZE,
-                    GameParameters.VISIBLE_ROWS * GameParameters.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
-        }
         if (isBoardDirty) {
             bakeBoardImg(boardView);
         }
@@ -123,15 +127,14 @@ public class TetrisDrawingHandler {
      * @param g2d the Graphics2D object to draw on
      * @param t   the Tetromino to draw
      */
-    public void drawCurrentTetromino(Graphics2D g2d, @NonNull Tetromino t) {
+    public void drawCurrentTetromino(Graphics2D g2d, Tetromino t) {
 
-        //todo seperate pixel coordinates from tetromino object
+        //todo separate pixel coordinates from tetromino object
         int[] pixelCoordinates = t.getPixelCoordinates();
         for (int i = 0; i < pixelCoordinates.length; i += 2) {
             drawBlock(g2d, t.getType(), pixelCoordinates[i], pixelCoordinates[i + 1]);
         }
     }
-
 
 
     /**
