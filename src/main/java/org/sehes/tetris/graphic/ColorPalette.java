@@ -1,5 +1,6 @@
 package org.sehes.tetris.graphic;
 
+import org.jspecify.annotations.NullMarked;
 import org.sehes.tetris.model.TetrominoType;
 
 import java.awt.Color;
@@ -18,6 +19,7 @@ import java.util.Map;
  * as [top, right, bottom, left, center]
  */
 
+@NullMarked
 public enum ColorPalette {
     CYAN(TetrominoType.I, new Paint[]{Colors.I_SHADE[0], Colors.I_SHADE[1], Colors.I_SHADE[2], Colors.I_SHADE[3], Colors.I_SHADE[4]}),
     YELLOW(TetrominoType.O, new Paint[]{Colors.O_SHADE[0], Colors.O_SHADE[1], Colors.O_SHADE[2], Colors.O_SHADE[3], Colors.O_SHADE[4]}),
@@ -69,7 +71,9 @@ public enum ColorPalette {
      */
 
     static class Colors {
-        private Colors() {}
+        private Colors() {
+        }
+
         private static float wrapHue(float h) {
             return (h = h % 1f) < 0 ? h + 1f : h;
         }
