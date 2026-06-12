@@ -228,7 +228,7 @@ public class GameManager {
 
     private void newGame() {
         gameBoard = new GameBoard();
-        if (tetrisDrawingHandler.getGrid() == null) {
+        if (tetrisDrawingHandler.getBackgroundGrid() == null) {
             tetrisDrawingHandler.drawGrid();
         }
         updateState(GameState.PLAYING);
@@ -283,6 +283,7 @@ public class GameManager {
                                                                        // events
     }
 
+    //todo: Smell code replace it in next PR #28
     /**
      * !!!except before UI is initialization CALL THIS METHOD TO UPDATE THE GAME
      * STATE!!! NOT the {@link GameState} field directly unless its necessary. then
