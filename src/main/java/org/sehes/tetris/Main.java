@@ -4,8 +4,6 @@ import org.sehes.tetris.controller.GameManager;
 import org.sehes.tetris.controller.TetrisKeyInputHandler;
 import org.sehes.tetris.gui.TetrisDrawingHandler;
 
-import javax.swing.SwingUtilities;
-
 import static org.sehes.tetris.gui.GuiFactory.GuiComponents;
 import static org.sehes.tetris.gui.GuiFactory.createGUI;
 
@@ -25,9 +23,9 @@ public class Main {
         final GameManager gameManager = new GameManager(drawingHandler);
         final TetrisKeyInputHandler keyInputHandler = new TetrisKeyInputHandler(gameManager);
         final GuiComponents gui = createGUI(gameManager, drawingHandler, keyInputHandler);
-
         gameManager.prepareGame(gui);
-        SwingUtilities.invokeLater(gui::showGui);
+        gui.showGui();
+
 
     }
 }

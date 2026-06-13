@@ -3,6 +3,7 @@ package org.sehes.tetris.gui;
 import org.sehes.tetris.controller.GameManager;
 import org.sehes.tetris.controller.TetrisKeyInputHandler;
 
+import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -50,10 +51,12 @@ public class GuiFactory {
          * keyboard.
          */
         public void showGui() {
-            window.pack();
-            window.setResizable(false);
-            window.setVisible(true);
-            canvas.requestFocusInWindow();
+            SwingUtilities.invokeLater(() -> {
+                window.pack();
+                window.setResizable(false);
+                window.setVisible(true);
+                canvas.requestFocusInWindow();
+            });
         }
     }
 
