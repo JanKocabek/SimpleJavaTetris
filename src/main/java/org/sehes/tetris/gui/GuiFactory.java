@@ -1,12 +1,13 @@
 package org.sehes.tetris.gui;
 
+import org.sehes.tetris.controller.GameManager;
+import org.sehes.tetris.controller.TetrisKeyInputHandler;
+
+import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-
-import org.sehes.tetris.controller.GameManager;
-import org.sehes.tetris.controller.TetrisKeyInputHandler;
 
 public class GuiFactory {
 
@@ -41,7 +42,22 @@ public class GuiFactory {
     }
 
     public record GuiComponents(TetrisCanvas canvas, ScorePanel scoreUI, InfoPanel infoP, GameWindow window) {
-
+        /**
+         * Displays the game window by packing the components, setting the window to
+         * be non-resizable, and making it visible. It also requests focus for the
+         * TetrisCanvas to ensure that it can receive key events for user input.
+         * This method is called after the game window has been initialized to show
+         * the GUI to the player and allow them to interact with the game using the
+         * keyboard.
+         */
+        public void showGui() {
+            SwingUtilities.invokeLater(() -> {
+                window.pack();
+                window.setResizable(false);
+                window.setVisible(true);
+                canvas.requestFocusInWindow();
+            });
+        }
     }
 
     private static MainPane assemblyMainPane(final GameContainer container, ScorePanel scoreP, InfoPanel infoP) {
