@@ -18,6 +18,9 @@ public enum TetrominoType {
         System.arraycopy(values(), 0, TETROMINO_TYPES, 0, values().length - 1);
     }
 
+    public static TetrominoType[] getTetrominoTypes() {
+        return TETROMINO_TYPES;
+    }
     /**
      *
      * @return the number of tetromino types used in the tetromino factory method
