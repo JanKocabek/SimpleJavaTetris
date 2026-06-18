@@ -4,7 +4,6 @@ import org.sehes.tetris.gui.GuiFactory;
 import org.sehes.tetris.gui.InfoPanel;
 import org.sehes.tetris.gui.ScorePanel;
 import org.sehes.tetris.gui.TetrisCanvas;
-import org.sehes.tetris.gui.TetrisDrawingHandler;
 import org.sehes.tetris.model.BoardView;
 import org.sehes.tetris.model.DirectionFlag;
 import org.sehes.tetris.model.GameBoard;
@@ -98,7 +97,6 @@ public class GameManager {
     private static final int FRAME_TIME_MS = 1000 / FPS;
     private static final int BASE_SPEED = 600;
     private final State currentState = new State(INIT);// Current state of the game
-    private final TetrisDrawingHandler tetrisDrawingHandler; // only for telling the handler what to redraw and if it needs to
     private TetrisCanvas tetrisCanvas; // Reference to the canvas for repainting
     private GameBoard gameBoard; // reference to the game board for managing game logic
     private Timer gameLoopTimer; // Timer for the main game loop to control the game speed
@@ -127,8 +125,8 @@ public class GameManager {
      * and score as the game progresses.
      *
      */
-    public GameManager(TetrisDrawingHandler drawingHandler) {
-        this.tetrisDrawingHandler = drawingHandler;
+    public GameManager() {
+        // only for telling the handler what to redraw and if it needs to
     }
 
     public void prepareGame(GuiFactory.GuiComponents gui) {
@@ -239,9 +237,6 @@ public class GameManager {
 
     private void newGame() {
         gameBoard = new GameBoard();
-        if (tetrisDrawingHandler.getBackgroundGrid() == null) {
-            tetrisDrawingHandler.drawGrid();
-        }
         currentState.set(PLAYING);
         if (!gameBoard.trySetNewTetromino()) {
             setGameOver();
