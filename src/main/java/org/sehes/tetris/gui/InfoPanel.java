@@ -10,7 +10,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import org.sehes.tetris.config.GameParameters;
-import org.sehes.tetris.controller.GameManager;
+import org.sehes.tetris.controller.GameState;
 
 /**
  * The info panel is the bottom panel of the tetris game. It is used to display
@@ -36,7 +36,7 @@ public class InfoPanel extends JPanel {
         add(fpsLabel, BorderLayout.EAST);
     }
 
-    public void updateLabelText(GameManager.GameState gameState) {
+    public void updateLabelText(GameState gameState) {
         infoLabel.updateInfo(gameState);
     }
 
@@ -53,10 +53,10 @@ public class InfoPanel extends JPanel {
             setVerticalAlignment(SwingConstants.CENTER);
             setFont(INFO_FONT);
             setForeground(Color.black);
-            updateInfo(GameManager.GameState.INIT);
+            updateInfo(GameState.INIT);
         }
 
-        void updateInfo(GameManager.GameState gameState) {
+        void updateInfo(GameState gameState) {
             switch (gameState) {
                 case INIT -> setText("game is loading wait please");
 
