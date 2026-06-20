@@ -30,7 +30,7 @@ public class InfoPanel extends JPanel {
         add(infoLabel, BorderLayout.CENTER);
     }
 
-    public void updateInfo(GameManager.GameState gameState) {
+    public void updateLabelText(GameManager.GameState gameState) {
         infoLabel.updateInfo(gameState);
     }
 
@@ -43,11 +43,11 @@ public class InfoPanel extends JPanel {
         private static final Font INFO_FONT = new Font(Font.SERIF, Font.BOLD, 18);
 
         InfoLabel() {
-            setText("");
             setHorizontalAlignment(SwingConstants.CENTER);
             setVerticalAlignment(SwingConstants.TOP);
             setFont(INFO_FONT);
             setForeground(Color.black);
+            updateInfo(GameManager.GameState.INIT);
         }
 
         void updateInfo(GameManager.GameState gameState) {
