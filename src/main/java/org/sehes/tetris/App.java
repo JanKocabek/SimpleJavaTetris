@@ -24,15 +24,15 @@ public class App {
     private final GameManager gameManager = new GameManager();
 
     public void run() {
-        final GuiFactory.MainGUI mainGUI = assembly();
+        final GuiFactory.basicGui mainGUI = assembly();
         final SwingWorker<Map<TetrominoType, BufferedImage>, Void> initCanvas = new CanvasWorker(mainGUI);
         initCanvas.execute();
     }
 
     private class CanvasWorker extends SwingWorker<Map<TetrominoType, BufferedImage>, Void> {
-        private final GuiFactory.MainGUI mainGUI;
+        private final GuiFactory.basicGui mainGUI;
 
-        public CanvasWorker(GuiFactory.MainGUI mainGUI) {
+        public CanvasWorker(GuiFactory.basicGui mainGUI) {
             this.mainGUI = mainGUI;
         }
 
@@ -49,7 +49,7 @@ public class App {
                 final Painter<GameSnapshot> painter = new TetrisDrawingHandler(assets, RenderingHintsFactory.qualityRenderingHints());
                 final KeyAdapter keyInputHandler = new TetrisKeyInputHandler(gameManager);
                 final TetrisCanvas canvas = GuiFactory.assemblyCanvas(painter, keyInputHandler);
-                final GuiFactory.GUI gui = GuiFactory.assembly(mainGUI, canvas);
+                final GuiFactory.wholeGUI gui = GuiFactory.assembly(mainGUI, canvas);
                 gameManager.prepareGame(gui);
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace(System.err);
