@@ -16,7 +16,7 @@ public class GuiFactory {
     private GuiFactory() {
     }
 
-    public static MainGUI assembly() {
+    public static BasicGui assembly() {
         final ScorePanel scoreUI = assemblyScoreUI();
         final GameContainer gameContainer = assemblyGameContainer();
         final InfoPanel infoP = new InfoPanel();
@@ -27,20 +27,20 @@ public class GuiFactory {
             window.setVisible(true);
             window.requestFocusInWindow();
         });
-        return new MainGUI(scoreUI, infoP, window, gameContainer);
+        return new BasicGui(scoreUI, infoP, window, gameContainer);
     }
 
-    public static GUI assembly(MainGUI mainGui, TetrisCanvas canvas) {
-        mainGui.container().add(canvas, BorderLayout.CENTER);
-        mainGui.container().revalidate();
-        mainGui.container().repaint();
-        mainGui.window().revalidate();
-        mainGui.window().repaint();
-        mainGui.window().pack();
-        mainGui.window().setResizable(false);
+    public static WholeGui assembly(BasicGui gui, TetrisCanvas canvas) {
+        gui.container().add(canvas, BorderLayout.CENTER);
+        gui.container().revalidate();
+        gui.container().repaint();
+        gui.window().revalidate();
+        gui.window().repaint();
+        gui.window().pack();
+        gui.window().setResizable(false);
         canvas.requestFocusInWindow();
 
-        return new GUI(canvas, mainGui.scoreUI, mainGui.infoP, mainGui.window);
+        return new WholeGui(canvas, gui.scoreUI, gui.infoP, gui.window);
     }
 
     private static MainPane assemblyMainPane(final GameContainer container, ScorePanel scoreP, InfoPanel infoP) {
@@ -85,7 +85,7 @@ public class GuiFactory {
         gbcInfo.gridheight = 1;
         gbcInfo.insets = new Insets(0, 0, 0, 0);
         gbcInfo.anchor = GridBagConstraints.SOUTHWEST;
-        gbcInfo.fill = GridBagConstraints.HORIZONTAL;
+        gbcInfo.fill = GridBagConstraints.BOTH;
         pane.add(infoP, gbcInfo);
         return pane;
     }
@@ -119,9 +119,9 @@ public class GuiFactory {
         return new ScorePanel();
     }
 
-    public record GUI(TetrisCanvas canvas, ScorePanel scoreUI, InfoPanel infoP, GameWindow window) {
+    public record WholeGui(TetrisCanvas canvas, ScorePanel scoreUI, InfoPanel infoP, GameWindow window) {
     }
 
-    public record MainGUI(ScorePanel scoreUI, InfoPanel infoP, GameWindow window, GameContainer container) {
+    public record BasicGui(ScorePanel scoreUI, InfoPanel infoP, GameWindow window, GameContainer container) {
     }
 }
