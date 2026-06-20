@@ -1,8 +1,8 @@
 package org.sehes.tetris.model.util;
 
-import org.junit.jupiter.api.Assertions;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 class MatrixTest {
 
@@ -25,7 +25,7 @@ class MatrixTest {
         boolean[][] result = MatrixTransformations.transposeMatrix(input);
 
         // Assert the transposed matrix is as expected
-        Assertions.assertArrayEquals(expected, result);
+        assertArrayEquals(expected, result);
     }
 
     @Test
