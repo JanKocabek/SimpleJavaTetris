@@ -14,6 +14,7 @@ import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.sehes.tetris.controller.GameManager.GameState.GAME_OVER;
 import static org.sehes.tetris.controller.GameManager.GameState.INIT;
@@ -64,7 +65,7 @@ public class GameManager {
                 if (!gameBoard.tryMovePiece(DirectionFlag.DOWN)) {
 
                     gameBoard.lockTetrominoInPlace();
-                    isDirty = true;
+                    isDirty.set(true);
                     gameBoard.checkAndClearLines();
                     scoreUI.updateScore(gameBoard.getScore());
                     if (!gameBoard.trySetNewTetromino()) {
@@ -76,8 +77,7 @@ public class GameManager {
                 gravityAccumulator -= movementSpeed;
             }
 
-            tetrisCanvas.repaintCanvas(isDirty);
-            isDirty = false;
+            tetrisCanvas.repaint(gameSnapshotFactory(currentState));
         }
 
         private void fpsCalculation(long elapsedTime) {
@@ -102,9 +102,8 @@ public class GameManager {
     private Timer gameLoopTimer; // Timer for the main game loop to control the game speed
     private ScorePanel scoreUI;// Reference to the score UI for updating the score display
     private InfoPanel infoP;// Reference to the info panel for updating game state messages
-
-    // redraw
-    private boolean isDirty = false;
+    // is full redraw needed?
+    private final AtomicBoolean isDirty = new AtomicBoolean(false);
     // Loop Time vars
     private long prevTime;
     private long gravityAccumulator;
@@ -129,9 +128,9 @@ public class GameManager {
         // only for telling the handler what to redraw and if it needs to
     }
 
-    public void prepareGame(GuiFactory.GuiComponents gui) {
+    public void prepareGame(GuiFactory.GUI gui) {
         if (currentState.get() == INIT) {
-            this.tetrisCanvas = gui.canvas();
+           this.tetrisCanvas = gui.canvas();
             this.scoreUI = gui.scoreUI();
             this.infoP = gui.infoP();
             final ActionListener gameLoopListener = new MainLoopListener();
@@ -166,7 +165,7 @@ public class GameManager {
             return;
         }
         if (gameBoard.tryMovePiece(direction)) {
-            tetrisCanvas.repaintCanvas(false);
+            tetrisCanvas.repaint(gameSnapshotFactory(currentState));
         }
     }
 
@@ -182,7 +181,7 @@ public class GameManager {
             return;
         }
         if (gameBoard.tryRotatePiece(rotate)) {
-            tetrisCanvas.repaintCanvas(false);
+            tetrisCanvas.repaint(gameSnapshotFactory(currentState));
         }
     }
 
@@ -236,13 +235,14 @@ public class GameManager {
     }
 
     private void newGame() {
+        isDirty.set(true);
         gameBoard = new GameBoard();
         currentState.set(PLAYING);
         if (!gameBoard.trySetNewTetromino()) {
             setGameOver();
             return;
         }
-        tetrisCanvas.repaintCanvas(true);
+        tetrisCanvas.repaint(gameSnapshotFactory(currentState));
         resetTime();
     }
 
@@ -251,6 +251,14 @@ public class GameManager {
         currentState.set(GAME_OVER);
     }
 
+    private GameSnapshot gameSnapshotFactory(State state) {
+        final var wasDirty = this.isDirty.getAndSet(false);
+        return switch (state.get()) {
+            case GameState.PREPARED, GameState.INIT -> null;
+            case GameState.PLAYING -> new GameSnapshot(getBoardView(), getCurrentTetromino(), wasDirty);
+            default -> new GameSnapshot(getBoardView(), null, wasDirty);
+        };
+    }
 
     private final class State {
         private GameState gameState;
@@ -272,5 +280,4 @@ public class GameManager {
             if (infoP != null) infoP.updateInfo(this.gameState);
         }
     }
-
 }
