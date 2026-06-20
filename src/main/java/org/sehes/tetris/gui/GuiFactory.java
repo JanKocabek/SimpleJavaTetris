@@ -55,8 +55,11 @@ public class GuiFactory {
         gbcContain.anchor = GridBagConstraints.CENTER;
         gbcContain.fill = GridBagConstraints.BOTH;
         // These insets replace the EmptyBorder from GameContainer.
-        // top=10, left=20, bottom=10, right=5
-        gbcContain.insets = new Insets(12, 10, 10, 0);
+        int topMain=12;//space which made canvas and score panel at the same starting height
+        int leftMain=8;
+        int bottomMain=4;
+        int rightName=4;
+        gbcContain.insets = new Insets(topMain, leftMain, bottomMain, rightName);
         pane.add(container, gbcContain);
 
         GridBagConstraints gbcScore = new GridBagConstraints();
@@ -65,22 +68,23 @@ public class GuiFactory {
         gbcScore.weightx = 0.25;
         gbcScore.weighty = 0.0;
         gbcScore.gridwidth = 1;
-        gbcScore.anchor = GridBagConstraints.NORTHWEST;
+        gbcScore.anchor = GridBagConstraints.NORTHEAST;
         gbcScore.fill = GridBagConstraints.NONE;
         // Insets provide padding. A 5px left inset here + 5px right inset on the
         // container creates a 10px gap between components.
-        int top = 0; // top padding to align with the container's top border
-        int left = 5; // left padding to create space between the container and score panel
-        int bottom = 10; // bottom padding to align with the container's bottom border
-        int right = 10; // right padding to provide space on the right side of the score panel
-        gbcScore.insets = new Insets(top, left, bottom, right);
+
+        int topScore=0;
+        int leftScore=0;
+        int bottomScore=0;
+        int rightScore=leftMain;
+        gbcScore.insets = new Insets(topScore, leftScore, bottomScore, rightScore);
         pane.add(scoreP, gbcScore);
 
         GridBagConstraints gbcInfo = new GridBagConstraints();
         gbcInfo.gridx = 0;
         gbcInfo.gridy = 1;//second row for info panel
         gbcInfo.weightx = 1.0;
-        gbcInfo.weighty = 0.0;
+        gbcInfo.weighty = 1.0;
         gbcInfo.gridwidth = 2;
         gbcInfo.gridheight = 1;
         gbcInfo.insets = new Insets(0, 0, 0, 0);

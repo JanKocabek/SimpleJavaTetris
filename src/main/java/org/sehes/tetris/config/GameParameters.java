@@ -14,6 +14,9 @@ import java.awt.Dimension;
  * components of the application.
  */
 public final class GameParameters {
+    public static final Dimension INFO_PANEL_SIZE = new Dimension(521, 41);
+    public static final Dimension INFO_LABEL_SIZE = new Dimension(INFO_PANEL_SIZE.width/2, INFO_PANEL_SIZE.height/2);
+
     private GameParameters() {
     }
 

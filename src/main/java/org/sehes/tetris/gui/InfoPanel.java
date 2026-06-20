@@ -7,7 +7,9 @@ import java.awt.Font;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 
+import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.controller.GameManager;
 
 /**
@@ -21,13 +23,17 @@ public class InfoPanel extends JPanel {
 
     InfoPanel() {
         super();
+       setPreferredSize(GameParameters.INFO_PANEL_SIZE);
+        setMinimumSize(GameParameters.INFO_PANEL_SIZE);
+
         setOpaque(true);
         setBackground(Color.green);
         setLayout(new BorderLayout());
         infoLabel = new InfoLabel();
         fpsLabel = new FpsLabel();
-        add(fpsLabel, BorderLayout.NORTH);
+
         add(infoLabel, BorderLayout.CENTER);
+        add(fpsLabel, BorderLayout.EAST);
     }
 
     public void updateLabelText(GameManager.GameState gameState) {
@@ -43,8 +49,8 @@ public class InfoPanel extends JPanel {
         private static final Font INFO_FONT = new Font(Font.SERIF, Font.BOLD, 18);
 
         InfoLabel() {
-            setHorizontalAlignment(SwingConstants.CENTER);
-            setVerticalAlignment(SwingConstants.TOP);
+            setHorizontalAlignment(SwingConstants.CENTER );
+            setVerticalAlignment(SwingConstants.CENTER);
             setFont(INFO_FONT);
             setForeground(Color.black);
             updateInfo(GameManager.GameState.INIT);
@@ -77,7 +83,9 @@ public class InfoPanel extends JPanel {
             setFont(FPS_FONT);
             setForeground(Color.BLACK);
             setHorizontalAlignment(SwingConstants.RIGHT);
+            setVerticalAlignment(SwingConstants.TOP);
             setText(BASE_STRING + "0");
+            setBorder(new EmptyBorder(0, 0, 0, 8));
         }
 
         void updateFPS(int fps) {
