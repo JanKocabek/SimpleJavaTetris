@@ -16,11 +16,11 @@ import java.awt.event.ActionListener;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.sehes.tetris.controller.GameManager.GameState.GAME_OVER;
-import static org.sehes.tetris.controller.GameManager.GameState.INIT;
-import static org.sehes.tetris.controller.GameManager.GameState.PAUSED;
-import static org.sehes.tetris.controller.GameManager.GameState.PLAYING;
-import static org.sehes.tetris.controller.GameManager.GameState.PREPARED;
+import static org.sehes.tetris.controller.GameState.GAME_OVER;
+import static org.sehes.tetris.controller.GameState.INIT;
+import static org.sehes.tetris.controller.GameState.PAUSED;
+import static org.sehes.tetris.controller.GameState.PLAYING;
+import static org.sehes.tetris.controller.GameState.PREPARED;
 
 /**
  * The GameManager class is responsible for managing the overall game state,
@@ -29,11 +29,6 @@ import static org.sehes.tetris.controller.GameManager.GameState.PREPARED;
  * rotating pieces, as well as pausing and resuming the game.
  */
 public class GameManager {
-
-    // Define the possible game states
-    public enum GameState {
-        INIT, PREPARED, PLAYING, PAUSED, GAME_OVER
-    }
 
     /**
      * The Main game loop listener that is triggered by the game loop timer. It
