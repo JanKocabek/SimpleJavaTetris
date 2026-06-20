@@ -128,7 +128,7 @@ public class GameManager {
         // only for telling the handler what to redraw and if it needs to
     }
 
-    public void prepareGame(GuiFactory.GUI gui) {
+    public void prepareGame(GuiFactory.WholeGui gui) {
         if (currentState.get() == INIT) {
            this.tetrisCanvas = gui.canvas();
             this.scoreUI = gui.scoreUI();
@@ -277,7 +277,7 @@ public class GameManager {
         }
 
         private void updateInfo() {
-            if (infoP != null) infoP.updateInfo(this.gameState);
+            if (infoP != null) infoP.updateLabelText(this.gameState);
         }
     }
 }
