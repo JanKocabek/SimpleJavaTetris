@@ -1,6 +1,5 @@
 package org.sehes.tetris.gui;
 
-import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.controller.GameSnapshot;
 
 import javax.swing.JPanel;
@@ -8,6 +7,8 @@ import javax.swing.Painter;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+
+import static org.sehes.tetris.gui.GuiFactory.CANVAS_SIZE;
 
 /**
  * The TetrisCanvas class is responsible for rendering the game state onto the
@@ -19,14 +20,15 @@ import java.awt.Graphics2D;
  * up to date.
  */
 public class TetrisCanvas extends JPanel {
+
     private static final Color backgroundColor = new Color(15, 15, 25);
     private final transient Painter<GameSnapshot> painter;
     private transient GameSnapshot gameSnapshot;
 
     TetrisCanvas(Painter<GameSnapshot> painter) {
-        this.setPreferredSize(GameParameters.CANVAS_SIZE);
-        this.setMinimumSize(GameParameters.CANVAS_SIZE);
-        this.setMaximumSize(GameParameters.CANVAS_SIZE);
+        this.setPreferredSize(CANVAS_SIZE);
+        this.setMinimumSize(CANVAS_SIZE);
+        this.setMaximumSize(CANVAS_SIZE);
         this.painter = painter;
         setBackground(backgroundColor);
         this.setFocusable(true);
@@ -44,7 +46,7 @@ public class TetrisCanvas extends JPanel {
      *
      * @param gameSnapshot the snapshot of the current game state
      */
-    public void repaint(GameSnapshot gameSnapshot) {
+    public void render(GameSnapshot gameSnapshot) {
         this.gameSnapshot = gameSnapshot;
         super.repaint();
     }

@@ -36,7 +36,7 @@ public final class AssetsManager {
 
     public AssetsManager(RenderingHints hints) {
         this.hints = hints;
-        this.block = new BlockGraphic(GameParameters.BLOCK_SIZE, Config.THICKNESS);
+        this.block = new BlockGraphic(GameParameters.BLOCK_SIZE, Config.BLOCK_THICKNESS);
         tiles = new EnumMap<>(TetrominoType.class);
     }
 

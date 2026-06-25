@@ -1,16 +1,15 @@
 package org.sehes.tetris.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
+import org.sehes.tetris.controller.GameState;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-
-import org.sehes.tetris.config.GameParameters;
-import org.sehes.tetris.controller.GameState;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
 
 /**
  * The info panel is the bottom panel of the tetris game. It is used to display
@@ -23,8 +22,6 @@ public class InfoPanel extends JPanel {
 
     InfoPanel() {
         super();
-       setPreferredSize(GameParameters.INFO_PANEL_SIZE);
-        setMinimumSize(GameParameters.INFO_PANEL_SIZE);
 
         setOpaque(true);
         setBackground(Color.green);
@@ -49,11 +46,13 @@ public class InfoPanel extends JPanel {
         private static final Font INFO_FONT = new Font(Font.SERIF, Font.BOLD, 18);
 
         InfoLabel() {
-            setHorizontalAlignment(SwingConstants.CENTER );
+            setHorizontalAlignment(SwingConstants.CENTER);
             setVerticalAlignment(SwingConstants.CENTER);
             setFont(INFO_FONT);
             setForeground(Color.black);
             updateInfo(GameState.INIT);
+            Border border = new EmptyBorder(5, 0, 10, 0);
+            setBorder(border);
         }
 
         void updateInfo(GameState gameState) {

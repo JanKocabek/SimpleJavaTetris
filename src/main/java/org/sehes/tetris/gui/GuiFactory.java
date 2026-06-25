@@ -1,17 +1,23 @@
 package org.sehes.tetris.gui;
 
-import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.controller.GameSnapshot;
 
 import javax.swing.Painter;
 import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.KeyAdapter;
 
+import static org.sehes.tetris.config.GameParameters.BLOCK_SIZE;
+import static org.sehes.tetris.config.GameParameters.COLUMNS;
+import static org.sehes.tetris.config.GameParameters.VISIBLE_ROWS;
+
 public class GuiFactory {
+    public static final Dimension CANVAS_SIZE = new Dimension(BLOCK_SIZE * COLUMNS,
+            BLOCK_SIZE * VISIBLE_ROWS);
 
     private GuiFactory() {
     }
@@ -96,7 +102,7 @@ public class GuiFactory {
 
     private static GameContainer assemblyGameContainer() {
         GameContainer container = new GameContainer(new BorderLayout());
-        container.setPreferredSize(GameParameters.CANVAS_SIZE);
+        container.setPreferredSize(CANVAS_SIZE);
         return container;
     }
 

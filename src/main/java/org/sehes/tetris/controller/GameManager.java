@@ -72,7 +72,7 @@ public class GameManager {
                 gravityAccumulator -= movementSpeed;
             }
 
-            tetrisCanvas.repaint(gameSnapshotFactory(currentState));
+            tetrisCanvas.render(gameSnapshotFactory(currentState));
         }
 
         private void fpsCalculation(long elapsedTime) {
@@ -160,7 +160,7 @@ public class GameManager {
             return;
         }
         if (gameBoard.tryMovePiece(direction)) {
-            tetrisCanvas.repaint(gameSnapshotFactory(currentState));
+            tetrisCanvas.render(gameSnapshotFactory(currentState));
         }
     }
 
@@ -176,7 +176,7 @@ public class GameManager {
             return;
         }
         if (gameBoard.tryRotatePiece(rotate)) {
-            tetrisCanvas.repaint(gameSnapshotFactory(currentState));
+            tetrisCanvas.render(gameSnapshotFactory(currentState));
         }
     }
 
@@ -237,7 +237,7 @@ public class GameManager {
             setGameOver();
             return;
         }
-        tetrisCanvas.repaint(gameSnapshotFactory(currentState));
+        tetrisCanvas.render(gameSnapshotFactory(currentState));
         resetTime();
     }
 
