@@ -12,7 +12,7 @@ public class ShapeProvider {
          * each orientation for each tetromino type.<br>
          */
         static {
-                for (TetrominoType type : TetrominoType.getTetrominoTypes()) {
+                for (TetrominoType type : TetrominoType.getTetrominoShapes()) {
                         tetrominoStates.put(type, new EnumMap<>(Orientation.class));
                 }
 

@@ -41,11 +41,10 @@ public final class AssetsManager {
     }
 
     public Map<TetrominoType, BufferedImage> createAssets() {
-        for (TetrominoType type : TetrominoType.getTetrominoTypes()) {
-            if (type != TetrominoType.NON) {
-                tiles.put(type, createTile(type));
-            }
+        for (TetrominoType type : TetrominoType.getTetrominoShapes()) {
+            tiles.put(type, createTile(type));
         }
+
         return tiles;
     }
 }
