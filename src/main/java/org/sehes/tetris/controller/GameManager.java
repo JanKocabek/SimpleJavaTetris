@@ -13,6 +13,7 @@ import org.sehes.tetris.model.Tetromino;
 import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -28,6 +29,8 @@ import static org.sehes.tetris.controller.GameState.PREPARED;
  * components, starts the game loop, and provides methods for moving and
  * rotating pieces, as well as pausing and resuming the game.
  */
+
+
 public class GameManager {
 
     /**
@@ -125,7 +128,7 @@ public class GameManager {
 
     public void prepareGame(GuiFactory.WholeGui gui) {
         if (currentState.get() == INIT) {
-           this.tetrisCanvas = gui.canvas();
+            this.tetrisCanvas = gui.canvas();
             this.scoreUI = gui.scoreUI();
             this.infoP = gui.infoP();
             final ActionListener gameLoopListener = new MainLoopListener();
@@ -248,11 +251,7 @@ public class GameManager {
 
     private GameSnapshot gameSnapshotFactory(State state) {
         final var wasDirty = this.isDirty.getAndSet(false);
-        return switch (state.get()) {
-            case GameState.PREPARED, GameState.INIT -> null;
-            case GameState.PLAYING -> new GameSnapshot(getBoardView(), getCurrentTetromino(), wasDirty);
-            default -> new GameSnapshot(getBoardView(), null, wasDirty);
-        };
+        return (state.get()) == GameState.PLAYING ? new GameSnapshot(getBoardView(), Optional.of(getCurrentTetromino()), wasDirty) : new GameSnapshot(getBoardView(), Optional.empty(), wasDirty);
     }
 
     private final class State {

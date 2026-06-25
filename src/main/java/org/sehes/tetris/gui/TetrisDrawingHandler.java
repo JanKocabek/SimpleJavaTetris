@@ -25,8 +25,7 @@ import java.util.Map;
  */
 @NullMarked
 public class TetrisDrawingHandler implements Painter<GameSnapshot> {
-    /*@Nullable
-    private BufferedImage backgroundGrid = null;*/
+
     private final BufferedImage boardImg;
     private final Map<TetrominoType, BufferedImage> assets;
     private final RenderingHints renderingHints;
@@ -38,28 +37,7 @@ public class TetrisDrawingHandler implements Painter<GameSnapshot> {
                 GameParameters.VISIBLE_ROWS * GameParameters.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
     }
 
-    //TODO: decided if we will use backgroundGrid or not
-    /*@Nullable
-    public BufferedImage getBackgroundGrid() {
-        return backgroundGrid;
-    }
 
-    private void drawGrid() {
-        backgroundGrid = new BufferedImage(GameParameters.COLUMNS * GameParameters.BLOCK_SIZE,
-                GameParameters.VISIBLE_ROWS * GameParameters.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = backgroundGrid.createGraphics();
-        final int width = backgroundGrid.getWidth();
-        final int height = backgroundGrid.getHeight();
-
-        g2d.setColor(Color.YELLOW);
-        for (int i = 1; i < GameParameters.COLUMNS; i++) {
-            g2d.drawLine(GameParameters.BLOCK_SIZE * i, 0, GameParameters.BLOCK_SIZE * i, height);
-        }
-        for (int i = 1; i < GameParameters.VISIBLE_ROWS; i++) {
-            g2d.drawLine(0, GameParameters.BLOCK_SIZE * i, width, GameParameters.BLOCK_SIZE * i);
-        }
-        g2d.dispose();
-    }*/
 
     private void paintGameBoard(Graphics2D g2d, BoardView boardView, boolean isBoardDirty) {
         if (isBoardDirty) {
@@ -114,17 +92,13 @@ public class TetrisDrawingHandler implements Painter<GameSnapshot> {
 
     @Override
     public void paint(Graphics2D g, @Nullable GameSnapshot snapshot, int width, int height) {
-        if (snapshot != null) {
-            final BoardView board = snapshot.boardView();
-            final Tetromino currentTetromino = snapshot.currentTetromino();
-            final boolean wasBoardDirty = snapshot.isBoardDirty();
-            if (board != null) {
-                paintGameBoard(g, board, wasBoardDirty);
-                if (currentTetromino != null) {
-                    drawCurrentTetromino(g, currentTetromino);
-                }
-            }
+        if (snapshot == null) {
+            return;
         }
+        final BoardView board = snapshot.boardView();
+        final boolean wasBoardDirty = snapshot.isBoardDirty();
+        paintGameBoard(g, board, wasBoardDirty);
+        snapshot.currentTetromino().ifPresent(tetromino -> drawCurrentTetromino(g, tetromino));
     }
-
 }
+
