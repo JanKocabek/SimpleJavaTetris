@@ -22,11 +22,12 @@ public class GuiFactory {
         final InfoPanel infoP = new InfoPanel();
         final MainPane mainPane = assemblyMainPane(gameContainer, scoreUI, infoP);
         final GameWindow window = new GameWindow(mainPane);
+
         SwingUtilities.invokeLater(() -> {
             window.pack();
-            window.setVisible(true);
-            window.requestFocusInWindow();
+            window.setLocationRelativeTo(null);
         });
+
         return new BasicGui(scoreUI, infoP, window, gameContainer);
     }
 
@@ -37,9 +38,8 @@ public class GuiFactory {
         gui.window().revalidate();
         gui.window().repaint();
         gui.window().pack();
-        gui.window().setResizable(false);
+        gui.window().setVisible(true);
         canvas.requestFocusInWindow();
-
         return new WholeGui(canvas, gui.scoreUI, gui.infoP, gui.window);
     }
 
@@ -55,10 +55,10 @@ public class GuiFactory {
         gbcContain.anchor = GridBagConstraints.CENTER;
         gbcContain.fill = GridBagConstraints.BOTH;
         // These insets replace the EmptyBorder from GameContainer.
-        int topMain=12;//space which made canvas and score panel at the same starting height
-        int leftMain=8;
-        int bottomMain=4;
-        int rightName=4;
+        int topMain = 12;//space which made canvas and score panel at the same starting height
+        int leftMain = 8;
+        int bottomMain = 4;
+        int rightName = 4;
         gbcContain.insets = new Insets(topMain, leftMain, bottomMain, rightName);
         pane.add(container, gbcContain);
 
@@ -73,10 +73,10 @@ public class GuiFactory {
         // Insets provide padding. A 5px left inset here + 5px right inset on the
         // container creates a 10px gap between components.
 
-        int topScore=0;
-        int leftScore=0;
-        int bottomScore=0;
-        int rightScore=leftMain;
+        int topScore = 0;
+        int leftScore = 0;
+        int bottomScore = 0;
+        int rightScore = leftMain;
         gbcScore.insets = new Insets(topScore, leftScore, bottomScore, rightScore);
         pane.add(scoreP, gbcScore);
 

@@ -17,44 +17,56 @@ import java.awt.event.KeyAdapter;
 import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.sehes.tetris.gui.GuiFactory.assembly;
 
 public class App {
+    private static final Logger LOGGER = Logger.getLogger(App.class.getName());
     private final GameManager gameManager = new GameManager();
 
     public void run() {
-        final GuiFactory.BasicGui mainGUI = assembly();
-        final SwingWorker<Map<TetrominoType, BufferedImage>, Void> initCanvas = new CanvasWorker(mainGUI);
+        final GuiFactory.BasicGui basicGui = assembly();
+        final var initCanvas = new CanvasWorker(basicGui);
         initCanvas.execute();
     }
 
     private class CanvasWorker extends SwingWorker<Map<TetrominoType, BufferedImage>, Void> {
-        private final GuiFactory.BasicGui mainGUI;
+        private final GuiFactory.BasicGui gui;
+        private final AssetsManager assetsManager;
+        private final RenderingHints qualityRenderingHints;
 
-        public CanvasWorker(GuiFactory.BasicGui mainGUI) {
-            this.mainGUI = mainGUI;
+        public CanvasWorker(GuiFactory.BasicGui gui) {
+            this.gui = gui;
+            qualityRenderingHints = RenderingHintsFactory.qualityRenderingHints();
+            this.assetsManager = new AssetsManager(qualityRenderingHints);
         }
+
 
         @Override
         protected Map<TetrominoType, BufferedImage> doInBackground() {
-            final RenderingHints qualityRenderingHints = RenderingHintsFactory.qualityRenderingHints();
-            return AssetsManager.CreateAssets(qualityRenderingHints).getAssets();
+            return assetsManager.createAssets();
         }
+
 
         @Override
         protected void done() {
             try {
                 final var assets = get();
-                final Painter<GameSnapshot> painter = new TetrisDrawingHandler(assets, RenderingHintsFactory.qualityRenderingHints());
+                final Painter<GameSnapshot> painter = new TetrisDrawingHandler(assets, qualityRenderingHints);
                 final KeyAdapter keyInputHandler = new TetrisKeyInputHandler(gameManager);
                 final TetrisCanvas canvas = GuiFactory.assemblyCanvas(painter, keyInputHandler);
-                final GuiFactory.WholeGui gui = GuiFactory.assembly(mainGUI, canvas);
-                gameManager.prepareGame(gui);
+                final GuiFactory.WholeGui wholeGui = GuiFactory.assembly(this.gui, canvas);
+                gameManager.prepareGame(wholeGui);
+
             } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace(System.err);
+                LOGGER.log(Level.SEVERE, "Interrupted or execution exception in CanvasWorker", e);
                 Thread.currentThread().interrupt();
             }
         }
+
     }
 }
+
+

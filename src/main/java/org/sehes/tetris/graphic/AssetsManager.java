@@ -7,12 +7,12 @@ import java.awt.RenderingHints;
 import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
 import java.util.EnumMap;
+import java.util.Map;
 
 public final class AssetsManager {
-    private final EnumMap<TetrominoType, BufferedImage> TILES = new EnumMap<>(TetrominoType.class);
+    private final EnumMap<TetrominoType, BufferedImage> tiles;
     private final BlockGraphic block;
     private final RenderingHints hints;
-
 
     private BufferedImage createTile(TetrominoType type) {
         final var img = new BufferedImage(GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
@@ -34,22 +34,18 @@ public final class AssetsManager {
         return img;
     }
 
-    private AssetsManager(RenderingHints hints) {
+    public AssetsManager(RenderingHints hints) {
         this.hints = hints;
         this.block = new BlockGraphic(GameParameters.BLOCK_SIZE, Config.THICKNESS);
+        tiles = new EnumMap<>(TetrominoType.class);
     }
 
-    public static AssetsManager CreateAssets(RenderingHints hints) {
-        AssetsManager assetsManager = new AssetsManager(hints);
+    public Map<TetrominoType, BufferedImage> createAssets() {
         for (TetrominoType type : TetrominoType.getTetrominoTypes()) {
-            if (type == TetrominoType.NON) continue;
-            assetsManager.TILES.put(type, assetsManager.createTile(type));
+            if (type != TetrominoType.NON) {
+                tiles.put(type, createTile(type));
+            }
         }
-        return assetsManager;
+        return tiles;
     }
-
-    public EnumMap<TetrominoType, BufferedImage> getAssets() {
-        return TILES;
-    }
-
 }
