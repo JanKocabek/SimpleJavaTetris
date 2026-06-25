@@ -6,10 +6,11 @@ import javax.swing.JPanel;
 
 public class GameContainer extends JPanel {
 
-    GameContainer(LayoutManager2 layoutManager) {
+    GameContainer(LayoutManager2 lm) {
         super();
 
         setOpaque(true);
-        setLayout(layoutManager);
+        setLayout(lm);
+
     }
 }

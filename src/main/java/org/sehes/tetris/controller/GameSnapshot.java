@@ -1,0 +1,9 @@
+package org.sehes.tetris.controller;
+
+import org.sehes.tetris.model.BoardView;
+import org.sehes.tetris.model.Tetromino;
+
+import java.util.Optional;
+
+public record GameSnapshot(BoardView boardView, Optional<Tetromino> currentTetromino, boolean isBoardDirty) {
+}

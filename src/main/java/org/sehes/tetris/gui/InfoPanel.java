@@ -1,14 +1,15 @@
 package org.sehes.tetris.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
+import org.sehes.tetris.controller.GameState;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-
-import org.sehes.tetris.controller.GameManager;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
 
 /**
  * The info panel is the bottom panel of the tetris game. It is used to display
@@ -21,16 +22,18 @@ public class InfoPanel extends JPanel {
 
     InfoPanel() {
         super();
+
         setOpaque(true);
         setBackground(Color.green);
         setLayout(new BorderLayout());
         infoLabel = new InfoLabel();
         fpsLabel = new FpsLabel();
-        add(fpsLabel, BorderLayout.NORTH);
+
         add(infoLabel, BorderLayout.CENTER);
+        add(fpsLabel, BorderLayout.EAST);
     }
 
-    public void updateInfo(GameManager.GameState gameState) {
+    public void updateLabelText(GameState gameState) {
         infoLabel.updateInfo(gameState);
     }
 
@@ -43,14 +46,16 @@ public class InfoPanel extends JPanel {
         private static final Font INFO_FONT = new Font(Font.SERIF, Font.BOLD, 18);
 
         InfoLabel() {
-            setText("");
             setHorizontalAlignment(SwingConstants.CENTER);
-            setVerticalAlignment(SwingConstants.TOP);
+            setVerticalAlignment(SwingConstants.CENTER);
             setFont(INFO_FONT);
             setForeground(Color.black);
+            updateInfo(GameState.INIT);
+            Border border = new EmptyBorder(5, 0, 10, 0);
+            setBorder(border);
         }
 
-        void updateInfo(GameManager.GameState gameState) {
+        void updateInfo(GameState gameState) {
             switch (gameState) {
                 case INIT -> setText("game is loading wait please");
 
@@ -77,7 +82,9 @@ public class InfoPanel extends JPanel {
             setFont(FPS_FONT);
             setForeground(Color.BLACK);
             setHorizontalAlignment(SwingConstants.RIGHT);
+            setVerticalAlignment(SwingConstants.TOP);
             setText(BASE_STRING + "0");
+            setBorder(new EmptyBorder(0, 0, 0, 8));
         }
 
         void updateFPS(int fps) {

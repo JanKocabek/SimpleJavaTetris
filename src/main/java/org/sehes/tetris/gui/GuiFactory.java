@@ -1,63 +1,52 @@
 package org.sehes.tetris.gui;
 
-import org.sehes.tetris.controller.GameManager;
-import org.sehes.tetris.controller.TetrisKeyInputHandler;
+import org.sehes.tetris.controller.GameSnapshot;
 
+import javax.swing.Painter;
 import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.KeyAdapter;
+
+import static org.sehes.tetris.config.GameParameters.BLOCK_SIZE;
+import static org.sehes.tetris.config.GameParameters.COLUMNS;
+import static org.sehes.tetris.config.GameParameters.VISIBLE_ROWS;
 
 public class GuiFactory {
+    public static final Dimension CANVAS_SIZE = new Dimension(BLOCK_SIZE * COLUMNS,
+            BLOCK_SIZE * VISIBLE_ROWS);
 
-    /**
-     * Creates the main game window and assembles all the necessary components
-     * for the Tetris game. This method initializes the game canvas, score
-     * panel, and main pane, and then combines them into a cohesive GUI.<p>
-     * The resulting GameWindow object encapsulates all these components and
-     * provides a unified interface for managing the game's GUI.
-     *
-     * @param gameManager The GameManager responsible for managing the game
-     * logic and state. comunicating with the canvas to update the game state
-     * based on user input and game events.
-     * @param drawingHandler The TetrisDrawingHandler responsible for rendering
-     * the game graphics on the canvas. It interacts with the GameManager to
-     * retrieve the current game state and draw the appropriate visuals based on
-     * that state.
-     * @param keyInputHandler The TetrisKeyInputHandler responsible for handling
-     * keyboard input from the user. It listens for key events and communicates
-     * with the GameManager to update the game state accordingly, such as moving
-     * or rotating the Tetris pieces based on user input.
-     * @return A guiComponents record that contains the assembled GUI components
-     * for the Tetris game, including the game canvas and score panel.
-     */
-    public static GuiComponents createGUI(final GameManager gameManager, final TetrisDrawingHandler drawingHandler, final TetrisKeyInputHandler keyInputHandler) {
-        final TetrisCanvas canvas = assemblyCanvas(drawingHandler, keyInputHandler, gameManager);
-        final ScorePanel scoreUI = assemblyScoreUI();
-        final GameContainer gameContainer = assemblyGameContainer(canvas);
-        final InfoPanel infoP = new InfoPanel();
-        final MainPane mainPane = assemblyMainPane(gameContainer, scoreUI, infoP);
-        return new GuiComponents(canvas, scoreUI, infoP, new GameWindow(mainPane));
+    private GuiFactory() {
     }
 
-    public record GuiComponents(TetrisCanvas canvas, ScorePanel scoreUI, InfoPanel infoP, GameWindow window) {
-        /**
-         * Displays the game window by packing the components, setting the window to
-         * be non-resizable, and making it visible. It also requests focus for the
-         * TetrisCanvas to ensure that it can receive key events for user input.
-         * This method is called after the game window has been initialized to show
-         * the GUI to the player and allow them to interact with the game using the
-         * keyboard.
-         */
-        public void showGui() {
-            SwingUtilities.invokeLater(() -> {
-                window.pack();
-                window.setResizable(false);
-                window.setVisible(true);
-                canvas.requestFocusInWindow();
-            });
-        }
+    public static BasicGui assembly() {
+        final ScorePanel scoreUI = assemblyScoreUI();
+        final GameContainer gameContainer = assemblyGameContainer();
+        final InfoPanel infoP = new InfoPanel();
+        final MainPane mainPane = assemblyMainPane(gameContainer, scoreUI, infoP);
+        final GameWindow window = new GameWindow(mainPane);
+
+        SwingUtilities.invokeLater(() -> {
+            window.pack();
+            window.setLocationRelativeTo(null);
+        });
+
+        return new BasicGui(scoreUI, infoP, window, gameContainer);
+    }
+
+    public static WholeGui assembly(BasicGui gui, TetrisCanvas canvas) {
+        gui.container().add(canvas, BorderLayout.CENTER);
+        gui.container().revalidate();
+        gui.container().repaint();
+        gui.window().revalidate();
+        gui.window().repaint();
+        gui.window().pack();
+        gui.window().setVisible(true);
+        canvas.requestFocusInWindow();
+        return new WholeGui(canvas, gui.scoreUI, gui.infoP, gui.window);
     }
 
     private static MainPane assemblyMainPane(final GameContainer container, ScorePanel scoreP, InfoPanel infoP) {
@@ -72,8 +61,11 @@ public class GuiFactory {
         gbcContain.anchor = GridBagConstraints.CENTER;
         gbcContain.fill = GridBagConstraints.BOTH;
         // These insets replace the EmptyBorder from GameContainer.
-        // top=10, left=20, bottom=10, right=5
-        gbcContain.insets = new Insets(12, 10, 10, 0);
+        int topMain = 12;//space which made canvas and score panel at the same starting height
+        int leftMain = 8;
+        int bottomMain = 4;
+        int rightName = 4;
+        gbcContain.insets = new Insets(topMain, leftMain, bottomMain, rightName);
         pane.add(container, gbcContain);
 
         GridBagConstraints gbcScore = new GridBagConstraints();
@@ -82,34 +74,35 @@ public class GuiFactory {
         gbcScore.weightx = 0.25;
         gbcScore.weighty = 0.0;
         gbcScore.gridwidth = 1;
-        gbcScore.anchor = GridBagConstraints.NORTHWEST;
+        gbcScore.anchor = GridBagConstraints.NORTHEAST;
         gbcScore.fill = GridBagConstraints.NONE;
         // Insets provide padding. A 5px left inset here + 5px right inset on the
         // container creates a 10px gap between components.
-        int top = 0; // top padding to align with the container's top border
-        int left = 5; // left padding to create space between the container and score panel
-        int bottom = 10; // bottom padding to align with the container's bottom border
-        int right = 10; // right padding to provide space on the right side of the score panel
-        gbcScore.insets = new Insets(top, left, bottom, right);
+
+        int topScore = 0;
+        int leftScore = 0;
+        int bottomScore = 0;
+        int rightScore = leftMain;
+        gbcScore.insets = new Insets(topScore, leftScore, bottomScore, rightScore);
         pane.add(scoreP, gbcScore);
 
         GridBagConstraints gbcInfo = new GridBagConstraints();
         gbcInfo.gridx = 0;
         gbcInfo.gridy = 1;//second row for info panel
         gbcInfo.weightx = 1.0;
-        gbcInfo.weighty = 0.0;
+        gbcInfo.weighty = 1.0;
         gbcInfo.gridwidth = 2;
         gbcInfo.gridheight = 1;
         gbcInfo.insets = new Insets(0, 0, 0, 0);
         gbcInfo.anchor = GridBagConstraints.SOUTHWEST;
-        gbcInfo.fill = GridBagConstraints.HORIZONTAL;
+        gbcInfo.fill = GridBagConstraints.BOTH;
         pane.add(infoP, gbcInfo);
         return pane;
     }
 
-    private static GameContainer assemblyGameContainer(TetrisCanvas canvas) {
-        final GameContainer container = new GameContainer(new BorderLayout());
-        container.add(canvas, BorderLayout.CENTER);
+    private static GameContainer assemblyGameContainer() {
+        GameContainer container = new GameContainer(new BorderLayout());
+        container.setPreferredSize(CANVAS_SIZE);
         return container;
     }
 
@@ -120,14 +113,13 @@ public class GuiFactory {
      * method is called when initializing the GUI to ensure that the canvas is
      * properly added to the window and displayed to the user.
      *
-     * @param drawingHandler handler which is responsible for drawing stuff on the canvas
+     * @param painter handler which is responsible for drawing stuff on the canvas
      * @param keyInputHandler The TetrisKeyInputHandler responsible for handling
      * keyboard input for the game.
-     * @param gm gameManager from which the canvas will be getting the current game state
      * @return the TetrisCanvas that has been added to the window
      */
-    private static TetrisCanvas assemblyCanvas(final TetrisDrawingHandler drawingHandler, final TetrisKeyInputHandler keyInputHandler, final GameManager gm) {
-        final TetrisCanvas canvas = new TetrisCanvas(drawingHandler, gm);
+    public static TetrisCanvas assemblyCanvas(final Painter<GameSnapshot> painter, final KeyAdapter keyInputHandler) {
+        final TetrisCanvas canvas = new TetrisCanvas(painter);
         canvas.addKeyListener(keyInputHandler);
         return canvas;
     }
@@ -137,6 +129,9 @@ public class GuiFactory {
         return new ScorePanel();
     }
 
-    private GuiFactory() {
+    public record WholeGui(TetrisCanvas canvas, ScorePanel scoreUI, InfoPanel infoP, GameWindow window) {
+    }
+
+    public record BasicGui(ScorePanel scoreUI, InfoPanel infoP, GameWindow window, GameContainer container) {
     }
 }

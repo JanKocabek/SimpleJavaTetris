@@ -4,7 +4,6 @@ import org.sehes.tetris.gui.GuiFactory;
 import org.sehes.tetris.gui.InfoPanel;
 import org.sehes.tetris.gui.ScorePanel;
 import org.sehes.tetris.gui.TetrisCanvas;
-import org.sehes.tetris.gui.TetrisDrawingHandler;
 import org.sehes.tetris.model.BoardView;
 import org.sehes.tetris.model.DirectionFlag;
 import org.sehes.tetris.model.GameBoard;
@@ -14,13 +13,15 @@ import org.sehes.tetris.model.Tetromino;
 import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.sehes.tetris.controller.GameManager.GameState.GAME_OVER;
-import static org.sehes.tetris.controller.GameManager.GameState.INIT;
-import static org.sehes.tetris.controller.GameManager.GameState.PAUSED;
-import static org.sehes.tetris.controller.GameManager.GameState.PLAYING;
-import static org.sehes.tetris.controller.GameManager.GameState.PREPARED;
+import static org.sehes.tetris.controller.GameState.GAME_OVER;
+import static org.sehes.tetris.controller.GameState.INIT;
+import static org.sehes.tetris.controller.GameState.PAUSED;
+import static org.sehes.tetris.controller.GameState.PLAYING;
+import static org.sehes.tetris.controller.GameState.PREPARED;
 
 /**
  * The GameManager class is responsible for managing the overall game state,
@@ -28,12 +29,9 @@ import static org.sehes.tetris.controller.GameManager.GameState.PREPARED;
  * components, starts the game loop, and provides methods for moving and
  * rotating pieces, as well as pausing and resuming the game.
  */
-public class GameManager {
 
-    // Define the possible game states
-    public enum GameState {
-        INIT, PREPARED, PLAYING, PAUSED, GAME_OVER
-    }
+
+public class GameManager {
 
     /**
      * The Main game loop listener that is triggered by the game loop timer. It
@@ -65,7 +63,7 @@ public class GameManager {
                 if (!gameBoard.tryMovePiece(DirectionFlag.DOWN)) {
 
                     gameBoard.lockTetrominoInPlace();
-                    isDirty = true;
+                    isDirty.set(true);
                     gameBoard.checkAndClearLines();
                     scoreUI.updateScore(gameBoard.getScore());
                     if (!gameBoard.trySetNewTetromino()) {
@@ -77,8 +75,7 @@ public class GameManager {
                 gravityAccumulator -= movementSpeed;
             }
 
-            tetrisCanvas.repaintCanvas(isDirty);
-            isDirty = false;
+            tetrisCanvas.render(gameSnapshotFactory(currentState));
         }
 
         private void fpsCalculation(long elapsedTime) {
@@ -98,15 +95,13 @@ public class GameManager {
     private static final int FRAME_TIME_MS = 1000 / FPS;
     private static final int BASE_SPEED = 600;
     private final State currentState = new State(INIT);// Current state of the game
-    private final TetrisDrawingHandler tetrisDrawingHandler; // only for telling the handler what to redraw and if it needs to
     private TetrisCanvas tetrisCanvas; // Reference to the canvas for repainting
     private GameBoard gameBoard; // reference to the game board for managing game logic
     private Timer gameLoopTimer; // Timer for the main game loop to control the game speed
     private ScorePanel scoreUI;// Reference to the score UI for updating the score display
     private InfoPanel infoP;// Reference to the info panel for updating game state messages
-
-    // redraw
-    private boolean isDirty = false;
+    // is full redraw needed?
+    private final AtomicBoolean isDirty = new AtomicBoolean(false);
     // Loop Time vars
     private long prevTime;
     private long gravityAccumulator;
@@ -127,11 +122,11 @@ public class GameManager {
      * and score as the game progresses.
      *
      */
-    public GameManager(TetrisDrawingHandler drawingHandler) {
-        this.tetrisDrawingHandler = drawingHandler;
+    public GameManager() {
+        // only for telling the handler what to redraw and if it needs to
     }
 
-    public void prepareGame(GuiFactory.GuiComponents gui) {
+    public void prepareGame(GuiFactory.WholeGui gui) {
         if (currentState.get() == INIT) {
             this.tetrisCanvas = gui.canvas();
             this.scoreUI = gui.scoreUI();
@@ -168,7 +163,7 @@ public class GameManager {
             return;
         }
         if (gameBoard.tryMovePiece(direction)) {
-            tetrisCanvas.repaintCanvas(false);
+            tetrisCanvas.render(gameSnapshotFactory(currentState));
         }
     }
 
@@ -184,7 +179,7 @@ public class GameManager {
             return;
         }
         if (gameBoard.tryRotatePiece(rotate)) {
-            tetrisCanvas.repaintCanvas(false);
+            tetrisCanvas.render(gameSnapshotFactory(currentState));
         }
     }
 
@@ -238,16 +233,14 @@ public class GameManager {
     }
 
     private void newGame() {
+        isDirty.set(true);
         gameBoard = new GameBoard();
-        if (tetrisDrawingHandler.getBackgroundGrid() == null) {
-            tetrisDrawingHandler.drawGrid();
-        }
         currentState.set(PLAYING);
         if (!gameBoard.trySetNewTetromino()) {
             setGameOver();
             return;
         }
-        tetrisCanvas.repaintCanvas(true);
+        tetrisCanvas.render(gameSnapshotFactory(currentState));
         resetTime();
     }
 
@@ -256,6 +249,10 @@ public class GameManager {
         currentState.set(GAME_OVER);
     }
 
+    private GameSnapshot gameSnapshotFactory(State state) {
+        final var wasDirty = this.isDirty.getAndSet(false);
+        return (state.get()) == GameState.PLAYING ? new GameSnapshot(getBoardView(), Optional.of(getCurrentTetromino()), wasDirty) : new GameSnapshot(getBoardView(), Optional.empty(), wasDirty);
+    }
 
     private final class State {
         private GameState gameState;
@@ -274,8 +271,7 @@ public class GameManager {
         }
 
         private void updateInfo() {
-            if (infoP != null) infoP.updateInfo(this.gameState);
+            if (infoP != null) infoP.updateLabelText(this.gameState);
         }
     }
-
 }
