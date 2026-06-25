@@ -1,8 +1,10 @@
 package org.sehes.tetris.gui;
 
+import org.jspecify.annotations.NonNull;
 import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.controller.GameSnapshot;
 
+import javax.swing.JProgressBar;
 import javax.swing.Painter;
 import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
@@ -22,24 +24,46 @@ public class GuiFactory {
         final InfoPanel infoP = new InfoPanel();
         final MainPane mainPane = assemblyMainPane(gameContainer, scoreUI, infoP);
         final GameWindow window = new GameWindow(mainPane);
+        final JProgressBar loadingBar = assemblyLoadingBar();
+        final var dialog = assemblyLoadingDialog(window, loadingBar);
+
+
         SwingUtilities.invokeLater(() -> {
+            System.out.println("dialog and gui is shown this is thread: " + Thread.currentThread().getName());
             window.pack();
+            window.setLocationRelativeTo(null);
             window.setVisible(true);
-            window.requestFocusInWindow();
+            window.setResizable(false);
+            dialog.pack();
+            dialog.setLocationRelativeTo(window);
+            dialog.setVisible(true);
+            dialog.requestFocusInWindow();
+
         });
-        return new BasicGui(scoreUI, infoP, window, gameContainer);
+        System.out.println("this is line after gui shown but its run on this thread: " + Thread.currentThread().getName());
+        return new BasicGui(scoreUI, infoP, window, gameContainer, dialog);
+    }
+
+    private static @NonNull JProgressBar assemblyLoadingBar() {
+
+        return new LoadingBar();
+    }
+
+    private static @NonNull LoadingDialog assemblyLoadingDialog(GameWindow window, JProgressBar progressBar) {
+
+        return new LoadingDialog(window, "Loading", true, progressBar);
     }
 
     public static WholeGui assembly(BasicGui gui, TetrisCanvas canvas) {
+        System.out.println("final gui is starting on thread: " + Thread.currentThread().getName());
+        gui.dialog().dispose();
         gui.container().add(canvas, BorderLayout.CENTER);
         gui.container().revalidate();
         gui.container().repaint();
         gui.window().revalidate();
         gui.window().repaint();
         gui.window().pack();
-        gui.window().setResizable(false);
         canvas.requestFocusInWindow();
-
         return new WholeGui(canvas, gui.scoreUI, gui.infoP, gui.window);
     }
 
@@ -55,10 +79,10 @@ public class GuiFactory {
         gbcContain.anchor = GridBagConstraints.CENTER;
         gbcContain.fill = GridBagConstraints.BOTH;
         // These insets replace the EmptyBorder from GameContainer.
-        int topMain=12;//space which made canvas and score panel at the same starting height
-        int leftMain=8;
-        int bottomMain=4;
-        int rightName=4;
+        int topMain = 12;//space which made canvas and score panel at the same starting height
+        int leftMain = 8;
+        int bottomMain = 4;
+        int rightName = 4;
         gbcContain.insets = new Insets(topMain, leftMain, bottomMain, rightName);
         pane.add(container, gbcContain);
 
@@ -73,10 +97,10 @@ public class GuiFactory {
         // Insets provide padding. A 5px left inset here + 5px right inset on the
         // container creates a 10px gap between components.
 
-        int topScore=0;
-        int leftScore=0;
-        int bottomScore=0;
-        int rightScore=leftMain;
+        int topScore = 0;
+        int leftScore = 0;
+        int bottomScore = 0;
+        int rightScore = leftMain;
         gbcScore.insets = new Insets(topScore, leftScore, bottomScore, rightScore);
         pane.add(scoreP, gbcScore);
 
@@ -126,6 +150,7 @@ public class GuiFactory {
     public record WholeGui(TetrisCanvas canvas, ScorePanel scoreUI, InfoPanel infoP, GameWindow window) {
     }
 
-    public record BasicGui(ScorePanel scoreUI, InfoPanel infoP, GameWindow window, GameContainer container) {
+    public record BasicGui(ScorePanel scoreUI, InfoPanel infoP, GameWindow window, GameContainer container,
+                           LoadingDialog dialog) {
     }
 }
