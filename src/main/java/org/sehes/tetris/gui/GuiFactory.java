@@ -10,6 +10,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.KeyAdapter;
+import java.awt.event.WindowEvent;
 
 import static org.sehes.tetris.config.GameParameters.BLOCK_SIZE;
 import static org.sehes.tetris.config.GameParameters.COLUMNS;
@@ -129,7 +130,12 @@ public class GuiFactory {
         return new ScorePanel();
     }
 
-    public record WholeGui(TetrisCanvas canvas, ScorePanel scoreUI, InfoPanel infoP, GameWindow window) {
+    public record WholeGui(TetrisCanvas canvas, ScorePanel scoreUI, InfoPanel infoP, GameWindow window)  {
+
+
+        public Runnable exitAction() {
+            return () -> window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+        }
     }
 
     public record BasicGui(ScorePanel scoreUI, InfoPanel infoP, GameWindow window, GameContainer container) {
