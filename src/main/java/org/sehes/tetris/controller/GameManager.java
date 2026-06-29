@@ -37,11 +37,11 @@ public class GameManager implements InputReceiver {
 
     private static final int FPS = 60;
     private static final int FRAME_TIME_MS = 1000 / FPS;
-    private static final int BASE_SPEED = 600;
+    private static final int BASE_SPEED_MS = 600;
     private final State currentState = new State(INIT);// Current state of the game
     // is full redraw needed?
     private final AtomicBoolean isDirty = new AtomicBoolean(false);
-    private final long movementSpeed = TimeUnit.MILLISECONDS.toNanos(BASE_SPEED);
+    private final long movementSpeed = TimeUnit.MILLISECONDS.toNanos(BASE_SPEED_MS);
     private TetrisCanvas tetrisCanvas; // Reference to the canvas for repainting
     private GameBoard gameBoard; // reference to the game board for managing game logic
     private Timer gameLoopTimer; // Timer for the main game loop to control the game speed
@@ -53,10 +53,16 @@ public class GameManager implements InputReceiver {
     // FPS vars
     private int frameCount = 0;
     private long fpsTimer = 0;
-    private Runnable gameExit;
+    private Runnable appExitMethod;
+    private int hardDropDistance;
+    private boolean isLockingMode = false;
+    private boolean successfulMove = false;
+
 
     public GameManager() {
-        //todo: decide what to put here probably from prepareGame method or if it worthy delete it.
+        // todo: decide what to put here probably from prepareGame method or if it
+        // worthy delete it.
+
     }
 
     /**
@@ -73,8 +79,8 @@ public class GameManager implements InputReceiver {
             final ActionListener gameLoopListener = new MainLoopListener();
             gameLoopTimer = new Timer(FRAME_TIME_MS, gameLoopListener);
             currentState.set(PREPARED);
+            appExitMethod = gui.exitAction();
         }
-        gameExit = gui.exitAction();
     }
 
     public GameState getGameState() {
@@ -106,7 +112,7 @@ public class GameManager implements InputReceiver {
 
     private void gameOverInput(InputAction action) {
         switch (action) {
-            case CONFIRM -> startGame();
+            case CONFIRM -> startNewGame();
             case CANCEL -> exitGame();
             default -> {
                 break;
@@ -142,9 +148,8 @@ public class GameManager implements InputReceiver {
 
     private void preparedInput(InputAction action) {
         switch (action) {
-            case CONFIRM -> startGame();
+            case CONFIRM -> startNewGame();
             case CANCEL -> exitGame();
-            case HARD_DROP -> pauseGame();
             default -> {
                 break;
             }
@@ -204,7 +209,7 @@ public class GameManager implements InputReceiver {
      * the game is in the INITIALIZE or GAME_OVER state to prevent starting a
      * new game while one is already in progress.
      */
-    private void startGame() {
+    private void startNewGame() {
         switch (currentState.get()) {
             case PREPARED -> {
                 newGame();
@@ -222,7 +227,7 @@ public class GameManager implements InputReceiver {
     }
 
     private void exitGame() {
-        gameExit.run();
+        appExitMethod.run();
     }
 
     private void resetTime() {

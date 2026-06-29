@@ -2,11 +2,11 @@ package org.sehes.tetris.controller;
 
 public enum InputAction {
     /**
-     * Exit application, unpause game
+     * Exit application
      */
     CANCEL,
     /**
-     * Start new game
+     * Start new game,pause and unpause game
      */
     CONFIRM,
     /**
