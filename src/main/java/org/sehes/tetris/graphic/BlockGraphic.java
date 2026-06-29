@@ -45,7 +45,7 @@ public class BlockGraphic {
     private static final int L_X = 0;
     private static final int T_Y = 0;
     private final int[][] vBuffer;
-    private final Renderable[] shapes;
+    private final IShape[] shapes;
 
     public BlockGraphic(int blockSize, int thickness) {
         final int rX = L_X + blockSize;
@@ -61,12 +61,12 @@ public class BlockGraphic {
         shapes = createShapes();
     }
 
-    private Renderable[] createShapes() {
-        final var renderables = new Renderable[Side.SIDE_COUNT];
+    private IShape[] createShapes() {
+        final var renderables = new IShape[Side.SIDE_COUNT];
         for (final var side : Side.sides()) {
             final int sideValue = side.getSide();
             renderables[sideValue] =
-                    new Renderable() {
+                    new IShape() {
                         private final Side s = side;
                         private static final int VERTEX = 4;
                         final int[][] points = setPoints();
@@ -98,7 +98,7 @@ public class BlockGraphic {
         return renderables;
     }
 
-    public Renderable[] getShapes() {
+    public IShape[] getShapes() {
         return shapes;
     }
 

@@ -18,7 +18,7 @@ public final class AssetsManager {
         final var img = new BufferedImage(GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
         final var g2d = img.createGraphics();
         g2d.setRenderingHints(hints);
-        for (Renderable shape : block.getShapes()) {
+        for (IShape shape : block.getShapes()) {
             final var side = shape.getSide();
             final var points = shape.getPoints();
             g2d.setPaint(ColorPalette.getPaint(type, side));

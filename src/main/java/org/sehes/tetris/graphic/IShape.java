@@ -1,6 +1,6 @@
 package org.sehes.tetris.graphic;
 
-public interface Renderable {
+public interface IShape {
     int[][] getPoints();
     Side getSide();
 }
