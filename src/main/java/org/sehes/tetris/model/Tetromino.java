@@ -36,7 +36,7 @@ public class Tetromino {
 
     private int positionX;
     private int positionY;
-    private List<Coordinate> stateCoordination;
+    private List<Coordinate> stateCoordination; // state coordination of the tetromino (x, y)
     private Orientation rotationState; // enum represent current rotation state
     private final int[] pixelCoordinates;// pixel coordination of the blocks for the drawing
     private final TetrominoType type;
@@ -54,11 +54,16 @@ public class Tetromino {
         updatePixelCoordinates();
     }
 
+
     public TetrominoType getType() {
         return type;
     }
 
 
+    /**
+     *
+     * @return state coordination of the tetromino
+     */
     public List<Coordinate> getStateCord() {
         return stateCoordination;
     }
@@ -94,7 +99,6 @@ public class Tetromino {
         positionY += flag.getY();
         updatePixelCoordinates();
     }
-
 
     /**
      * Sets the state of the Tetromino to the specified coordinates and orientation.
