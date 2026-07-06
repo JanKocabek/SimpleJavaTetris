@@ -49,16 +49,25 @@ public class TetrisKeyInputHandler extends KeyAdapter {
     @Override
     public void keyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
-            case VK_ENTER -> receiver.handleInput(InputAction.CONFIRM);
-            case VK_ESCAPE -> receiver.handleInput(InputAction.CANCEL);
             case VK_DOWN -> receiver.handleInput(InputAction.MOVE_DOWN);
             case VK_LEFT -> receiver.handleInput(InputAction.MOVE_LEFT);
             case VK_RIGHT -> receiver.handleInput(InputAction.MOVE_RIGHT);
-            case VK_A -> receiver.handleInput(InputAction.ROTATE_CCW);
+            default -> {
+               break;
+            }
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        switch (e.getKeyCode()){
+            case VK_ESCAPE -> receiver.handleInput(InputAction.CANCEL);
+            case VK_ENTER -> receiver.handleInput(InputAction.CONFIRM);
             case VK_UP -> receiver.handleInput(InputAction.ROTATE_CW);
+            case VK_A -> receiver.handleInput(InputAction.ROTATE_CCW);
             case VK_SPACE -> receiver.handleInput(InputAction.HARD_DROP);
             default -> {
-                break;
+              //do nothing
             }
         }
     }
