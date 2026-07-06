@@ -36,12 +36,12 @@ public class GameManager implements InputReceiver {
     private static final int FPS = 60;
     private static final int FRAME_TIME_MS = 1000 / FPS;
     private static final int BASE_SPEED_MS = 600;
-    private static final int SOFT_LOCK_TIMER_MS = 500;
+
 
     private final State currentState = new State(INIT);// Current state of the game
     private final AtomicBoolean isDirty = new AtomicBoolean(false);
     private final long movementSpeed = TimeUnit.MILLISECONDS.toNanos(BASE_SPEED_MS);
-    private final long softLockTimer = TimeUnit.MILLISECONDS.toNanos(SOFT_LOCK_TIMER_MS);
+
 
     private TetrisCanvas tetrisCanvas; // Reference to the canvas for repainting
     private GameBoard gameBoard; // reference to the game board for managing game logic
@@ -58,7 +58,10 @@ public class GameManager implements InputReceiver {
     private Runnable appExitMethod;
     private boolean isLockingMode = false;
     private int lockMoves = 0;
-    private MainLoopListener gameLoopListener;
+    private MainLoopListener gameLoop;
+    private int currentMoves;
+    private int currentY;
+    private int maxY;
 
     public GameManager() {
         // todo: decide what to put here probably from prepareGame method or if it
@@ -77,8 +80,8 @@ public class GameManager implements InputReceiver {
             this.tetrisCanvas = gui.canvas();
             this.scoreUI = gui.scoreUI();
             this.infoP = gui.infoP();
-            gameLoopListener = new MainLoopListener();
-            gameLoopTimer = new Timer(FRAME_TIME_MS, gameLoopListener);
+            gameLoop = new MainLoopListener();
+            gameLoopTimer = new Timer(FRAME_TIME_MS, gameLoop);
             currentState.set(PREPARED);
             appExitMethod = gui.exitAction();
         }
@@ -142,7 +145,7 @@ public class GameManager implements InputReceiver {
             case ROTATE_CW -> rotatePiece(RotationFlag.CLOCKWISE);
             case ROTATE_CCW -> rotatePiece(RotationFlag.COUNTER_CLOCKWISE);
             default -> {
-               //do nothing
+                //do nothing
             }
         }
     }
@@ -152,7 +155,7 @@ public class GameManager implements InputReceiver {
             case CONFIRM -> startNewGame();
             case CANCEL -> exitGame();
             default -> {
-             //do nothing
+                //do nothing
             }
         }
     }
@@ -176,10 +179,7 @@ public class GameManager implements InputReceiver {
     private void movePiece(final DirectionFlag direction) {
         if (currentState.get() == PLAYING && gameBoard.tryMovePiece(direction)) {
             tetrisCanvas.render(gameSnapshotFactory(currentState));
-            if (isLockingMode) {
-                gameLoopListener.updateDelay();
-
-            }
+            lockMovementsUpdate();
         }
     }
 
@@ -193,19 +193,24 @@ public class GameManager implements InputReceiver {
     private void rotatePiece(final RotationFlag rotate) {
         if (currentState.get() == PLAYING && gameBoard.tryRotatePiece(rotate)) {
             tetrisCanvas.render(gameSnapshotFactory(currentState));
-            if (isLockingMode) {
-                gameLoopListener.updateDelay();
-            }
+            lockMovementsUpdate();
         }
     }
 
-
-    private boolean tryPrepareNewPiece() {
-        if (gameBoard.trySetNewTetromino()) {
-            gameLoopListener.turnOffLockMode();
-            return true;
+    private void lockMovementsUpdate() {
+        currentMoves++;
+        updateY(gameBoard.getCurrentTetromino().getPositionY());
+        if (gameBoard.canMove(getCurrentTetromino(), DirectionFlag.DOWN)) {
+            isLockingMode = false;
         }
-        return false;
+    }
+
+    private void updateY(int current) {
+        currentY = current;
+        if (currentY > maxY) {
+            maxY = currentY;
+            currentMoves = 0;
+        }
     }
 
     private void pauseGame() {
@@ -221,6 +226,13 @@ public class GameManager implements InputReceiver {
             gameLoopTimer.start();
             currentState.set(PLAYING);
         }
+    }
+
+    private boolean tryPrepareNewPiece() {
+        currentMoves = 0;
+        currentY = 0;
+        maxY = 0;
+        return gameBoard.trySetNewTetromino();
     }
 
     /**
@@ -253,6 +265,7 @@ public class GameManager implements InputReceiver {
     private void resetTime() {
         prevTime = System.nanoTime();
         gravityAccumulator = 0;
+
         frameCount = 0;
         fpsTimer = 0;
     }
@@ -284,11 +297,11 @@ public class GameManager implements InputReceiver {
         isDirty.set(true);
         gameBoard.checkAndClearLines();
         scoreUI.updateScore(gameBoard.getScore());
+        gameLoop.resetLockDelay();
         if (!tryPrepareNewPiece()) {
             setGameOver();
         }
         gravityAccumulator = 0;
-        lockMoves = 0;
     }
 
     /**
@@ -302,8 +315,9 @@ public class GameManager implements InputReceiver {
      */
     private class MainLoopListener implements ActionListener {
         private static final int MAX_LOCK_MOVES = 15;
+        private static final int LOCK_DELAY_MS = 500;
+        private final long lockDelayTimer = TimeUnit.MILLISECONDS.toNanos(LOCK_DELAY_MS);
         private long delayLockAccumulator = 0;
-
 
         @Override
         public void actionPerformed(final ActionEvent e) {
@@ -332,9 +346,13 @@ public class GameManager implements InputReceiver {
             while (gravityAccumulator >= movementSpeed) {
                 if (gameBoard.tryMovePiece(DirectionFlag.DOWN)) {
                     gravityAccumulator -= movementSpeed;
+                    updateY(gameBoard.getCurrentTetromino().getPositionY());
                 } else {
                     gravityAccumulator = 0;
                     isLockingMode = true;
+                    if (lockMoves < MAX_LOCK_MOVES) {
+                        delayLockAccumulator = 0;
+                    }
                     break;
                 }
             }
@@ -344,23 +362,25 @@ public class GameManager implements InputReceiver {
 
         private void handleLockDelay(long elapsedTime) {
             delayLockAccumulator += elapsedTime;
-            if (delayLockAccumulator >= softLockTimer || lockMoves == MAX_LOCK_MOVES) {
-                System.out.println("actual moves: " + lockMoves);
-                turnOffLockMode();
+            if (delayLockAccumulator >= lockDelayTimer) {
+                System.out.println("final number of moves: " + lockMoves);
                 lock();
-            } else if (gameBoard.canMove(gameBoard.getCurrentTetromino(), DirectionFlag.DOWN)) {
-                isLockingMode = false;
+            } else {
+                updateDelay();
             }
         }
 
         public void updateDelay() {
-            if (lockMoves == MAX_LOCK_MOVES) return;
-            delayLockAccumulator = 0;
-            lockMoves++;
-            System.out.println("Lock moves: " + lockMoves);
+            if (lockMoves >= MAX_LOCK_MOVES) return;
+            if (currentMoves > 0) {
+                delayLockAccumulator = 0;
+            }
+            lockMoves += currentMoves;
+            currentMoves = 0;
+            System.out.println("delay updated: " + lockMoves);
         }
 
-        public void turnOffLockMode() {
+        public void resetLockDelay() {
             isLockingMode = false;
             delayLockAccumulator = 0;
             lockMoves = 0;
@@ -377,6 +397,7 @@ public class GameManager implements InputReceiver {
                 infoP.updateFPS(currentFPS);
             }
         }
+
     }
 
     private final class State {
