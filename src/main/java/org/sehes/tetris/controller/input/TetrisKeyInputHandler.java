@@ -1,4 +1,4 @@
-package org.sehes.tetris.controller;
+package org.sehes.tetris.controller.input;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;

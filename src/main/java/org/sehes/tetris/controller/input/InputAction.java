@@ -1,4 +1,4 @@
-package org.sehes.tetris.controller;
+package org.sehes.tetris.controller.input;
 
 public enum InputAction {
     /**

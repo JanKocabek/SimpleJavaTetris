@@ -1,5 +1,7 @@
 package org.sehes.tetris.controller;
 
+import org.sehes.tetris.controller.input.InputAction;
+import org.sehes.tetris.controller.input.InputReceiver;
 import org.sehes.tetris.gui.GuiFactory;
 import org.sehes.tetris.gui.InfoPanel;
 import org.sehes.tetris.gui.ScorePanel;

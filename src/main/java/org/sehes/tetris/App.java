@@ -2,7 +2,7 @@ package org.sehes.tetris;
 
 import org.sehes.tetris.controller.GameManager;
 import org.sehes.tetris.controller.GameSnapshot;
-import org.sehes.tetris.controller.TetrisKeyInputHandler;
+import org.sehes.tetris.controller.input.TetrisKeyInputHandler;
 import org.sehes.tetris.graphic.AssetsManager;
 import org.sehes.tetris.graphic.RenderingHintsFactory;
 import org.sehes.tetris.gui.GuiFactory;
