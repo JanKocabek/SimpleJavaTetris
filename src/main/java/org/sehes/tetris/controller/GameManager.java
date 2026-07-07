@@ -74,6 +74,7 @@ public class GameManager implements InputReceiver {
             gameLoopTimer = new Timer(FRAME_TIME_MS, gameLoopListener);
             currentState.set(PREPARED);
         }
+        gameExit = gui.exitAction();
     }
 
     public GameState getGameState() {
@@ -220,8 +221,8 @@ public class GameManager implements InputReceiver {
         }
     }
 
-    void exitGame() {
-        System.exit(0);
+    private void exitGame() {
+        gameExit.run();
     }
 
     private void resetTime() {
