@@ -1,6 +1,7 @@
 package org.sehes.tetris.gui;
 
 import org.sehes.tetris.controller.GameState;
+import org.sehes.tetris.controller.Observer;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -11,14 +12,15 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 
+
 /**
  * The info panel is the bottom panel of the tetris game. It is used to display
  * the current state of the game, such as new game, paused, game over, etc.
  */
 public class InfoPanel extends JPanel {
 
-    private final InfoLabel infoLabel;
     private final FpsLabel fpsLabel;
+    private final InfoLabel infoLabel;
 
     InfoPanel() {
         super();
@@ -28,24 +30,46 @@ public class InfoPanel extends JPanel {
         setLayout(new BorderLayout());
         infoLabel = new InfoLabel();
         fpsLabel = new FpsLabel();
-
         add(infoLabel, BorderLayout.CENTER);
         add(fpsLabel, BorderLayout.EAST);
     }
 
-    public void updateLabelText(GameState gameState) {
-        infoLabel.updateInfo(gameState);
+    public Observer<GameState> infoUpdateObserver() {
+        return infoLabel;
+    }
+    public Observer<Integer> fpsUpdateObserver() {
+        return fpsLabel;
     }
 
-    public void updateFPS(int fpsValue) {
-        fpsLabel.updateFPS(fpsValue);
+
+    private static class FpsLabel extends JLabel implements Observer<Integer> {
+        private static final String BASE_STRING = "FPS: ";
+        private static final Font FPS_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 12);
+
+        FpsLabel() {
+            setFont(FPS_FONT);
+            setForeground(Color.BLACK);
+            setHorizontalAlignment(SwingConstants.RIGHT);
+            setVerticalAlignment(SwingConstants.TOP);
+            setText(BASE_STRING + "0");
+            setBorder(new EmptyBorder(0, 0, 0, 8));
+        }
+
+        private void updateFPS(int fps) {
+            setText(BASE_STRING + fps);
+        }
+
+        @Override
+        public void update(Integer state) {
+            updateFPS(state);
+        }
     }
 
-    private static class InfoLabel extends JLabel {
+    private static class InfoLabel extends JLabel implements Observer<GameState>{
 
         private static final Font INFO_FONT = new Font(Font.SERIF, Font.BOLD, 18);
 
-        InfoLabel() {
+        private InfoLabel() {
             setHorizontalAlignment(SwingConstants.CENTER);
             setVerticalAlignment(SwingConstants.CENTER);
             setFont(INFO_FONT);
@@ -55,7 +79,7 @@ public class InfoPanel extends JPanel {
             setBorder(border);
         }
 
-        void updateInfo(GameState gameState) {
+        private void updateInfo(GameState gameState) {
             switch (gameState) {
                 case INIT -> setText("game is loading wait please");
 
@@ -72,25 +96,12 @@ public class InfoPanel extends JPanel {
             }
         }
 
-    }
-
-    private static class FpsLabel extends JLabel {
-        private static final String BASE_STRING = "FPS: ";
-        private static final Font FPS_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 12);
-
-        FpsLabel() {
-            setFont(FPS_FONT);
-            setForeground(Color.BLACK);
-            setHorizontalAlignment(SwingConstants.RIGHT);
-            setVerticalAlignment(SwingConstants.TOP);
-            setText(BASE_STRING + "0");
-            setBorder(new EmptyBorder(0, 0, 0, 8));
+        @Override
+        public void update(GameState state) {
+            updateInfo(state);
         }
-
-        void updateFPS(int fps) {
-            setText(BASE_STRING + fps);
-        }
-
     }
 
 }
+
+

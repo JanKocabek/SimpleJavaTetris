@@ -3,7 +3,6 @@ package org.sehes.tetris.controller;
 import org.sehes.tetris.controller.input.InputAction;
 import org.sehes.tetris.controller.input.InputReceiver;
 import org.sehes.tetris.gui.GuiFactory;
-import org.sehes.tetris.gui.InfoPanel;
 import org.sehes.tetris.gui.ScorePanel;
 import org.sehes.tetris.gui.TetrisCanvas;
 import org.sehes.tetris.model.BoardView;
@@ -15,7 +14,9 @@ import org.sehes.tetris.model.Tetromino;
 import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -40,7 +41,7 @@ public class GameManager implements InputReceiver {
     private static final int FPS = 60;
     private static final int FRAME_TIME_MS = 1000 / FPS;
     private static final int BASE_SPEED = 600;
-    private final State currentState = new State(INIT);// Current state of the game
+    private final StateManager<GameState> stateManager;
     // is full redraw needed?
     private final AtomicBoolean isDirty = new AtomicBoolean(false);
     private final long movementSpeed = TimeUnit.MILLISECONDS.toNanos(BASE_SPEED);
@@ -48,7 +49,6 @@ public class GameManager implements InputReceiver {
     private GameBoard gameBoard; // reference to the game board for managing game logic
     private Timer gameLoopTimer; // Timer for the main game loop to control the game speed
     private ScorePanel scoreUI;// Reference to the score UI for updating the score display
-    private InfoPanel infoP;// Reference to the info panel for updating game state messages
     // Loop Time vars
     private long prevTime;
     private long gravityAccumulator;
@@ -56,9 +56,11 @@ public class GameManager implements InputReceiver {
     private int frameCount = 0;
     private long fpsTimer = 0;
     private Runnable gameExit;
+    private final MainLoopListener gameLoop;
 
-    public GameManager() {
-        //todo: decide what to put here probably from prepareGame method or if it worthy delete it.
+    public GameManager(StateManager<GameState> stateManager) {
+        this.stateManager = stateManager;
+        this.gameLoop = new MainLoopListener();
     }
 
     /**
@@ -68,19 +70,17 @@ public class GameManager implements InputReceiver {
      * GameParameters.GAME_SPEED.
      */
     public void prepareGame(GuiFactory.WholeGui gui) {
-        if (currentState.get() == INIT) {
+        if (stateManager.getState() == INIT) {
             this.tetrisCanvas = gui.canvas();
             this.scoreUI = gui.scoreUI();
-            this.infoP = gui.infoP();
-            final ActionListener gameLoopListener = new MainLoopListener();
-            gameLoopTimer = new Timer(FRAME_TIME_MS, gameLoopListener);
-            currentState.set(PREPARED);
+            gameLoopTimer = new Timer(FRAME_TIME_MS, gameLoop);
+            stateManager.setState(PREPARED);
         }
         gameExit = gui.exitAction();
     }
 
-    public GameState getGameState() {
-        return currentState.get();
+    public void addFpsUpdateObserver(Observer<Integer> observer){
+        gameLoop.addObserver(observer);
     }
 
     public BoardView getBoardView() {
@@ -93,7 +93,7 @@ public class GameManager implements InputReceiver {
 
     @Override
     public void handleInput(InputAction action) {
-        switch (getGameState()) {
+        switch (stateManager.getState()) {
             case PREPARED -> preparedInput(action);
             case PLAYING -> runningGameInput(action);
             case PAUSED -> pauseGameInput(action);
@@ -131,7 +131,7 @@ public class GameManager implements InputReceiver {
             case CANCEL -> exitGame();
             case CONFIRM -> pauseGame();
             case MOVE_DOWN -> movePiece(DirectionFlag.DOWN);
-            case HARD_DROP -> movePiece(DirectionFlag.DOWN);
+         //  todo: will add in new branch case HARD_DROP -> movePiece(DirectionFlag.DOWN);
             case MOVE_LEFT -> movePiece(DirectionFlag.LEFT);
             case MOVE_RIGHT -> movePiece(DirectionFlag.RIGHT);
             case ROTATE_CW -> rotatePiece(RotationFlag.CLOCKWISE);
@@ -161,11 +161,11 @@ public class GameManager implements InputReceiver {
      *                  DOWN).
      */
     private void movePiece(final DirectionFlag direction) {
-        if (currentState.get() != PLAYING) {
+        if (stateManager.getState() != PLAYING) {
             return;
         }
         if (gameBoard.tryMovePiece(direction)) {
-            tetrisCanvas.render(gameSnapshotFactory(currentState));
+            tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
         }
     }
 
@@ -177,26 +177,26 @@ public class GameManager implements InputReceiver {
      * @param rotate The direction to rotate the piece (CLOCKWISE, COUN
      */
     private void rotatePiece(final RotationFlag rotate) {
-        if (currentState.get() != PLAYING) {
+        if (stateManager.getState() != PLAYING) {
             return;
         }
         if (gameBoard.tryRotatePiece(rotate)) {
-            tetrisCanvas.render(gameSnapshotFactory(currentState));
+            tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
         }
     }
 
     private void pauseGame() {
-        if (currentState.get() == PLAYING) {
+        if (stateManager.getState() == PLAYING) {
             gameLoopTimer.stop();
-            currentState.set(PAUSED);
+            stateManager.setState(PAUSED);
         }
     }
 
     private void resumeGame() {
-        if (currentState.get() == PAUSED) {
+        if (stateManager.getState() == PAUSED) {
             resetTime();
             gameLoopTimer.start();
-            currentState.set(PLAYING);
+            stateManager.setState(PLAYING);
         }
     }
 
@@ -207,7 +207,7 @@ public class GameManager implements InputReceiver {
      * new game while one is already in progress.
      */
     private void startGame() {
-        switch (currentState.get()) {
+        switch (stateManager.getState()) {
             case PREPARED -> {
                 newGame();
                 gameLoopTimer.start();
@@ -237,23 +237,23 @@ public class GameManager implements InputReceiver {
     private void newGame() {
         isDirty.set(true);
         gameBoard = new GameBoard();
-        currentState.set(PLAYING);
+        stateManager.setState(PLAYING);
         if (!gameBoard.trySetNewTetromino()) {
             setGameOver();
             return;
         }
-        tetrisCanvas.render(gameSnapshotFactory(currentState));
+        tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
         resetTime();
     }
 
     private void setGameOver() {
         gameLoopTimer.stop();
-        currentState.set(GAME_OVER);
+        stateManager.setState(GAME_OVER);
     }
 
-    private GameSnapshot gameSnapshotFactory(State state) {
+    private GameSnapshot gameSnapshotFactory(GameState state) {
         final var wasDirty = this.isDirty.getAndSet(false);
-        return (state.get()) == GameState.PLAYING ? new GameSnapshot(getBoardView(), Optional.of(getCurrentTetromino()), wasDirty) : new GameSnapshot(getBoardView(), Optional.empty(), wasDirty);
+        return (state) == GameState.PLAYING ? new GameSnapshot(getBoardView(), Optional.of(getCurrentTetromino()), wasDirty) : new GameSnapshot(getBoardView(), Optional.empty(), wasDirty);
     }
 
     /**
@@ -265,7 +265,8 @@ public class GameManager implements InputReceiver {
      * and stops the game loop timer. After processing the game logic, it
      * repaints the canvas to reflect any changes in the game state.
      */
-    private class MainLoopListener implements ActionListener {
+    private class MainLoopListener implements ActionListener,Observable<Integer>{
+        private final List<Observer<Integer>> observers = new CopyOnWriteArrayList<>();
 
         @Override
         public void actionPerformed(final ActionEvent e) {
@@ -297,7 +298,7 @@ public class GameManager implements InputReceiver {
                 gravityAccumulator -= movementSpeed;
             }
 
-            tetrisCanvas.render(gameSnapshotFactory(currentState));
+            tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
         }
 
         private void fpsCalculation(long elapsedTime) {
@@ -308,29 +309,23 @@ public class GameManager implements InputReceiver {
                 int currentFPS = frameCount; // This is your actual FPS for the last second
                 frameCount = 0;
                 fpsTimer = 0;
-                infoP.updateFPS(currentFPS);
+                notifyObservers(currentFPS);
             }
         }
-    }
 
-    private final class State {
-        private GameState gameState;
-
-        private State(final GameState gameState) {
-            this.gameState = gameState;
+        @Override
+        public void addObserver(Observer<Integer> observer) {
+            observers.add(observer);
         }
 
-        public GameState get() {
-            return gameState;
+        @Override
+        public void removeObserver(final Observer<Integer> observer) {
+            observers.remove(observer);
         }
 
-        private void set(final GameState gameState) {
-            this.gameState = gameState;
-            updateInfo();
-        }
-
-        private void updateInfo() {
-            if (infoP != null) infoP.updateLabelText(this.gameState);
+        @Override
+        public void notifyObservers(Integer state) {
+            observers.forEach(o -> o.update(state));
         }
     }
 }
