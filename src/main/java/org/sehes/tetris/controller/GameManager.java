@@ -1,17 +1,12 @@
 package org.sehes.tetris.controller;
 
 import org.sehes.tetris.controller.input.InputAction;
-import org.sehes.tetris.controller.input.InputReceiver;
 import org.sehes.tetris.gui.GuiFactory;
 import org.sehes.tetris.gui.ScorePanel;
 import org.sehes.tetris.gui.TetrisCanvas;
-import org.sehes.tetris.model.BoardView;
-import org.sehes.tetris.model.DirectionFlag;
-import org.sehes.tetris.model.GameBoard;
-import org.sehes.tetris.model.RotationFlag;
-import org.sehes.tetris.model.Tetromino;
+import org.sehes.tetris.model.*;
 
-import javax.swing.Timer;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -20,11 +15,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.sehes.tetris.controller.GameState.GAME_OVER;
-import static org.sehes.tetris.controller.GameState.INIT;
-import static org.sehes.tetris.controller.GameState.PAUSED;
-import static org.sehes.tetris.controller.GameState.PLAYING;
-import static org.sehes.tetris.controller.GameState.PREPARED;
+import static org.sehes.tetris.controller.GameState.*;
 
 
 /**
@@ -35,7 +26,7 @@ import static org.sehes.tetris.controller.GameState.PREPARED;
  */
 
 
-public class GameManager implements InputReceiver {
+public class GameManager implements InputHandler {
 
 
     private static final int FPS = 60;
@@ -45,6 +36,7 @@ public class GameManager implements InputReceiver {
     // is full redraw needed?
     private final AtomicBoolean isDirty = new AtomicBoolean(false);
     private final long movementSpeed = TimeUnit.MILLISECONDS.toNanos(BASE_SPEED);
+    private final MainLoopListener gameLoop;
     private TetrisCanvas tetrisCanvas; // Reference to the canvas for repainting
     private GameBoard gameBoard; // reference to the game board for managing game logic
     private Timer gameLoopTimer; // Timer for the main game loop to control the game speed
@@ -56,7 +48,6 @@ public class GameManager implements InputReceiver {
     private int frameCount = 0;
     private long fpsTimer = 0;
     private Runnable gameExit;
-    private final MainLoopListener gameLoop;
 
     public GameManager(StateManager<GameState> stateManager) {
         this.stateManager = stateManager;
@@ -79,7 +70,7 @@ public class GameManager implements InputReceiver {
         gameExit = gui.exitAction();
     }
 
-    public void addFpsUpdateObserver(Observer<Integer> observer){
+    public void addFpsUpdateObserver(Observer<Integer> observer) {
         gameLoop.addObserver(observer);
     }
 
@@ -90,6 +81,7 @@ public class GameManager implements InputReceiver {
     public Tetromino getCurrentTetromino() {
         return gameBoard.getCurrentTetromino();
     }
+
 
     @Override
     public void handleInput(InputAction action) {
@@ -131,7 +123,7 @@ public class GameManager implements InputReceiver {
             case CANCEL -> exitGame();
             case CONFIRM -> pauseGame();
             case MOVE_DOWN -> movePiece(DirectionFlag.DOWN);
-         //  todo: will add in new branch case HARD_DROP -> movePiece(DirectionFlag.DOWN);
+            //  todo: will add in new branch case HARD_DROP -> movePiece(DirectionFlag.DOWN);
             case MOVE_LEFT -> movePiece(DirectionFlag.LEFT);
             case MOVE_RIGHT -> movePiece(DirectionFlag.RIGHT);
             case ROTATE_CW -> rotatePiece(RotationFlag.CLOCKWISE);
@@ -146,7 +138,6 @@ public class GameManager implements InputReceiver {
         switch (action) {
             case CONFIRM -> startGame();
             case CANCEL -> exitGame();
-            case HARD_DROP -> pauseGame();
             default -> {
                 break;
             }
@@ -265,7 +256,7 @@ public class GameManager implements InputReceiver {
      * and stops the game loop timer. After processing the game logic, it
      * repaints the canvas to reflect any changes in the game state.
      */
-    private class MainLoopListener implements ActionListener,Observable<Integer>{
+    private class MainLoopListener implements ActionListener, Observable<Integer> {
         private final List<Observer<Integer>> observers = new CopyOnWriteArrayList<>();
 
         @Override

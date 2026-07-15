@@ -4,7 +4,7 @@ import org.sehes.tetris.controller.GameManager;
 import org.sehes.tetris.controller.GameSnapshot;
 import org.sehes.tetris.controller.GameState;
 import org.sehes.tetris.controller.GameStateManager;
-import org.sehes.tetris.controller.input.TetrisKeyInputHandler;
+import org.sehes.tetris.controller.input.*;
 import org.sehes.tetris.graphic.AssetsManager;
 import org.sehes.tetris.graphic.RenderingHintsFactory;
 import org.sehes.tetris.gui.GuiFactory;
@@ -12,9 +12,8 @@ import org.sehes.tetris.gui.TetrisCanvas;
 import org.sehes.tetris.gui.TetrisDrawingHandler;
 import org.sehes.tetris.model.TetrominoType;
 
-import javax.swing.Painter;
-import javax.swing.SwingWorker;
-import java.awt.RenderingHints;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.image.BufferedImage;
 import java.util.Map;
@@ -26,16 +25,19 @@ import static org.sehes.tetris.gui.GuiFactory.assembly;
 
 public class App {
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
-    final GameStateManager stateManager = new GameStateManager(GameState.INIT);
+
+    private final GameStateManager stateManager = new GameStateManager(GameState.INIT);
     private final GameManager gameManager = new GameManager(stateManager);
+    private final InputMapper inputMapper = new InputMapper(KeyMap.createDefault());
+    private final InputReceiver inputRouter = new InputRouter(inputMapper, gameManager);
+    private final KeyAdapter tetrisKeyAdapter = new TetrisKeyAdapter(inputRouter);
 
     public void run() {
-
         final GuiFactory.BasicGui basicGui = assembly();
+        final var canvasWorker = new CanvasWorker(basicGui);
+        canvasWorker.execute();
         stateManager.addObserver(basicGui.infoP().infoUpdateObserver());
         gameManager.addFpsUpdateObserver(basicGui.infoP().fpsUpdateObserver());
-        final var initCanvas = new CanvasWorker(basicGui);
-        initCanvas.execute();
     }
 
     private class CanvasWorker extends SwingWorker<Map<TetrominoType, BufferedImage>, Void> {
@@ -61,8 +63,8 @@ public class App {
             try {
                 final var assets = get();
                 final Painter<GameSnapshot> painter = new TetrisDrawingHandler(assets, qualityRenderingHints);
-                final KeyAdapter keyInputHandler = new TetrisKeyInputHandler(gameManager);
-                final TetrisCanvas canvas = GuiFactory.assemblyCanvas(painter, keyInputHandler);
+
+                final TetrisCanvas canvas = GuiFactory.assemblyCanvas(painter, tetrisKeyAdapter);
                 final GuiFactory.WholeGui wholeGui = GuiFactory.assembly(this.gui, canvas);
                 gameManager.prepareGame(wholeGui);
 

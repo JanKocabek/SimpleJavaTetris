@@ -4,33 +4,43 @@ public enum InputAction {
     /**
      * Exit application
      */
-    CANCEL,
+    CANCEL(true),
     /**
      * Start new game,pause and unpause game
      */
-    CONFIRM,
+    CONFIRM(true),
     /**
      * Hard drop
      */
-    HARD_DROP,
+    HARD_DROP(false),
     /**
      * Soft drop - move mino down one row
      */
-    MOVE_DOWN,
+    MOVE_DOWN(true),
     /**
      * Move mino left
      */
-    MOVE_LEFT,
+    MOVE_LEFT(true),
     /**
      * Move mino right
      */
-    MOVE_RIGHT,
+    MOVE_RIGHT(true),
     /**
      * Rotate mino counterclockwise
      */
-    ROTATE_CCW,
+    ROTATE_CCW(false),
     /**
      * Rotate mino clockwise
      */
-    ROTATE_CW,
+    ROTATE_CW(false);
+
+    private final boolean isPressed;
+
+    InputAction(boolean isPressed) {
+        this.isPressed = isPressed;
+    }
+
+    public boolean pressedEdge() {
+        return isPressed;
+    }
 }
