@@ -14,6 +14,10 @@ public class InputRouter implements InputReceiver {
     }
 
 
+    /**
+     * Handles the input taken as DTO object containing the key code and the edge on which it was fired
+     *
+     */
     @Override
     public void handleInput(KeyDTO key) {
         inputMapper.getAction(key).ifPresent(inputHandler::handleInput);
