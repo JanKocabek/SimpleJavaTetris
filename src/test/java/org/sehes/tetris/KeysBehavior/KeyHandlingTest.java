@@ -18,7 +18,19 @@ class KeyHandlingTest {
     InputHandler handler;
 
     @Test
-    void testKeyPipelining_wrongLine() {
+    void testKeyPipeLine_NotMappedKey(){
+        //arrange
+        KeyMap map = KeyMap.createDefault();
+        InputMapper mapper = new InputMapper(map);
+        InputReceiver inputRouter = new InputRouter(mapper, handler);
+        //act
+        inputRouter.handleInput(new KeyDTO(KeyEvent.VK_E, true));
+        //assert
+        verifyNoInteractions(handler);
+    }
+
+    @Test
+    void testKeyPipelining_wrongEdge() {
         //arrange
         KeyMap map = KeyMap.createDefault();
         InputMapper mapper = new InputMapper(map);
