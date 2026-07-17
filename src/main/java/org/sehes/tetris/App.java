@@ -5,7 +5,6 @@ import org.sehes.tetris.controller.input.*;
 import org.sehes.tetris.graphic.AssetsManager;
 import org.sehes.tetris.graphic.RenderingHintsFactory;
 import org.sehes.tetris.gui.GuiFactory;
-import org.sehes.tetris.gui.TetrisCanvas;
 import org.sehes.tetris.gui.TetrisDrawingHandler;
 import org.sehes.tetris.model.TetrominoType;
 
@@ -41,9 +40,9 @@ public class App {
      * Adds an observer to the observable and returns a closeable that removes the observer when closed.
      * the closeable is for the future when Gui part will be closed before the application
      *
-     * @param sender the object who is sending the messages
-     * @param receiver   the object who needs receiving the messages
-     * @param <T>        the type of the messages which will be sent
+     * @param sender   the object who is sending the messages
+     * @param receiver the object who needs receiving the messages
+     * @param <T>      the type of the messages which will be sent
      * @return a closeable that removes the observer when closed
      */
 
@@ -74,11 +73,11 @@ public class App {
         protected void done() {
             try {
                 final var assets = get();
-                final Painter<GameSnapshot> painter = new TetrisDrawingHandler(assets, qualityRenderingHints);
-
-                final TetrisCanvas canvas = GuiFactory.assemblyCanvas(painter, tetrisKeyAdapter);
-                final GuiFactory.WholeGui wholeGui = GuiFactory.assembly(this.gui, canvas);
+                final var painter = new TetrisDrawingHandler(assets, qualityRenderingHints);
+                final GuiFactory.WholeGui wholeGui = GuiFactory.assembly(this.gui, painter, tetrisKeyAdapter);
                 gameManager.prepareGame(wholeGui);
+                wholeGui.window().setVisible(true);
+                wholeGui.canvas().requestFocusInWindow();
 
 
             } catch (InterruptedException | ExecutionException e) {

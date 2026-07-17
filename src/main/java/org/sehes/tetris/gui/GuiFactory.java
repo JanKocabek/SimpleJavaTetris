@@ -40,15 +40,15 @@ public class GuiFactory {
         return new BasicGui(scoreUI, infoP, window, gameContainer);
     }
 
-    public static WholeGui assembly(BasicGui gui, TetrisCanvas canvas) {
+    public static WholeGui assembly(BasicGui gui, Painter<GameSnapshot> painter, KeyAdapter tetrisKeyAdapter) {
+        TetrisCanvas canvas = assemblyCanvas(painter, tetrisKeyAdapter);
         gui.container().add(canvas, BorderLayout.CENTER);
         gui.container().revalidate();
         gui.container().repaint();
         gui.window().revalidate();
         gui.window().repaint();
         gui.window().pack();
-        gui.window().setVisible(true);
-        canvas.requestFocusInWindow();
+
         return new WholeGui(canvas, gui.scoreUI, gui.infoP, gui.window);
     }
 
@@ -121,7 +121,7 @@ public class GuiFactory {
      * keyboard input for the game.
      * @return the TetrisCanvas that has been added to the window
      */
-    public static TetrisCanvas assemblyCanvas(final Painter<GameSnapshot> painter, final KeyAdapter keyInputHandler) {
+    private static TetrisCanvas assemblyCanvas(final Painter<GameSnapshot> painter, final KeyAdapter keyInputHandler) {
         final TetrisCanvas canvas = new TetrisCanvas(painter);
         canvas.addKeyListener(keyInputHandler);
         return canvas;
