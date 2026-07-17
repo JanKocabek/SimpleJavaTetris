@@ -1,6 +1,8 @@
 package org.sehes.tetris.gui;
 
 import org.sehes.tetris.controller.GameSnapshot;
+import org.sehes.tetris.controller.GameState;
+import org.sehes.tetris.controller.Observer;
 
 import javax.swing.Painter;
 import javax.swing.SwingUtilities;
@@ -139,5 +141,12 @@ public class GuiFactory {
     }
 
     public record BasicGui(ScorePanel scoreUI, InfoPanel infoP, GameWindow window, GameContainer container) {
+        public Observer<GameState> infoObserver() {
+            return infoP.infoUpdateObserver();
+        }
+
+        public Observer<Integer> fpsObserver() {
+            return infoP.fpsUpdateObserver();
+        }
     }
 }

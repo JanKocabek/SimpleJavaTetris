@@ -70,8 +70,9 @@ public class GameManager implements InputHandler {
         gameExit = gui.exitAction();
     }
 
-    public void addFpsUpdateObserver(Observer<Integer> observer) {
-        gameLoop.addObserver(observer);
+    
+    public Observable<Integer> fpsObservable() {
+       return gameLoop;
     }
 
     public BoardView getBoardView() {
