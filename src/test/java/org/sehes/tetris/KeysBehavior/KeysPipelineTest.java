@@ -18,7 +18,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
-class KeyHandlingTest {
+class KeysPipelineTest {
     @Mock
     InputHandler handler;
 
@@ -36,7 +36,7 @@ class KeyHandlingTest {
 
     @ParameterizedTest
     @MethodSource("keysProvider")
-    void testKeyPipelining_passed(KeyDTO key, InputAction action) {
+    void testKeyPipelining_mappedKeysTriggerExpectedAction(KeyDTO key, InputAction action) {
         //arrange
         KeyMap map = KeyMap.createDefault();
         InputMapper mapper = new InputMapper(map);
