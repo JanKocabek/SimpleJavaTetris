@@ -29,7 +29,7 @@ private final Map<Integer, InputAction> map;
 
     public Optional<InputAction> getAction(KeyDTO key ) {
         final var action = map.get(key.keyCode());
-        return Optional.ofNullable(action).filter(a -> a.pressedEdge() == key.isPressed());
+        return Optional.ofNullable(action).filter(a -> a.triggersOnPress() == key.isPressed());
     }
 
 //todo:implement rebinding functionality

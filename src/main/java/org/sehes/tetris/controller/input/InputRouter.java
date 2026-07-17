@@ -15,7 +15,9 @@ public class InputRouter implements InputReceiver {
 
 
     /**
-     * Handles the input taken as DTO object containing the key code and the edge on which it was fired
+     * Handles the input forward to the InputHandler if key is mapped in mapper
+     *
+     * @param key the key taken as DTO object containing the key code and the edge on which it was fired
      *
      */
     @Override

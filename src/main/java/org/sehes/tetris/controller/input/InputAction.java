@@ -34,13 +34,13 @@ public enum InputAction {
      */
     ROTATE_CW(false);
 
-    private final boolean isPressed;
+    private final boolean triggersOnPress;
 
-    InputAction(boolean isPressed) {
-        this.isPressed = isPressed;
+    InputAction(boolean triggersOnPress) {
+        this.triggersOnPress = triggersOnPress;
     }
 
-    public boolean pressedEdge() {
-        return isPressed;
+    public boolean triggersOnPress() {
+        return triggersOnPress;
     }
 }
