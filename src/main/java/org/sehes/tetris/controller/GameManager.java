@@ -47,7 +47,8 @@ public class GameManager implements InputHandler {
     // FPS vars
     private int frameCount = 0;
     private long fpsTimer = 0;
-    private Runnable gameExit;
+    private Runnable gameExit = () -> System.exit(0);
+
 
     public GameManager(StateManager<GameState> stateManager) {
         this.stateManager = stateManager;
@@ -65,14 +66,15 @@ public class GameManager implements InputHandler {
             this.tetrisCanvas = gui.canvas();
             this.scoreUI = gui.scoreUI();
             gameLoopTimer = new Timer(FRAME_TIME_MS, gameLoop);
+            gameExit = gui.exitAction();
             stateManager.setState(PREPARED);
         }
-        gameExit = gui.exitAction();
+
     }
 
-    
+
     public Observable<Integer> fpsObservable() {
-       return gameLoop;
+        return gameLoop;
     }
 
     public BoardView getBoardView() {
