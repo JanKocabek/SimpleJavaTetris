@@ -126,7 +126,7 @@ public class GameManager implements InputHandler {
             case CANCEL -> exitGame();
             case CONFIRM -> pauseGame();
             case MOVE_DOWN -> movePiece(DirectionFlag.DOWN);
-            //  todo: will add in new branch case HARD_DROP -> movePiece(DirectionFlag.DOWN);
+            case HARD_DROP -> hardDrop();
             case MOVE_LEFT -> movePiece(DirectionFlag.LEFT);
             case MOVE_RIGHT -> movePiece(DirectionFlag.RIGHT);
             case ROTATE_CW -> rotatePiece(RotationFlag.CLOCKWISE);
@@ -134,6 +134,15 @@ public class GameManager implements InputHandler {
             default -> {
                 break;
             }
+        }
+    }
+
+    private void hardDrop() {
+        if (stateManager.getState() != PLAYING) {
+            return;
+        }
+        if (gameBoard.tryHardDrop()) {
+            tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
         }
     }
 
@@ -261,7 +270,7 @@ public class GameManager implements InputHandler {
      */
     private class MainLoopListener implements ActionListener, Observable<Integer> {
         private final List<Observer<Integer>> observers = new CopyOnWriteArrayList<>();
-        private int currentFPS=0;
+        private int currentFPS = 0;
 
         @Override
         public void actionPerformed(final ActionEvent e) {
