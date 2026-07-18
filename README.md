@@ -2,7 +2,7 @@
   <img src="https://img.icons8.com/tetris" alt="Tetris Logo" />
 </p>
 
-<h1 align="center">🧩 Sehes_Tetris</h1>
+<h1 align="center">🧩 Sehes_TetrisEngine</h1>
 
 <p align="center">
   <strong>A high-performance, modular Tetris engine built with Java & Swing.</strong><br />
