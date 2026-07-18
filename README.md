@@ -92,7 +92,7 @@ The development journey from a core engine to an ARPG-ready platform.
 ### ⚙️ Execution
 1.  **Clone the Repo:**
     ```bash
-    git clone https://github.com/your-username/SimpleTetris.git
+    git clone https://github.com/your-username/JavaSwingTetris.git
     ```
 2.  **Build with Maven:**
     ```bash
@@ -100,7 +100,7 @@ The development journey from a core engine to an ARPG-ready platform.
     ```
 3.  **Run the JAR:**
     ```bash
-    java -jar target/SimpleTetris-0.9.jar
+    java -jar target/TetrisEngine.jar
     ```
     *Alternatively, run `org.sehes.tetris.Main` directly from your IDE.*
 
