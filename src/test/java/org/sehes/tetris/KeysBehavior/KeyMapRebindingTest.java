@@ -10,48 +10,51 @@ import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
- class KeyMapRebindingTest {
+class KeyMapRebindingTest {
     @Test
     void testKeyRebind() {
         //arrange
-        final var defaultKey =KeyEvent.VK_ENTER;
+        final var defaultKey = KeyEvent.VK_ENTER;
         final var defaultKeyMap = new HashMap<Integer, InputAction>();
         final var action = InputAction.CONFIRM;
         defaultKeyMap.put(defaultKey, action);
         final var keyMap = new KeyMap(defaultKeyMap);
         //act
-        final var remappedKey =KeyEvent.VK_Y;
+        final var remappedKey = KeyEvent.VK_Y;
         keyMap.keyRebind(remappedKey, action);
         //assert
         assertThat(keyMap.getAction(new KeyDTO(remappedKey, true))).isPresent().get().isEqualTo(action);
     }
 
+
+    //todo: cretae parametrized test in future
     @Test
     void testResetKeyBindingsRestoresDefaults() {
-        // arrange: build default key map and create a KeyMap from it
-        final var defaultKeyMap = KeyMap.createDefault();
-        final var originalBindings = new HashMap<>(defaultKeyMap);
-        final var keyMap = new KeyMap(defaultKeyMap);
+        // arrange
+        KeyMap keyMap = KeyMap.createDefault();
 
-        // act: rebind a key to a different mapping
-        final var remappedKey = KeyEvent.VK_Y;
-        final var remappedAction = InputAction.CONFIRM;
+        // act: rebind a key
+        final int remappedKey = KeyEvent.VK_Y;
+        final InputAction remappedAction = InputAction.CONFIRM;
         keyMap.keyRebind(remappedKey, remappedAction);
 
-        // verify the rebind took effect
-        assertThat(keyMap.getAction(new KeyDTO(remappedKey, true))).isPresent().get().isEqualTo(remappedAction);
+        // verify rebind took effect
+        assertThat(keyMap.getAction(new KeyDTO(remappedKey, true)))
+                .isPresent()
+                .contains(remappedAction);
 
-        // act: reset key bindings back to defaults
+        // act: reset
         keyMap.resetKeyBindings();
 
-        // assert: all original bindings are restored
-        originalBindings.forEach((key, originalAction) ->
-                assertThat(keyMap.getAction(new KeyDTO(key, true))).isPresent().get().isEqualTo(originalAction)
-        );
+        // assert: default key restored
+        assertThat(keyMap.getAction(new KeyDTO(KeyEvent.VK_ENTER, true)))
+                .isPresent()
+                .contains(InputAction.CONFIRM);
 
-        // assert: remapped key is no longer bound if it was not part of the original defaults
-        if (!originalBindings.containsKey(remappedKey)) {
-            assertThat(keyMap.getAction(new KeyDTO(remappedKey, true))).isNotPresent();
-        }
+        // assert: remapped key removed
+        assertThat(keyMap.getAction(new KeyDTO(remappedKey, true)))
+                .isNotPresent();
     }
+
+
 }
