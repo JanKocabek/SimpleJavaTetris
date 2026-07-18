@@ -41,9 +41,7 @@ public class TetrisCanvas extends JPanel {
     }
 
     /**
-     * Overloaded version of the default {@link #repaint()}
      * Repaints the canvas based on the provided game snapshot
-     *
      * @param gameSnapshot the snapshot of the current game state
      */
     public void render(GameSnapshot gameSnapshot) {

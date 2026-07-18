@@ -1,18 +1,15 @@
 package org.sehes.tetris;
 
-import org.sehes.tetris.controller.GameManager;
-import org.sehes.tetris.controller.GameSnapshot;
-import org.sehes.tetris.controller.TetrisKeyInputHandler;
+import org.sehes.tetris.controller.*;
+import org.sehes.tetris.controller.input.*;
 import org.sehes.tetris.graphic.AssetsManager;
 import org.sehes.tetris.graphic.RenderingHintsFactory;
 import org.sehes.tetris.gui.GuiFactory;
-import org.sehes.tetris.gui.TetrisCanvas;
 import org.sehes.tetris.gui.TetrisDrawingHandler;
 import org.sehes.tetris.model.TetrominoType;
 
-import javax.swing.Painter;
-import javax.swing.SwingWorker;
-import java.awt.RenderingHints;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.image.BufferedImage;
 import java.util.Map;
@@ -24,12 +21,34 @@ import static org.sehes.tetris.gui.GuiFactory.assembly;
 
 public class App {
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
-    private final GameManager gameManager = new GameManager();
+
+    private final GameStateManager stateManager = new GameStateManager(GameState.INIT);
+    private final GameManager gameManager = new GameManager(stateManager);
+    private final InputMapper inputMapper = new InputMapper(KeyMap.createDefault());
+    private final InputReceiver inputRouter = new InputRouter(inputMapper, gameManager);
+    private final KeyAdapter tetrisKeyAdapter = new TetrisKeyAdapter(inputRouter);
 
     public void run() {
         final GuiFactory.BasicGui basicGui = assembly();
-        final var initCanvas = new CanvasWorker(basicGui);
-        initCanvas.execute();
+        final var canvasWorker = new CanvasWorker(basicGui);
+        canvasWorker.execute();
+        addObserver(stateManager, basicGui.infoObserver());
+        addObserver(gameManager.fpsObservable(), basicGui.fpsObserver());
+    }
+
+    /**
+     * Adds an observer to the observable and returns a closeable that removes the observer when closed.
+     * the closeable is for the future when Gui part will be closed before the application
+     *
+     * @param sender   the object who is sending the messages
+     * @param receiver the object who needs receiving the messages
+     * @param <T>      the type of the messages which will be sent
+     * @return a closeable that removes the observer when closed
+     */
+
+    private <T> AutoCloseable addObserver(Observable<T> sender, Observer<T> receiver) {
+        sender.addObserver(receiver);
+        return () -> sender.removeObserver(receiver);
     }
 
     private class CanvasWorker extends SwingWorker<Map<TetrominoType, BufferedImage>, Void> {
@@ -54,11 +73,12 @@ public class App {
         protected void done() {
             try {
                 final var assets = get();
-                final Painter<GameSnapshot> painter = new TetrisDrawingHandler(assets, qualityRenderingHints);
-                final KeyAdapter keyInputHandler = new TetrisKeyInputHandler(gameManager);
-                final TetrisCanvas canvas = GuiFactory.assemblyCanvas(painter, keyInputHandler);
-                final GuiFactory.WholeGui wholeGui = GuiFactory.assembly(this.gui, canvas);
+                final var painter = new TetrisDrawingHandler(assets, qualityRenderingHints);
+                final GuiFactory.WholeGui wholeGui = GuiFactory.assembly(this.gui, painter, tetrisKeyAdapter);
                 gameManager.prepareGame(wholeGui);
+                wholeGui.window().setVisible(true);
+                wholeGui.canvas().requestFocusInWindow();
+
 
             } catch (InterruptedException | ExecutionException e) {
                 LOGGER.log(Level.SEVERE, "Interrupted or execution exception in CanvasWorker", e);
@@ -67,6 +87,7 @@ public class App {
         }
 
     }
+
 }
 
 

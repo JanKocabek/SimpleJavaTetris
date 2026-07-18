@@ -37,8 +37,13 @@ build/
 profilers/
 qodana.yaml
 jars/
-orderTasks.txt
-/archive/
 
+
+
+###testing module###
 /2d graphic test/*
+###materials###
 /colors
+orderTasks.txt
+/materials/
+/archive/

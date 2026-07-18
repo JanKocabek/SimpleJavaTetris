@@ -1,6 +1,8 @@
 package org.sehes.tetris.gui;
 
 import org.sehes.tetris.controller.GameSnapshot;
+import org.sehes.tetris.controller.GameState;
+import org.sehes.tetris.controller.Observer;
 
 import javax.swing.Painter;
 import javax.swing.SwingUtilities;
@@ -10,6 +12,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.KeyAdapter;
+import java.awt.event.WindowEvent;
 
 import static org.sehes.tetris.config.GameParameters.BLOCK_SIZE;
 import static org.sehes.tetris.config.GameParameters.COLUMNS;
@@ -37,15 +40,15 @@ public class GuiFactory {
         return new BasicGui(scoreUI, infoP, window, gameContainer);
     }
 
-    public static WholeGui assembly(BasicGui gui, TetrisCanvas canvas) {
+    public static WholeGui assembly(BasicGui gui, Painter<GameSnapshot> painter, KeyAdapter tetrisKeyAdapter) {
+        TetrisCanvas canvas = assemblyCanvas(painter, tetrisKeyAdapter);
         gui.container().add(canvas, BorderLayout.CENTER);
         gui.container().revalidate();
         gui.container().repaint();
         gui.window().revalidate();
         gui.window().repaint();
         gui.window().pack();
-        gui.window().setVisible(true);
-        canvas.requestFocusInWindow();
+
         return new WholeGui(canvas, gui.scoreUI, gui.infoP, gui.window);
     }
 
@@ -118,7 +121,7 @@ public class GuiFactory {
      * keyboard input for the game.
      * @return the TetrisCanvas that has been added to the window
      */
-    public static TetrisCanvas assemblyCanvas(final Painter<GameSnapshot> painter, final KeyAdapter keyInputHandler) {
+    private static TetrisCanvas assemblyCanvas(final Painter<GameSnapshot> painter, final KeyAdapter keyInputHandler) {
         final TetrisCanvas canvas = new TetrisCanvas(painter);
         canvas.addKeyListener(keyInputHandler);
         return canvas;
@@ -129,9 +132,21 @@ public class GuiFactory {
         return new ScorePanel();
     }
 
-    public record WholeGui(TetrisCanvas canvas, ScorePanel scoreUI, InfoPanel infoP, GameWindow window) {
+    public record WholeGui(TetrisCanvas canvas, ScorePanel scoreUI, InfoPanel infoP, GameWindow window)  {
+
+
+        public Runnable exitAction() {
+            return () -> window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+        }
     }
 
     public record BasicGui(ScorePanel scoreUI, InfoPanel infoP, GameWindow window, GameContainer container) {
+        public Observer<GameState> infoObserver() {
+            return infoP.infoUpdateObserver();
+        }
+
+        public Observer<Integer> fpsObserver() {
+            return infoP.fpsUpdateObserver();
+        }
     }
 }
