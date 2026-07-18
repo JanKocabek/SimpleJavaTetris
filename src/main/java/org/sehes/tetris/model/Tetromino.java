@@ -34,12 +34,15 @@ import java.util.List;
  */
 public class Tetromino {
 
-    private int positionX;
-    private int positionY;
-    private List<Coordinate> stateCoordination;
-    private Orientation rotationState; // enum represent current rotation state
     private final int[] pixelCoordinates;// pixel coordination of the blocks for the drawing
     private final TetrominoType type;
+    private int positionX;
+    private int positionY;
+    /**
+     * List of points represent the tetromino as shape in coordinates (x,y)
+     */
+    private List<Coordinate> stateCoordination;
+    private Orientation rotationState; // enum represent current rotation state
 
     Tetromino(final TetrominoType type, final Coordinate spawnPosition) {
         if (type == null || spawnPosition == null) {
@@ -101,7 +104,8 @@ public class Tetromino {
      *
      * @param coordinates The new grid configuration of the Tetromino.
      * @throws IllegalArgumentException If the coordinates are null or missing any type of next orientation.
-     * * */
+     *                                  *
+     */
     void setNewState(final List<Coordinate> coordinates, final Orientation nextOrientation) {
         if (coordinates == null || nextOrientation == null) {
             throw new IllegalArgumentException("Coordinates and next orientation cannot be null.");
