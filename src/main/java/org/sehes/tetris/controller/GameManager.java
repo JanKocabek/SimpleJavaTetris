@@ -261,6 +261,7 @@ public class GameManager implements InputHandler {
      */
     private class MainLoopListener implements ActionListener, Observable<Integer> {
         private final List<Observer<Integer>> observers = new CopyOnWriteArrayList<>();
+        private int currentFPS=0;
 
         @Override
         public void actionPerformed(final ActionEvent e) {
@@ -300,15 +301,15 @@ public class GameManager implements InputHandler {
             fpsTimer += elapsedTime;
 
             if (fpsTimer >= TimeUnit.SECONDS.toNanos(1)) {
-                int currentFPS = frameCount; // This is your actual FPS for the last second
+                currentFPS = frameCount; // This is your actual FPS for the last second
                 frameCount = 0;
                 fpsTimer = 0;
-                notifyObservers(currentFPS);
+                notifyObservers();
             }
         }
 
         @Override
-        public void addObserver(Observer<Integer> observer) {
+        public void addObserver(final Observer<Integer> observer) {
             observers.add(observer);
         }
 
@@ -318,8 +319,8 @@ public class GameManager implements InputHandler {
         }
 
         @Override
-        public void notifyObservers(Integer state) {
-            observers.forEach(o -> o.update(state));
+        public void notifyObservers() {
+            observers.forEach(o -> o.update(currentFPS));
         }
     }
 }

@@ -20,7 +20,7 @@ public class GameStateManager implements StateManager<GameState>, Observable<Gam
     @Override
     public void setState(GameState state) {
         this.currentState = state;
-        notifyObservers(state);
+        notifyObservers();
     }
 
     @Override
@@ -34,9 +34,7 @@ public class GameStateManager implements StateManager<GameState>, Observable<Gam
     }
 
     @Override
-    public void notifyObservers(GameState state) {
-        for (Observer<GameState> observer : this.observers) {
-            observer.update(state);
-        }
+    public void notifyObservers( ) {
+        this.observers.forEach(observer -> observer.update(currentState));
     }
 }
