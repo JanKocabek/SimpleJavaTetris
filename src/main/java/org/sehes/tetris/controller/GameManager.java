@@ -197,6 +197,7 @@ public class GameManager implements InputHandler {
      * the game is in the INITIALIZE or GAME_OVER state to prevent starting a
      * new game while one is already in progress.
      */
+    //ToDo: This method could maybe be split into two methods and remove unnecessary switch
     private void startGame() {
         switch (stateManager.getState()) {
             case PREPARED -> {
