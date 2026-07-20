@@ -142,6 +142,7 @@ public class GameManager implements InputHandler {
             return;
         }
         if (gameBoard.tryHardDrop()) {
+            lockPiece();
             tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
         }
     }
@@ -259,6 +260,17 @@ public class GameManager implements InputHandler {
         return (state) == GameState.PLAYING ? new GameSnapshot(getBoardView(), Optional.of(getCurrentTetromino()), wasDirty) : new GameSnapshot(getBoardView(), Optional.empty(), wasDirty);
     }
 
+    private void lockPiece() {
+        gameBoard.lockTetrominoInPlace();
+        isDirty.set(true);
+        gameBoard.checkAndClearLines();
+        scoreUI.updateScore(gameBoard.getScore());
+        if (!gameBoard.trySetNewTetromino()) {
+            setGameOver();
+        }
+        gravityAccumulator = 0;
+    }
+
     /**
      * The Main game loop listener that is triggered by the game loop timer. It
      * attempts to move the current piece down. If the piece cannot move down,
@@ -288,16 +300,8 @@ public class GameManager implements InputHandler {
             gravityAccumulator += elapsedTime;
             while (gravityAccumulator >= movementSpeed) {
                 if (!gameBoard.tryMovePiece(DirectionFlag.DOWN)) {
-
-                    gameBoard.lockTetrominoInPlace();
-                    isDirty.set(true);
-                    gameBoard.checkAndClearLines();
-                    scoreUI.updateScore(gameBoard.getScore());
-                    if (!gameBoard.trySetNewTetromino()) {
-                        setGameOver();
-                    }
-                    gravityAccumulator = 0;
-                    break;
+                    lockPiece();//todo: this will in future update here replaced by delayLock mechanism (soft drop) after GameLoop is made own class and Gui/swing-agnostic!
+                    break;//break the while loop
                 }
                 gravityAccumulator -= movementSpeed;
             }
