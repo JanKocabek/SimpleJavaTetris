@@ -138,9 +138,6 @@ public class GameManager implements InputHandler {
     }
 
     private void hardDrop() {
-        if (stateManager.getState() != PLAYING) {
-            return;
-        }
         if (gameBoard.tryHardDrop()) {
             lockPiece();
             tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
@@ -165,9 +162,6 @@ public class GameManager implements InputHandler {
      *                  DOWN).
      */
     private void movePiece(final DirectionFlag direction) {
-        if (stateManager.getState() != PLAYING) {
-            return;
-        }
         if (gameBoard.tryMovePiece(direction)) {
             tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
         }
@@ -181,27 +175,20 @@ public class GameManager implements InputHandler {
      * @param rotate The direction to rotate the piece (CLOCKWISE, COUN
      */
     private void rotatePiece(final RotationFlag rotate) {
-        if (stateManager.getState() != PLAYING) {
-            return;
-        }
         if (gameBoard.tryRotatePiece(rotate)) {
             tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
         }
     }
 
     private void pauseGame() {
-        if (stateManager.getState() == PLAYING) {
             gameLoopTimer.stop();
             stateManager.setState(PAUSED);
-        }
     }
 
     private void resumeGame() {
-        if (stateManager.getState() == PAUSED) {
             resetTime();
             gameLoopTimer.start();
             stateManager.setState(PLAYING);
-        }
     }
 
     /**
