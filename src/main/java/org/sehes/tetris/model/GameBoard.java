@@ -251,8 +251,8 @@ public class GameBoard {
     }
 
     /**
-     * Checks if a tetromino can move to a new position without colliding with
-     * existing pieces on the game board.
+     * checks if a tetromino can move to a new position without colliding with
+     * existing pieces on the game board or going out of boundaries.
      *
      * @param tetromino The tetromino to be moved
      * @param direction The direction in which to move the tetromino
@@ -261,7 +261,20 @@ public class GameBoard {
     private boolean canMove(final Tetromino tetromino, final DirectionFlag direction) {
         final int futureX = tetromino.getPositionX() + direction.getX();
         final int futureY = tetromino.getPositionY() + direction.getY();
-        return !isOutOfBoundaries(tetromino.getStateCord(), futureX, futureY) && !isCollisionDetected(tetromino.getStateCord(), futureX, futureY);
+        return canMove(tetromino.getStateCord(), futureX, futureY);
+    }
+
+    /**
+     * Overloaded and sub part version of {@link #canMove(Tetromino, DirectionFlag)} that takes directly a list of coordinates and future positions<br>
+     * this method is used directly by {@link #tryHardDrop()}
+     *
+     * @param coordinates current tetromino shape as list of points
+     * @param futureX     where it will move on axis X horizontal
+     * @param futureY     where it will move on axis Y vertical
+     * @return {@code true} if the move is valid, {@code false} otherwise
+     */
+    private boolean canMove(List<Coordinate> coordinates, int futureX, int futureY) {
+        return !isOutOfBoundaries(coordinates, futureX, futureY) && !isCollisionDetected(coordinates, futureX, futureY);
     }
 
     public boolean tryHardDrop() {
@@ -285,21 +298,6 @@ public class GameBoard {
         return distance;
     }
 
-    /**
-     * checks if a tetromino can move to a new position without colliding with
-     * existing pieces on the game board or going out of boundaries.
-     * this method is used currently by hard drop
-     * its take directly the coordinates of the current tetromino instead of Tetromino object itself and instead of
-     * using the DirectionFlag it uses the direct future position
-     *
-     * @param coordinates current tetromino shape as list of points
-     * @param futureX     where it will move on axis X horizontal
-     * @param futureY     where it will move on axis Y vertical
-     * @return {@code true} if the move is valid, {@code false} otherwise
-     */
-    private boolean canMove(List<Coordinate> coordinates, int futureX, int futureY) {
-        return !isOutOfBoundaries(coordinates, futureX, futureY) && !isCollisionDetected(coordinates, futureX, futureY);
-    }
 
     /**
      * Checks if the position after moving or rotating a piece would collide with
@@ -406,9 +404,9 @@ public class GameBoard {
      * This method sets a specific {@link TetrominoType} to a specific position on the game board.
      * This method is used for testing purposes to fill the game board with {@link TetrominoType}s.
      *
-     * @param row          the row of the block to be set
-     * @param column       the column of the block to be set
-     * @param type the {@link TetrominoType} to be set
+     * @param row    the row of the block to be set
+     * @param column the column of the block to be set
+     * @param type   the {@link TetrominoType} to be set
      */
     void fillBlockForTestOnly(final int row, final int column, final TetrominoType type) {
         board[row][column] = type;
