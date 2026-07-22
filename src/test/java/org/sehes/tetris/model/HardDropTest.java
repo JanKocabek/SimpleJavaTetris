@@ -1,9 +1,8 @@
-package org.sehes.tetris.HardDrop;
+package org.sehes.tetris.model;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sehes.tetris.config.GameParameters;
-import org.sehes.tetris.model.DirectionFlag;
-import org.sehes.tetris.model.GameBoard;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,21 +21,57 @@ class HardDropTest {
      * The tetromino spawns at y=1 (in the hidden rows, second row from top). After hard drop,
      * it should land at position y = VISIBLE_ROWS + initialY = 20 + 1 = 21, meaning it drops
      * 20 rows total to reach the bottom of the visible game area.
+     *
      * @see GameParameters
      */
+    GameBoard gameBoard;
+
+    @BeforeEach
+    void setUp() {
+        gameBoard = new GameBoard();
+    }
+
     @Test
     void hardDropTest() {
         //arrange
-        final var gameBoardHeight = GameParameters.VISIBLE_ROWS;
-        final var gameBoard = new GameBoard();
         gameBoard.trySetNewTetromino();
         final var mino = gameBoard.getCurrentTetromino();
-        final var yPos = mino.getPositionY();
         //act
-        gameBoard.tryHardDrop();
+        final var result = gameBoard.tryHardDrop();
         final var newYPos = mino.getPositionY();
         //assert
+        assertThat(result).isTrue();
         assertThat(gameBoard.tryMovePiece(DirectionFlag.DOWN)).isFalse();
-        assertThat(newYPos).isEqualTo(gameBoardHeight + yPos);
+        assertThat(newYPos).isEqualTo(GameParameters.ROWS - 1);
+
     }
+
+    @Test
+    void hardDropTetrominoIsNullTest() {
+        //arrange
+        final var mino = gameBoard.getCurrentTetromino();
+        //act
+        boolean result = gameBoard.tryHardDrop();
+        //assert
+        assertThat(mino).isNull();
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void hardDropOnOtherMinoTest() {
+        //arrange
+        gameBoard.trySpawnTetromino(new Tetromino(TetrominoType.T, GameParameters.SPAWN_POINT));
+        gameBoard.tryHardDrop();
+        gameBoard.lockTetrominoInPlace();
+        gameBoard.trySetNewTetromino();
+        final var mino = gameBoard.getCurrentTetromino();
+        //act
+        final var result = gameBoard.tryHardDrop();
+        //assert
+        assertThat(result).isTrue();
+        assertThat(gameBoard.tryMovePiece(DirectionFlag.DOWN)).isFalse();
+        assertThat(mino.getPositionY()).isEqualTo(19);
+    }
+
+
 }

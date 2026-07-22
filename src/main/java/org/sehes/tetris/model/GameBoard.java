@@ -86,12 +86,7 @@ public class GameBoard {
 
     public boolean trySetNewTetromino() {
         final Coordinate startingPosition = GameParameters.SPAWN_POINT;
-        final Tetromino newTetromino = factory.createNewRandomTetromino(startingPosition);
-        if (isOutOfBoundaries(newTetromino.getStateCord(), startingPosition.x(), startingPosition.y()) || isCollisionDetected(newTetromino.getStateCord(), startingPosition.x(), startingPosition.y())) {
-            return false;
-        }
-        this.currentTetromino = newTetromino;
-        return true;
+        return trySpawnTetromino(factory.createNewRandomTetromino(startingPosition));
     }
 
     public boolean tryMovePiece(final DirectionFlag flag) {
@@ -274,7 +269,7 @@ public class GameBoard {
      * @return {@code true} if the move is valid, {@code false} otherwise
      */
     private boolean canMove(List<Coordinate> coordinates, int futureX, int futureY) {
-        return !isOutOfBoundaries(coordinates, futureX, futureY) && !isCollisionDetected(coordinates, futureX, futureY);
+        return tetrominoValidPositionCheck(coordinates, futureX, futureY);
     }
 
     public boolean tryHardDrop() {
@@ -374,21 +369,36 @@ public class GameBoard {
     }
 
 
-
-    /*below are JUNIT TEST ONLY methods
-    after future decoupling logic from state they need to be transfer out of this class to don't pollute
-    production code*/
-
     /**
-     * JUNIT TEST ONLY<br>
      * this method set the current tetromino to the specific tetromino
      *
      * @param tetromino the tetromino you need to spawn
      */
 
-    void spawnTetrominoForTestOnly(final Tetromino tetromino) {
-        this.currentTetromino = tetromino;
+    boolean trySpawnTetromino(final Tetromino tetromino) {
+        if (tetrominoValidPositionCheck(tetromino)) {
+            this.currentTetromino = tetromino;
+            return true;
+        }
+        return false;
     }
+
+    private boolean tetrominoValidPositionCheck(Tetromino tetromino) {
+        final var stateCord = tetromino.getStateCord();
+        final var posX = tetromino.getPositionX();
+        final var posY = tetromino.getPositionY();
+        return tetrominoValidPositionCheck(stateCord, posX, posY);
+    }
+
+    private boolean tetrominoValidPositionCheck(List<Coordinate> coordinates, int positionX, int positionY) {
+        return !isOutOfBoundaries(coordinates, positionX, positionY) && !isCollisionDetected(coordinates, positionX, positionY);
+    }
+
+
+
+    /*below are JUNIT TEST ONLY methods
+    after future decoupling logic from state they need to be transfer out of this class to don't pollute
+    production code*/
 
     /**
      * JUNIT TEST ONLY<br>
