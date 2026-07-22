@@ -36,10 +36,28 @@ public class Tetromino {
 
     private final int[] pixelCoordinates;// pixel coordination of the blocks for the drawing
     private final TetrominoType type;
+    /**
+     * The X (column) coordinate of the tetromino's position on the game board.
+     * Represents the horizontal position where the tetromino is currently placed.
+     * X values increase to the right, with 0 being the leftmost column.
+     */
     private int positionX;
+    /**
+     * The Y (row) coordinate of the tetromino's position on the game board.
+     * Represents the vertical position where the tetromino is currently placed.
+     * Y values increase downward, with 0 being the top row.
+     * Note: The game board has HIDDEN_ROWS at the top that are not visible to the player.
+     */
     private int positionY;
     /**
-     * List of points represent the tetromino as shape in coordinates (x,y)
+     * List of coordinates representing the tetromino's shape relative to its position.
+     * Each Coordinate contains (x,y) values where:<br>
+     * - x is the column offset from the tetromino's {@link  positionX}<br>
+     * - y is the row offset from the tetromino's {@link positionY}
+     * <p>
+     * The shape is defined relative to a center pivot point at (0,0).
+     * This list changes when the tetromino rotates (see rotationState).
+     * To get absolute board coordinates, add positionX/positionY to each coordinate.
      */
     private List<Coordinate> stateCoordination;
     private Orientation rotationState; // enum represent current rotation state
