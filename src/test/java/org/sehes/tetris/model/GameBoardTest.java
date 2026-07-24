@@ -10,16 +10,9 @@ import org.sehes.tetris.config.GameParameters;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.sehes.tetris.model.TestUtil.prepareBoard;
-import static org.sehes.tetris.model.TestUtil.prepareBoard2T;
-import static org.sehes.tetris.model.TestUtil.printBoardState;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.sehes.tetris.model.TestUtil.*;
 
 class GameBoardTest {
 
@@ -28,6 +21,63 @@ class GameBoardTest {
     @BeforeEach
     void setUp() {
         gameBoard = new GameBoard();
+    }
+
+    /**
+     * Tests that the board is updated correctly after adding a tetromino to it.
+     * It checks that all the blocks of the tetromino are added to the correct
+     * positions
+     * on the board and that the current tetromino is null after adding it to the
+     * board.
+     */
+    @Test
+    void testLockTetrominoInPlace() {
+        // given
+        gameBoard.trySetNewTetromino();
+        final var tetromino = gameBoard.getCurrentTetromino();
+        final var cord = tetromino.getStateCord();
+        // when
+        gameBoard.lockTetrominoInPlace();
+        final var boardView = gameBoard.getBoardView();
+        // then
+        cord.forEach(coordinate -> assertEquals(tetromino.getType(), boardView
+                        .getBlockContent(tetromino.getPositionY() + coordinate.y(), tetromino.getPositionX() + coordinate.x()),
+                "Block should be added to board"));
+        assertNull(gameBoard.getCurrentTetromino(), "Current tetromino should be null after adding to board");
+    }
+
+    @Test
+    void testCheckAndClearLinesNoLines() {
+        // when
+        boolean result = gameBoard.checkAndClearLines();
+        // then
+        assertFalse(result);
+    }
+
+    @Test
+    void testScoreInitialization() {
+        assertEquals(0, gameBoard.getScore());
+    }
+
+    @Test
+    void testSetLineForTest() {
+        // given
+        gameBoard.fillLineForTestOnly();
+        // when
+        boolean result = gameBoard.checkAndClearLines();
+        // then
+        assertTrue(result);
+    }
+
+    @Test
+    void testUpdateScoreSingleLine() {
+        // given
+        int initialScore = gameBoard.getScore();
+        gameBoard.fillLineForTestOnly();
+        // when
+        gameBoard.checkAndClearLines();
+        // then
+        assertEquals(initialScore + 100, gameBoard.getScore());
     }
 
     @Nested
@@ -96,63 +146,6 @@ class GameBoardTest {
 
     }
 
-    /**
-     * Tests that the board is updated correctly after adding a tetromino to it.
-     * It checks that all the blocks of the tetromino are added to the correct
-     * positions
-     * on the board and that the current tetromino is null after adding it to the
-     * board.
-     */
-    @Test
-    void testLockTetrominoInPlace() {
-        // given
-        gameBoard.trySetNewTetromino();
-        final var tetromino = gameBoard.getCurrentTetromino();
-        final var cord = tetromino.getStateCord();
-        // when
-        gameBoard.lockTetrominoInPlace();
-        final var boardView = gameBoard.getBoardView();
-        // then
-        cord.forEach(coordinate -> assertEquals(tetromino.getType(), boardView
-                        .getBlockContent(tetromino.getPositionY() + coordinate.y(), tetromino.getPositionX() + coordinate.x()),
-                "Block should be added to board"));
-        assertNull(gameBoard.getCurrentTetromino(), "Current tetromino should be null after adding to board");
-    }
-
-    @Test
-    void testCheckAndClearLinesNoLines() {
-        // when
-        boolean result = gameBoard.checkAndClearLines();
-        // then
-        assertFalse(result);
-    }
-
-    @Test
-    void testScoreInitialization() {
-        assertEquals(0, gameBoard.getScore());
-    }
-
-    @Test
-    void testSetLineForTest() {
-        // given
-        gameBoard.fillLineForTestOnly();
-        // when
-        boolean result = gameBoard.checkAndClearLines();
-        // then
-        assertTrue(result);
-    }
-
-    @Test
-    void testUpdateScoreSingleLine() {
-        // given
-        int initialScore = gameBoard.getScore();
-        gameBoard.fillLineForTestOnly();
-        // when
-        gameBoard.checkAndClearLines();
-        // then
-        assertEquals(initialScore + 100, gameBoard.getScore());
-    }
-
     @Nested
     @DisplayName("movement cases")
     class MovementCases {
@@ -215,12 +208,12 @@ class GameBoardTest {
 
         @Test
         void testTryRotatePiece() {
-            // given
-            gameBoard.trySpawnTetromino(
-                    TetrominoFactory.spawnSpecificTetromino(TetrominoType.O, new Coordinate(4, 1)));
-            // when
+            // arrange
+            final var happened = gameBoard.trySpawnTetromino(TetrominoFactory.spawnSpecificTetromino(TetrominoType.O, new Coordinate(4, 1)));
+            // act
             boolean rotated = gameBoard.tryRotatePiece(RotationFlag.CLOCKWISE);
-            // then
+            // assert
+            assertThat(happened).isTrue();
             assertFalse(rotated, "O tetromino cannot be rotated");
         }
 
@@ -341,7 +334,7 @@ class GameBoardTest {
             //given
             gameBoard.trySpawnTetromino(TetrominoFactory.spawnSpecificTetromino(TetrominoType.T, new Coordinate(2, 4)));
             prepareBoard2T(gameBoard);
-            final var t=gameBoard.getCurrentTetromino();
+            final var t = gameBoard.getCurrentTetromino();
             final var basePos = new Coordinate(t.getPositionX(), t.getPositionY());
             //when
             printBoardState(gameBoard.getBoardView(), t);
