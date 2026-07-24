@@ -8,6 +8,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class HardDropTest {
 
+
+    GameBoard gameBoard;
+
+    @BeforeEach
+    void setUp() {
+        gameBoard = new GameBoard();
+    }
+
     /**
      * This test verifies the hard drop functionality moves a tetromino to the bottom of the game board.
      * <br>
@@ -24,15 +32,8 @@ class HardDropTest {
      *
      * @see GameParameters
      */
-    GameBoard gameBoard;
-
-    @BeforeEach
-    void setUp() {
-        gameBoard = new GameBoard();
-    }
-
     @Test
-    void hardDropTest() {
+    void hardDropBasicSuccessCallTest() {
         //arrange
         gameBoard.trySetNewTetromino();
         final var mino = gameBoard.getCurrentTetromino();
@@ -73,5 +74,15 @@ class HardDropTest {
         assertThat(mino.getPositionY()).isEqualTo(19);
     }
 
+    @Test
+    void hardDropNotHappenOnLastRowTest() {
+        //arrange
+        final var happened = gameBoard.trySpawnTetromino(new Tetromino(TetrominoType.T, new Coordinate(4, GameParameters.ROWS - 1)));
+        //act
+        final var result = gameBoard.tryHardDrop();
+        //assert
+        assertThat(happened).isTrue();
+        assertThat(result).isFalse();
+    }
 
 }
