@@ -1,6 +1,7 @@
 package org.sehes.tetris.model;
 
 import org.sehes.tetris.config.GameParameters;
+import org.sehes.tetris.controller.GameManager;
 import org.sehes.tetris.model.ShapeProvider.WallKicks;
 import org.sehes.tetris.model.ShapeProvider.WallKicks.WallKickType;
 
@@ -135,6 +136,7 @@ public class GameBoard {
     }
 
     /**
+     * This should be called only from {@link GameManager#lockPiece()} <br>
      * This method is responsible for adding the current tetromino to the game
      * board when it can no longer move down. It iterates through the grid of
      * the current tetromino and updates the corresponding positions on the game
@@ -144,10 +146,6 @@ public class GameBoard {
      * tetromino to occur in subsequent game logic.
      */
     public void lockTetrominoInPlace() {
-        if (currentTetromino == null) {
-            throw new IllegalStateException("No current tetromino to add to the board.");
-        }
-
         for (Coordinate coordinate : currentTetromino.getStateCord()) {
             final int x = currentTetromino.getPositionX() + coordinate.x();
             final int y = currentTetromino.getPositionY() + coordinate.y();
@@ -205,7 +203,7 @@ public class GameBoard {
         for (Coordinate cord : wallKicks) {
             int testX = currentTetromino.getPositionX() + cord.x();
             int testY = currentTetromino.getPositionY() + cord.y();
-            if (!isOutOfBoundaries(rotatedPosition, testX, testY) && !isCollisionDetected(rotatedPosition, testX, testY)) {
+            if (tetrominoPositionValidCheck(rotatedPosition, testX, testY)) {
                 currentTetromino.setPosition(testX, testY);
                 return true;
             }
@@ -269,7 +267,7 @@ public class GameBoard {
      * @return {@code true} if the move is valid, {@code false} otherwise
      */
     private boolean canMove(List<Coordinate> coordinates, int futureX, int futureY) {
-        return tetrominoValidPositionCheck(coordinates, futureX, futureY);
+        return tetrominoPositionValidCheck(coordinates, futureX, futureY);
     }
 
     public boolean tryHardDrop() {
@@ -306,14 +304,14 @@ public class GameBoard {
      *                     board
      * @return {@code true} if there is a collision, {@code false} otherwise
      */
-    private boolean isCollisionDetected(final List<Coordinate> stateCord, final int newPositionX, final int newPositionY) {
+    private boolean isCollisionFree(final List<Coordinate> stateCord, final int newPositionX, final int newPositionY) {
 
         for (final var cord : stateCord) {
             if (this.board[newPositionY + cord.y()][newPositionX + cord.x()] != TetrominoType.NON) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     /**
@@ -330,7 +328,7 @@ public class GameBoard {
             return false;
         }
 
-        return !isOutOfBoundaries(rotatedStateCord, currentTetromino.getPositionX(), currentTetromino.getPositionY()) && !isCollisionDetected(rotatedStateCord, currentTetromino.getPositionX(), currentTetromino.getPositionY());
+        return tetrominoPositionValidCheck(rotatedStateCord, currentTetromino.getPositionX(), currentTetromino.getPositionY());
     }
 
     /**
@@ -344,15 +342,15 @@ public class GameBoard {
      * @return {@code true} if the final position is out of the board
      * boundaries, {@code false} otherwise.
      */
-    private boolean isOutOfBoundaries(List<Coordinate> newStateCord, int positionX, int positionY) {
+    private boolean isInTheBoundaries(List<Coordinate> newStateCord, int positionX, int positionY) {
         for (Coordinate cord : newStateCord) {
             int newX = cord.x() + positionX;
             int newY = cord.y() + positionY;
             if (newX < 0 || newY < 0 || newX >= board[0].length || newY >= board.length) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     /**
@@ -376,22 +374,35 @@ public class GameBoard {
      */
 
     boolean trySpawnTetromino(final Tetromino tetromino) {
-        if (tetrominoValidPositionCheck(tetromino)) {
+        if (tetrominoCurrentPositionValidCheck(tetromino)) {
             this.currentTetromino = tetromino;
             return true;
         }
         return false;
     }
 
-    private boolean tetrominoValidPositionCheck(Tetromino tetromino) {
+    /**
+     * Checks if the current position of the tetromino is valid.
+     * @param tetromino the tetromino to check
+     * @return {@code true} if the current position is valid, {@code false} otherwise
+     */
+    private boolean tetrominoCurrentPositionValidCheck(Tetromino tetromino) {
         final var stateCord = tetromino.getStateCord();
         final var posX = tetromino.getPositionX();
         final var posY = tetromino.getPositionY();
-        return tetrominoValidPositionCheck(stateCord, posX, posY);
+        return tetrominoPositionValidCheck(stateCord, posX, posY);
     }
 
-    private boolean tetrominoValidPositionCheck(List<Coordinate> coordinates, int positionX, int positionY) {
-        return !isOutOfBoundaries(coordinates, positionX, positionY) && !isCollisionDetected(coordinates, positionX, positionY);
+    /**
+     * Checks if the tetromino based on given coordinates and position(current or future) is in the boundaries and does not collide with any other pieces.
+     *
+     * @param coordinates
+     * @param positionX
+     * @param positionY
+     * @return {@code true} if the tetromino is in the boundaries and does not collide with any other pieces, {@code false} otherwise
+     */
+    private boolean tetrominoPositionValidCheck(List<Coordinate> coordinates, int positionX, int positionY) {
+        return isInTheBoundaries(coordinates, positionX, positionY) && isCollisionFree(coordinates, positionX, positionY);
     }
 
 
