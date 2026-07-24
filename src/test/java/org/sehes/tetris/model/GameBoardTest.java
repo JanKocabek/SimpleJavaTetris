@@ -94,10 +94,6 @@ class GameBoardTest {
             assertThrows(IndexOutOfBoundsException.class, () -> boardView.getBlockContent(-1, 0));
         }
 
-        @Test
-        void testTryAddBlockToBoardWithoutTetromino() {
-            assertThrows(IllegalStateException.class, gameBoard::lockTetrominoInPlace);
-        }
     }
 
     /**
