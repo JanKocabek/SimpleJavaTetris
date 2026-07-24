@@ -1,13 +1,12 @@
 package org.sehes.tetris.model;
 
-import static java.lang.System.Logger.Level.WARNING;
+import org.sehes.tetris.config.GameParameters;
+import org.sehes.tetris.controller.GameManager;
+import org.sehes.tetris.model.ShapeProvider.WallKicks;
+import org.sehes.tetris.model.ShapeProvider.WallKicks.WallKickType;
 
 import java.util.Arrays;
 import java.util.List;
-
-import org.sehes.tetris.config.GameParameters;
-import org.sehes.tetris.model.ShapeProvider.WallKicks;
-import org.sehes.tetris.model.ShapeProvider.WallKicks.WallKickType;
 
 /**
  * The GameBoard class represents the game board in a Tetris game. It manages
@@ -30,13 +29,10 @@ public class GameBoard {
 
     private static final System.Logger myLogger = System.getLogger(GameBoard.class.getName());
     private final TetrominoFactory factory = new TetrominoFactory();
-    private Tetromino currentTetromino;
     private final TetrominoType[][] board;
-    /*
-     * make the start position dynamic based on tetromino type instead of one fixed
-     * position
-     */
+
     private final BoardView boardView;
+    private Tetromino currentTetromino;
     private int score;
 
     public GameBoard() {
@@ -57,8 +53,7 @@ public class GameBoard {
             @Override
             public TetrominoType getBlockContent(final int row, final int column) {
                 if (row < 0 || row >= board.length || column < 0 || column >= board[row].length) {
-                    throw new IndexOutOfBoundsException("Coordinates are out of bounds. Row: " + row + ", Column: "
-                                                        + column + ". Board size: " + board.length + "x" + board[0].length);
+                    throw new IndexOutOfBoundsException("Coordinates are out of bounds. Row: " + row + ", Column: " + column + ". Board size: " + board.length + "x" + board[0].length);
                 }
                 return board[row][column];
             }
@@ -84,7 +79,7 @@ public class GameBoard {
      * the game logic.
      *
      * @return the IBoardView instance representing the current state of the
-     *         game board.
+     * game board.
      */
     public BoardView getBoardView() {
         return boardView;
@@ -92,15 +87,7 @@ public class GameBoard {
 
     public boolean trySetNewTetromino() {
         final Coordinate startingPosition = GameParameters.SPAWN_POINT;
-        final Tetromino newTetromino = factory.createNewRandomTetromino(startingPosition);
-        if (isOutOfBoundaries(newTetromino.getStateCord(), startingPosition.x(), startingPosition.y())) {
-            return false;
-        }
-        if (isCollisionDetected(newTetromino.getStateCord(), startingPosition.x(), startingPosition.y())) {
-            return false;
-        }
-        this.currentTetromino = newTetromino;
-        return true;
+        return trySpawnTetromino(factory.createNewRandomTetromino(startingPosition));
     }
 
     public boolean tryMovePiece(final DirectionFlag flag) {
@@ -145,11 +132,11 @@ public class GameBoard {
     }
 
     private Orientation getNextOrientation(RotationFlag rotation) {
-        return rotation == RotationFlag.CLOCKWISE ? currentTetromino.getCurrentOrientation().rotateClockwise()
-                : currentTetromino.getCurrentOrientation().rotateCounterClockwise();
+        return rotation == RotationFlag.CLOCKWISE ? currentTetromino.getCurrentOrientation().rotateClockwise() : currentTetromino.getCurrentOrientation().rotateCounterClockwise();
     }
 
     /**
+     * This should be called only from {@link GameManager#lockPiece()} <br>
      * This method is responsible for adding the current tetromino to the game
      * board when it can no longer move down. It iterates through the grid of
      * the current tetromino and updates the corresponding positions on the game
@@ -159,10 +146,6 @@ public class GameBoard {
      * tetromino to occur in subsequent game logic.
      */
     public void lockTetrominoInPlace() {
-        if (currentTetromino == null) {
-            throw new IllegalStateException("No current tetromino to add to the board.");
-        }
-
         for (Coordinate coordinate : currentTetromino.getStateCord()) {
             final int x = currentTetromino.getPositionX() + coordinate.x();
             final int y = currentTetromino.getPositionY() + coordinate.y();
@@ -215,15 +198,12 @@ public class GameBoard {
      * @return true if a valid wall kick is found, false otherwise
      */
     private boolean tryWallKick(List<Coordinate> rotatedPosition, Orientation nextOrientation) {
-        WallKickType wallKickType = currentTetromino.getType() == TetrominoType.I ? WallKickType.I_KICKS
-                : WallKickType.NORMAL;
-        List<Coordinate> wallKicks = WallKicks.getWallKicks(wallKickType,
-                currentTetromino.getCurrentOrientation().getTransitionTo(nextOrientation));
+        WallKickType wallKickType = currentTetromino.getType() == TetrominoType.I ? WallKickType.I_KICKS : WallKickType.NORMAL;
+        List<Coordinate> wallKicks = WallKicks.getWallKicks(wallKickType, currentTetromino.getCurrentOrientation().getTransitionTo(nextOrientation));
         for (Coordinate cord : wallKicks) {
             int testX = currentTetromino.getPositionX() + cord.x();
             int testY = currentTetromino.getPositionY() + cord.y();
-            if (!isOutOfBoundaries(rotatedPosition, testX, testY)
-                && !isCollisionDetected(rotatedPosition, testX, testY)) {
+            if (tetrominoPositionValidCheck(rotatedPosition, testX, testY)) {
                 currentTetromino.setPosition(testX, testY);
                 return true;
             }
@@ -242,8 +222,9 @@ public class GameBoard {
             case 2 -> score += 300;
             case 3 -> score += 500;
             case 4 -> score += 800;
-            default -> // shouldn't happen in current implementation
-                    myLogger.log(WARNING, () -> "Invalid number of lines cleared: " + linesCleared);
+            default -> {
+                break;
+            }
         }
     }
 
@@ -263,8 +244,8 @@ public class GameBoard {
     }
 
     /**
-     * Checks if a tetromino can move to a new position without colliding with
-     * existing pieces on the game board.
+     * checks if a tetromino can move to a new position without colliding with
+     * existing pieces on the game board or going out of boundaries.
      *
      * @param tetromino The tetromino to be moved
      * @param direction The direction in which to move the tetromino
@@ -273,30 +254,64 @@ public class GameBoard {
     private boolean canMove(final Tetromino tetromino, final DirectionFlag direction) {
         final int futureX = tetromino.getPositionX() + direction.getX();
         final int futureY = tetromino.getPositionY() + direction.getY();
-        return !isOutOfBoundaries(tetromino.getStateCord(), futureX, futureY)
-               && !isCollisionDetected(tetromino.getStateCord(), futureX, futureY);
+        return canMove(tetromino.getStateCord(), futureX, futureY);
     }
+
+    /**
+     * Overloaded and sub part version of {@link #canMove(Tetromino, DirectionFlag)} that takes directly a list of coordinates and future positions<br>
+     * this method is used directly by {@link #tryHardDrop()}
+     *
+     * @param coordinates current tetromino shape as list of points
+     * @param futureX     where it will move on axis X horizontal
+     * @param futureY     where it will move on axis Y vertical
+     * @return {@code true} if the move is valid, {@code false} otherwise
+     */
+    private boolean canMove(List<Coordinate> coordinates, int futureX, int futureY) {
+        return tetrominoPositionValidCheck(coordinates, futureX, futureY);
+    }
+
+    public boolean tryHardDrop() {
+        if (currentTetromino == null) return false;
+
+        final var distance = calculateDropDistance();
+        if (distance == 0) return false;
+
+        currentTetromino.setPosition(currentTetromino.getPositionX(), currentTetromino.getPositionY() + distance);
+        return true;
+    }
+
+    private int calculateDropDistance() {
+        var distance = 0;
+        final var coordinates = currentTetromino.getStateCord();
+        final var posX = currentTetromino.getPositionX();
+        final var posY = currentTetromino.getPositionY();
+        while (canMove(coordinates, posX, posY + 1 + distance)) {
+            distance++;
+        }
+        return distance;
+    }
+
 
     /**
      * Checks if the position after moving or rotating a piece would collide with
      * any existing pieces on the game board.
      *
-     * @param stateCord   The list of coordinates representing the tetromino's new
-     *                    state
+     * @param stateCord    The list of coordinates representing the tetromino's new
+     *                     state
      * @param newPositionX The expected new X coordination of the tetromino pivot on the
-     *                    board
+     *                     board
      * @param newPositionY The expected new position of the tetromino pivot on the
-     *                    board
+     *                     board
      * @return {@code true} if there is a collision, {@code false} otherwise
      */
-    private boolean isCollisionDetected(final List<Coordinate> stateCord, final int newPositionX, final int newPositionY) {
+    private boolean isCollisionFree(final List<Coordinate> stateCord, final int newPositionX, final int newPositionY) {
 
         for (final var cord : stateCord) {
             if (this.board[newPositionY + cord.y()][newPositionX + cord.x()] != TetrominoType.NON) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     /**
@@ -306,16 +321,14 @@ public class GameBoard {
      * @param rotatedStateCord The list of coordinates representing the tetromino's
      *                         state after the expected rotation
      * @return {@code true} if the original position is valid, {@code false}
-     *         otherwise
+     * otherwise
      */
     private boolean canRotate(final List<Coordinate> rotatedStateCord) {
         if (rotatedStateCord == null || currentTetromino == null) {
             return false;
         }
 
-        return !isOutOfBoundaries(rotatedStateCord, currentTetromino.getPositionX(), currentTetromino.getPositionY()) &&
-               !isCollisionDetected(rotatedStateCord, currentTetromino.getPositionX(),
-                       currentTetromino.getPositionY());
+        return tetrominoPositionValidCheck(rotatedStateCord, currentTetromino.getPositionX(), currentTetromino.getPositionY());
     }
 
     /**
@@ -324,20 +337,20 @@ public class GameBoard {
      *
      * @param newStateCord The coordinates of the tetromino after the move or
      *                     rotation.
-     * @param positionX The current X Coordinate of the tetromino on the board
-     * @param positionY The current Y Coordinate of the tetromino on the board
+     * @param positionX    The current X Coordinate of the tetromino on the board
+     * @param positionY    The current Y Coordinate of the tetromino on the board
      * @return {@code true} if the final position is out of the board
-     *         boundaries, {@code false} otherwise.
+     * boundaries, {@code false} otherwise.
      */
-    private boolean isOutOfBoundaries(List<Coordinate> newStateCord, int positionX, int positionY) {
+    private boolean isInTheBoundaries(List<Coordinate> newStateCord, int positionX, int positionY) {
         for (Coordinate cord : newStateCord) {
             int newX = cord.x() + positionX;
             int newY = cord.y() + positionY;
             if (newX < 0 || newY < 0 || newX >= board[0].length || newY >= board.length) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     /**
@@ -353,20 +366,50 @@ public class GameBoard {
         Arrays.fill(board[0], TetrominoType.NON);
     }
 
-    /*below are JUNIT TEST ONLY methods
-    after future decoupling logic from state they need to be transfer out of this class to don't pollute
-    production code*/
 
     /**
-     * JUNIT TEST ONLY<br>
      * this method set the current tetromino to the specific tetromino
      *
      * @param tetromino the tetromino you need to spawn
      */
 
-    void spawnTetrominoForTestOnly(final Tetromino tetromino) {
-        this.currentTetromino = tetromino;
+    boolean trySpawnTetromino(final Tetromino tetromino) {
+        if (tetrominoCurrentPositionValidCheck(tetromino)) {
+            this.currentTetromino = tetromino;
+            return true;
+        }
+        return false;
     }
+
+    /**
+     * Checks if the current position of the tetromino is valid.
+     * @param tetromino the tetromino to check
+     * @return {@code true} if the current position is valid, {@code false} otherwise
+     */
+    private boolean tetrominoCurrentPositionValidCheck(Tetromino tetromino) {
+        final var stateCord = tetromino.getStateCord();
+        final var posX = tetromino.getPositionX();
+        final var posY = tetromino.getPositionY();
+        return tetrominoPositionValidCheck(stateCord, posX, posY);
+    }
+
+    /**
+     * Checks if the tetromino based on given coordinates and position(current or future) is in the boundaries and does not collide with any other pieces.
+     *
+     * @param coordinates
+     * @param positionX
+     * @param positionY
+     * @return {@code true} if the tetromino is in the boundaries and does not collide with any other pieces, {@code false} otherwise
+     */
+    private boolean tetrominoPositionValidCheck(List<Coordinate> coordinates, int positionX, int positionY) {
+        return isInTheBoundaries(coordinates, positionX, positionY) && isCollisionFree(coordinates, positionX, positionY);
+    }
+
+
+
+    /*below are JUNIT TEST ONLY methods
+    after future decoupling logic from state they need to be transfer out of this class to don't pollute
+    production code*/
 
     /**
      * JUNIT TEST ONLY<br>
@@ -379,15 +422,15 @@ public class GameBoard {
 
     /**
      * JUNIT TEST ONLY<br>
-     * This method sets a specific {@link BlockContent} to a specific position on the game board.
-     * This method is used for testing purposes to fill the game board with {@link BlockContent}s.
+     * This method sets a specific {@link TetrominoType} to a specific position on the game board.
+     * This method is used for testing purposes to fill the game board with {@link TetrominoType}s.
      *
-     * @param row the row of the block to be set
+     * @param row    the row of the block to be set
      * @param column the column of the block to be set
-     * @param blockContent the {@link BlockContent} to be set
+     * @param type   the {@link TetrominoType} to be set
      */
-    void fillBlockForTestOnly(final int row, final int column, final TetrominoType blockContent) {
-        board[row][column] = blockContent;
+    void fillBlockForTestOnly(final int row, final int column, final TetrominoType type) {
+        board[row][column] = type;
     }
 
 

@@ -126,7 +126,7 @@ public class GameManager implements InputHandler {
             case CANCEL -> exitGame();
             case CONFIRM -> pauseGame();
             case MOVE_DOWN -> movePiece(DirectionFlag.DOWN);
-            //  todo: will add in new branch case HARD_DROP -> movePiece(DirectionFlag.DOWN);
+            case HARD_DROP -> hardDrop();
             case MOVE_LEFT -> movePiece(DirectionFlag.LEFT);
             case MOVE_RIGHT -> movePiece(DirectionFlag.RIGHT);
             case ROTATE_CW -> rotatePiece(RotationFlag.CLOCKWISE);
@@ -134,6 +134,13 @@ public class GameManager implements InputHandler {
             default -> {
                 break;
             }
+        }
+    }
+
+    private void hardDrop() {
+        if (gameBoard.tryHardDrop()) {
+            lockPiece();
+            tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
         }
     }
 
@@ -155,9 +162,6 @@ public class GameManager implements InputHandler {
      *                  DOWN).
      */
     private void movePiece(final DirectionFlag direction) {
-        if (stateManager.getState() != PLAYING) {
-            return;
-        }
         if (gameBoard.tryMovePiece(direction)) {
             tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
         }
@@ -171,27 +175,20 @@ public class GameManager implements InputHandler {
      * @param rotate The direction to rotate the piece (CLOCKWISE, COUN
      */
     private void rotatePiece(final RotationFlag rotate) {
-        if (stateManager.getState() != PLAYING) {
-            return;
-        }
         if (gameBoard.tryRotatePiece(rotate)) {
             tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
         }
     }
 
     private void pauseGame() {
-        if (stateManager.getState() == PLAYING) {
             gameLoopTimer.stop();
             stateManager.setState(PAUSED);
-        }
     }
 
     private void resumeGame() {
-        if (stateManager.getState() == PAUSED) {
             resetTime();
             gameLoopTimer.start();
             stateManager.setState(PLAYING);
-        }
     }
 
     /**
@@ -200,6 +197,7 @@ public class GameManager implements InputHandler {
      * the game is in the INITIALIZE or GAME_OVER state to prevent starting a
      * new game while one is already in progress.
      */
+    //ToDo: This method could maybe be split into two methods and remove unnecessary switch
     private void startGame() {
         switch (stateManager.getState()) {
             case PREPARED -> {
@@ -250,6 +248,17 @@ public class GameManager implements InputHandler {
         return (state) == GameState.PLAYING ? new GameSnapshot(getBoardView(), Optional.of(getCurrentTetromino()), wasDirty) : new GameSnapshot(getBoardView(), Optional.empty(), wasDirty);
     }
 
+    private void lockPiece() {
+        gameBoard.lockTetrominoInPlace();
+        isDirty.set(true);
+        gameBoard.checkAndClearLines();
+        scoreUI.updateScore(gameBoard.getScore());
+        if (!gameBoard.trySetNewTetromino()) {
+            setGameOver();
+        }
+        gravityAccumulator = 0;
+    }
+
     /**
      * The Main game loop listener that is triggered by the game loop timer. It
      * attempts to move the current piece down. If the piece cannot move down,
@@ -261,7 +270,7 @@ public class GameManager implements InputHandler {
      */
     private class MainLoopListener implements ActionListener, Observable<Integer> {
         private final List<Observer<Integer>> observers = new CopyOnWriteArrayList<>();
-        private int currentFPS=0;
+        private int currentFPS = 0;
 
         @Override
         public void actionPerformed(final ActionEvent e) {
@@ -279,16 +288,8 @@ public class GameManager implements InputHandler {
             gravityAccumulator += elapsedTime;
             while (gravityAccumulator >= movementSpeed) {
                 if (!gameBoard.tryMovePiece(DirectionFlag.DOWN)) {
-
-                    gameBoard.lockTetrominoInPlace();
-                    isDirty.set(true);
-                    gameBoard.checkAndClearLines();
-                    scoreUI.updateScore(gameBoard.getScore());
-                    if (!gameBoard.trySetNewTetromino()) {
-                        setGameOver();
-                    }
-                    gravityAccumulator = 0;
-                    break;
+                    lockPiece();//todo: this will in future update here replaced by delayLock mechanism (soft drop) after GameLoop is made own class and Gui/swing-agnostic!
+                    break;//break the while loop
                 }
                 gravityAccumulator -= movementSpeed;
             }

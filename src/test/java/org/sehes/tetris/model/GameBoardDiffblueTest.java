@@ -43,7 +43,7 @@ class GameBoardDiffblueTest {
      * <p>Methods under test:
      *
      * <ul>
-     *   <li>{@link GameBoard#spawnTetrominoForTestOnly(Tetromino)}
+     *   <li>{@link GameBoard#trySpawnTetromino(Tetromino)}
      *   <li>{@link GameBoard#getBoardView()}
      *   <li>{@link GameBoard#getCurrentTetromino()}
      *   <li>{@link GameBoard#getScore()}
@@ -66,7 +66,7 @@ class GameBoardDiffblueTest {
                 TetrominoFactory.spawnSpecificTetromino(TetrominoType.I, GameParameters.SPAWN_POINT);
 
         // Act
-        gameBoard.spawnTetrominoForTestOnly(tetromino);
+        gameBoard.trySpawnTetromino(tetromino);
         Tetromino actualCurrentTetromino = gameBoard.getCurrentTetromino();
 
         // Assert
@@ -142,8 +142,9 @@ class GameBoardDiffblueTest {
     void testTryMovePiece_thenGameBoardCurrentTetrominoPositionYIsMinusOne() {
         // Arrange
         GameBoard gameBoard = new GameBoard();
-        gameBoard.spawnTetrominoForTestOnly(
-                TetrominoFactory.spawnSpecificTetromino(TetrominoType.I, new Coordinate(-1, -1)));
+        final var startPos=new Coordinate(-1, -1);
+        gameBoard.trySpawnTetromino(
+                TetrominoFactory.spawnSpecificTetromino(TetrominoType.I,startPos ));
 
         // Act
         boolean actualTryMovePieceResult = gameBoard.tryMovePiece(DirectionFlag.RIGHT);
@@ -172,7 +173,7 @@ class GameBoardDiffblueTest {
     void testTryRotatePiece6() {
         // Arrange
         GameBoard gameBoard = new GameBoard();
-        gameBoard.spawnTetrominoForTestOnly(
+        gameBoard.trySpawnTetromino(
                 TetrominoFactory.spawnSpecificTetromino(TetrominoType.J, new Coordinate(0, 22)));
 
         // Act
@@ -205,13 +206,14 @@ class GameBoardDiffblueTest {
     void testTryRotatePiece() {
         // Arrange
         GameBoard gameBoard = new GameBoard();
-        gameBoard.spawnTetrominoForTestOnly(
+        gameBoard.trySpawnTetromino(
                 TetrominoFactory.spawnSpecificTetromino(TetrominoType.J, new Coordinate(0, 22)));
 
         // Act
         boolean actualTryRotatePieceResult = gameBoard.tryRotatePiece(RotationFlag.COUNTER_CLOCKWISE);
 
         // Assert
+        assertTrue(actualTryRotatePieceResult);
         Tetromino currentTetromino = gameBoard.getCurrentTetromino();
         List<Coordinate> stateCord = currentTetromino.getStateCord();
         assertEquals(4, stateCord.size());
@@ -239,7 +241,7 @@ class GameBoardDiffblueTest {
     void testTryRotatePiece22() {
         // Arrange
         GameBoard gameBoard = new GameBoard();
-        gameBoard.spawnTetrominoForTestOnly(
+        gameBoard.trySpawnTetromino(
                 TetrominoFactory.spawnSpecificTetromino(
                         TetrominoType.I, new Coordinate(Integer.MIN_VALUE, 3)));
 
@@ -273,7 +275,7 @@ class GameBoardDiffblueTest {
     void testTryRotatePiece5() {
         // Arrange
         GameBoard gameBoard = new GameBoard();
-        gameBoard.spawnTetrominoForTestOnly(
+        gameBoard.trySpawnTetromino(
                 TetrominoFactory.spawnSpecificTetromino(TetrominoType.O, GameParameters.SPAWN_POINT));
 
         // Act
@@ -306,7 +308,7 @@ class GameBoardDiffblueTest {
     void testTryRotatePiece4() {
         // Arrange
         GameBoard gameBoard = new GameBoard();
-        gameBoard.spawnTetrominoForTestOnly(
+        gameBoard.trySpawnTetromino(
                 TetrominoFactory.spawnSpecificTetromino(
                         TetrominoType.I, new Coordinate(Integer.MIN_VALUE, 3)));
 
@@ -340,7 +342,7 @@ class GameBoardDiffblueTest {
     void testTryRotatePiece3() {
         // Arrange
         GameBoard gameBoard = new GameBoard();
-        gameBoard.spawnTetrominoForTestOnly(
+        gameBoard.trySpawnTetromino(
                 TetrominoFactory.spawnSpecificTetromino(
                         TetrominoType.J, new Coordinate(Integer.MIN_VALUE, 3)));
 
@@ -374,7 +376,7 @@ class GameBoardDiffblueTest {
     void testTryRotatePiece2() {
         // Arrange
         GameBoard gameBoard = new GameBoard();
-        gameBoard.spawnTetrominoForTestOnly(
+        gameBoard.trySpawnTetromino(
                 TetrominoFactory.spawnSpecificTetromino(
                         TetrominoType.I, new Coordinate(Integer.MIN_VALUE, -2147483647)));
 
@@ -431,7 +433,7 @@ class GameBoardDiffblueTest {
     void testTryRotatePiece32() {
         // Arrange
         GameBoard gameBoard = new GameBoard();
-        gameBoard.spawnTetrominoForTestOnly(
+        gameBoard.trySpawnTetromino(
                 TetrominoFactory.spawnSpecificTetromino(TetrominoType.O, GameParameters.SPAWN_POINT));
 
         // Act
@@ -469,7 +471,7 @@ class GameBoardDiffblueTest {
     void testTryRotatePiece_thenGameBoardCurrentTetrominoStateCordFirstXIsOne() {
         // Arrange
         GameBoard gameBoard = new GameBoard();
-        gameBoard.spawnTetrominoForTestOnly(
+        gameBoard.trySpawnTetromino(
                 TetrominoFactory.spawnSpecificTetromino(TetrominoType.I, GameParameters.SPAWN_POINT));
 
         // Act
@@ -504,7 +506,7 @@ class GameBoardDiffblueTest {
     void testTryRotatePiece_whenNull() {
         // Arrange
         GameBoard gameBoard = new GameBoard();
-        gameBoard.spawnTetrominoForTestOnly(
+        gameBoard.trySpawnTetromino(
                 TetrominoFactory.spawnSpecificTetromino(TetrominoType.I, GameParameters.SPAWN_POINT));
 
         // Act
@@ -543,7 +545,7 @@ class GameBoardDiffblueTest {
     void testTryRotatePiece_thenGameBoardCurrentTetrominoStateCordSecondYIsMinusOne() {
         // Arrange
         GameBoard gameBoard = new GameBoard();
-        gameBoard.spawnTetrominoForTestOnly(
+        gameBoard.trySpawnTetromino(
                 TetrominoFactory.spawnSpecificTetromino(TetrominoType.I, GameParameters.SPAWN_POINT));
 
         // Act
@@ -585,7 +587,7 @@ class GameBoardDiffblueTest {
     void testTryRotatePiece_thenGameBoardCurrentTetrominoStateCordSecondYIsOne() {
         // Arrange
         GameBoard gameBoard = new GameBoard();
-        gameBoard.spawnTetrominoForTestOnly(
+        gameBoard.trySpawnTetromino(
                 TetrominoFactory.spawnSpecificTetromino(TetrominoType.J, new Coordinate(0, 3)));
 
         // Act
@@ -642,7 +644,7 @@ class GameBoardDiffblueTest {
     void testTryRotatePiece52() {
         // Arrange
         GameBoard gameBoard = new GameBoard();
-        gameBoard.spawnTetrominoForTestOnly(
+        gameBoard.trySpawnTetromino(
                 TetrominoFactory.spawnSpecificTetromino(
                         TetrominoType.I, new Coordinate(Integer.MIN_VALUE, -2147483647)));
 
@@ -681,7 +683,7 @@ class GameBoardDiffblueTest {
     void testLockTetrominoInPlace_thenGameBoardCurrentTetrominoIsNull() {
         // Arrange
         GameBoard gameBoard = new GameBoard();
-        gameBoard.spawnTetrominoForTestOnly(
+        gameBoard.trySpawnTetromino(
                 TetrominoFactory.spawnSpecificTetromino(TetrominoType.I, GameParameters.SPAWN_POINT));
 
         // Act
@@ -724,7 +726,7 @@ class GameBoardDiffblueTest {
     void testTryRotatePiece_thenGameBoardCurrentTetrominoStateCordFirstXIsOne3() {
         // Arrange
         GameBoard gameBoard = new GameBoard();
-        gameBoard.spawnTetrominoForTestOnly(
+        gameBoard.trySpawnTetromino(
                 TetrominoFactory.spawnSpecificTetromino(TetrominoType.I, GameParameters.SPAWN_POINT));
 
         // Act
@@ -760,7 +762,7 @@ class GameBoardDiffblueTest {
     void testTryRotatePiece_thenGameBoardCurrentTetrominoStateCordFirstXIsOne2() {
         // Arrange
         GameBoard gameBoard = new GameBoard();
-        gameBoard.spawnTetrominoForTestOnly(
+        gameBoard.trySpawnTetromino(
                 TetrominoFactory.spawnSpecificTetromino(TetrominoType.I, GameParameters.SPAWN_POINT));
 
         // Act
@@ -800,7 +802,7 @@ class GameBoardDiffblueTest {
     void testTryRotatePiece_thenGameBoardCurrentTetrominoStateCordSecondYIsMinusOne2() {
         // Arrange
         GameBoard gameBoard = new GameBoard();
-        gameBoard.spawnTetrominoForTestOnly(
+        gameBoard.trySpawnTetromino(
                 TetrominoFactory.spawnSpecificTetromino(TetrominoType.I, GameParameters.SPAWN_POINT));
 
         // Act
@@ -845,7 +847,7 @@ class GameBoardDiffblueTest {
     void testTryRotatePiece_thenGameBoardCurrentTetrominoStateCordSecondYIsOne2() {
         // Arrange
         GameBoard gameBoard = new GameBoard();
-        gameBoard.spawnTetrominoForTestOnly(
+        gameBoard.trySpawnTetromino(
                 TetrominoFactory.spawnSpecificTetromino(TetrominoType.J, new Coordinate(0, 3)));
 
         // Act
@@ -882,7 +884,7 @@ class GameBoardDiffblueTest {
     void testTryRotatePiece_whenNull2() {
         // Arrange
         GameBoard gameBoard = new GameBoard();
-        gameBoard.spawnTetrominoForTestOnly(
+        gameBoard.trySpawnTetromino(
                 TetrominoFactory.spawnSpecificTetromino(TetrominoType.I, GameParameters.SPAWN_POINT));
 
         // Act

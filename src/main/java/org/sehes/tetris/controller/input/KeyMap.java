@@ -40,7 +40,7 @@ public class KeyMap implements KeyRebinding {
         return Optional.ofNullable(action).filter(a -> a.triggersOnPress() == key.isPressed());
     }
 
-    //todo: create check to not miss action
+    //todo: create check for warning when key rebind unbind action
     @Override
     public boolean keyRebind(int key, InputAction action) {
         map.put(key, action);
