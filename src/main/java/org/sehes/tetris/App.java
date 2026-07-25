@@ -7,6 +7,7 @@ import org.sehes.tetris.graphic.RenderingHintsFactory;
 import org.sehes.tetris.gui.GuiFactory;
 import org.sehes.tetris.gui.TetrisDrawingHandler;
 import org.sehes.tetris.model.TetrominoType;
+import org.sehes.tetris.controller.ScoreManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,8 +24,10 @@ public class App {
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
 
     private final GameStateManager stateManager = new GameStateManager(GameState.INIT);
-    private final GameManager gameManager = new GameManager(stateManager);
     private final InputMapper inputMapper = new InputMapper(KeyMap.createDefault());
+    private final ScoreManager scoreManager = new ScoreManager();
+    private final ScoreMessenger scoreMessenger = new ScoreMessenger();
+    private final GameManager gameManager = new GameManager(stateManager, scoreMessenger);
     private final InputReceiver inputRouter = new InputRouter(inputMapper, gameManager);
     private final KeyAdapter tetrisKeyAdapter = new TetrisKeyAdapter(inputRouter);
 
@@ -34,6 +37,9 @@ public class App {
         canvasWorker.execute();
         addObserver(stateManager, basicGui.infoObserver());
         addObserver(gameManager.fpsObservable(), basicGui.fpsObserver());
+        addObserver(scoreMessenger, scoreManager.scoringObserver());
+        addObserver(stateManager, scoreManager.gameStateObserver());
+        addObserver(scoreManager, basicGui.scoreObserver());
     }
 
     /**

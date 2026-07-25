@@ -1,5 +1,7 @@
 package org.sehes.tetris.gui;
 
+import org.sehes.tetris.controller.Observer;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -10,7 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
-public class ScorePanel extends JPanel {
+public class ScorePanel extends JPanel implements Observer<Integer> {
 
     private final ScoreLabel scoreUI;
     private static final int THICKNESS = 2;
@@ -30,12 +32,10 @@ public class ScorePanel extends JPanel {
         add(scoreUI, BorderLayout.NORTH);
     }
 
-    public void updateScore(int score) {
-        scoreUI.updateScore(score);
-    }
 
-    public void resetScore() {
-        scoreUI.resetScore();
+    @Override
+    public void update(Integer score) {
+        scoreUI.updateScore(score);
     }
 
     /**
@@ -63,10 +63,6 @@ public class ScorePanel extends JPanel {
 
         void updateScore(int score) {
             setText(String.format(SCORE_FORMAT, score));
-        }
-
-        void resetScore() {
-            setText(String.format(SCORE_FORMAT, 0));
         }
     }
 }

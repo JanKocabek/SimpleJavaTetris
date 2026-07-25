@@ -148,5 +148,9 @@ public class GuiFactory {
         public Observer<Integer> fpsObserver() {
             return infoP.fpsUpdateObserver();
         }
+
+        public Observer<Integer> scoreObserver() {
+            return scoreUI;
+        }
     }
 }

@@ -37,10 +37,11 @@ public class GameManager implements InputHandler {
     private final AtomicBoolean isDirty = new AtomicBoolean(false);
     private final long movementSpeed = TimeUnit.MILLISECONDS.toNanos(BASE_SPEED);
     private final MainLoopListener gameLoop;
+    private final ScoreMessenger scoreMessenger;
     private TetrisCanvas tetrisCanvas; // Reference to the canvas for repainting
     private GameBoard gameBoard; // reference to the game board for managing game logic
     private Timer gameLoopTimer; // Timer for the main game loop to control the game speed
-    private ScorePanel scoreUI;// Reference to the score UI for updating the score display
+    // private ScorePanel scoreUI;// Reference to the score UI for updating the score display
     // Loop Time vars
     private long prevTime;
     private long gravityAccumulator;
@@ -50,8 +51,9 @@ public class GameManager implements InputHandler {
     private Runnable gameExit = () -> System.exit(0);
 
 
-    public GameManager(StateManager<GameState> stateManager) {
+    public GameManager(StateManager<GameState> stateManager, ScoreMessenger scoreMessenger) {
         this.stateManager = stateManager;
+        this.scoreMessenger = scoreMessenger;
         this.gameLoop = new MainLoopListener();
     }
 
@@ -64,7 +66,6 @@ public class GameManager implements InputHandler {
     public void prepareGame(GuiFactory.WholeGui gui) {
         if (stateManager.getState() == INIT) {
             this.tetrisCanvas = gui.canvas();
-            this.scoreUI = gui.scoreUI();
             gameLoopTimer = new Timer(FRAME_TIME_MS, gameLoop);
             gameExit = gui.exitAction();
             stateManager.setState(PREPARED);
