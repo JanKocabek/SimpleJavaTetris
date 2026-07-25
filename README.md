@@ -58,10 +58,12 @@ The development journey from a core engine to an ARPG-ready platform.
 | :--- | :--- |
 | **Core Mechanics** | **Enhanced Gameplay** |
 | ✔️ SRS Wall-kick system | ⬜ Ghost piece (Visual guide) |
-| ✔️ All 7 standard tetrominoes | ⬜ Hard drop implementation |
-| ✔️ Collision detection (Walls & Pieces) | ⬜ Preview window for next pieces |
-| ✔️ Basic scoring logic | ⬜ Auto-increasing difficulty (Gravity) |
-| ✔️ Simple Pause / Game Over system | ⬜ Advanced Scoring (T-Spins, Combos) |
+| ✔️ All 7 standard tetrominoes |  ⬜ Preview window for next pieces |
+| ✔️ Collision detection (Walls & Pieces) |⬜ Auto-increasing difficulty (Gravity) |
+| ✔️ Basic scoring logic |  ⬜ Advanced Scoring (T-Spins, Combos) |
+| ✔️ Simple Pause / Game Over system |  |
+| **Enhanced Gameplay** || |
+| ✔️ Hard drop implementation ||  |
 | **Technical Foundation** | **Menus & UI** |
 | ✔️ Keyboard input handling | ⬜ Main Menu & Options |
 | ✔️ Board state & Active tracking | ⬜ About & Credits screen |
