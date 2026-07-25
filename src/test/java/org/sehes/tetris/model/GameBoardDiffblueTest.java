@@ -18,24 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GameBoardDiffblueTest {
-    /**
-     * Test new {@link GameBoard} (default constructor).
-     *
-     * <p>Method under test: default or parameterless constructor of {@link GameBoard}
-     */
-    @Test
-    @DisplayName("Test new GameBoard (default constructor)")
-    @Tag("ContributionFromDiffblue")
-    @ManagedByDiffblue
-    @MethodsUnderTest({"void GameBoard.<init>()"})
-    void testNewGameBoard() {
-        // Arrange and Act
-        GameBoard actualGameBoard = new GameBoard();
 
-        // Assert
-        assertNull(actualGameBoard.getCurrentTetromino());
-        assertEquals(0, actualGameBoard.getScore());
-    }
 
     /**
      * Test getters and setters.
@@ -46,7 +29,6 @@ class GameBoardDiffblueTest {
      *   <li>{@link GameBoard#trySpawnTetromino(Tetromino)}
      *   <li>{@link GameBoard#getBoardView()}
      *   <li>{@link GameBoard#getCurrentTetromino()}
-     *   <li>{@link GameBoard#getScore()}
      * </ul>
      */
     @Test
@@ -69,8 +51,6 @@ class GameBoardDiffblueTest {
         gameBoard.trySpawnTetromino(tetromino);
         Tetromino actualCurrentTetromino = gameBoard.getCurrentTetromino();
 
-        // Assert
-        assertEquals(0, gameBoard.getScore());
         assertSame(tetromino, actualCurrentTetromino);
     }
 
@@ -693,20 +673,7 @@ class GameBoardDiffblueTest {
         assertNull(gameBoard.getCurrentTetromino());
     }
 
-    /**
-     * Test {@link GameBoard#checkAndClearLines()}.
-     *
-     * <p>Method under test: {@link GameBoard#checkAndClearLines()}
-     */
-    @Test
-    @DisplayName("Test checkAndClearLines()")
-    @Tag("ContributionFromDiffblue")
-    @ManagedByDiffblue
-    @MethodsUnderTest({"boolean GameBoard.checkAndClearLines()"})
-    void testCheckAndClearLines() {
-        // Arrange, Act and Assert
-        assertFalse(new GameBoard().checkAndClearLines());
-    }
+
 
     /**
      * Test {@link GameBoard#tryRotatePiece(RotationFlag)}.

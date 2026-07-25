@@ -49,36 +49,26 @@ class GameBoardTest {
     @Test
     void testCheckAndClearLinesNoLines() {
         // when
-        boolean result = gameBoard.checkAndClearLines();
+       final var info = gameBoard.checkAndClearLines();
         // then
-        assertFalse(result);
+        assertThat(info).isNotNull();
+        assertThat(info.lineCleared()).isZero();
     }
 
-    @Test
-    void testScoreInitialization() {
-        assertEquals(0, gameBoard.getScore());
-    }
+
 
     @Test
     void testSetLineForTest() {
         // given
         gameBoard.fillLineForTestOnly();
         // when
-        boolean result = gameBoard.checkAndClearLines();
+        final var info = gameBoard.checkAndClearLines();
         // then
-        assertTrue(result);
+        assertThat(info).isNotNull();
+        assertThat(info.lineCleared()).isOne();
     }
 
-    @Test
-    void testUpdateScoreSingleLine() {
-        // given
-        int initialScore = gameBoard.getScore();
-        gameBoard.fillLineForTestOnly();
-        // when
-        gameBoard.checkAndClearLines();
-        // then
-        assertEquals(initialScore + 100, gameBoard.getScore());
-    }
+
 
     @Nested
     @DisplayName("basic functionality")
@@ -86,7 +76,6 @@ class GameBoardTest {
         @Test
         void testGameBoardInitialization() {
             assertNotNull(gameBoard);
-            assertEquals(0, gameBoard.getScore());
             assertNull(gameBoard.getCurrentTetromino());
         }
 
@@ -123,14 +112,6 @@ class GameBoardTest {
     @Nested
     @DisplayName("crash cases")
     class CrashCases {
-
-        @ParameterizedTest
-        @EnumSource(value = DirectionFlag.class, names = {"LEFT", "RIGHT", "DOWN"})
-        void testTryMovePieceWithoutTetromino(DirectionFlag flag) {
-            boolean result = gameBoard.tryMovePiece(flag);
-            assertFalse(result, "Movement should not be possible without a tetromino");
-        }
-
         @ParameterizedTest
         @EnumSource(value = RotationFlag.class, names = {"CLOCKWISE", "COUNTER_CLOCKWISE"})
         void testTryRotatePieceWithoutTetromino(RotationFlag flag) {
@@ -191,7 +172,7 @@ class GameBoardTest {
             Tetromino tetromino = gameBoard.getCurrentTetromino();
             Coordinate initialPos = new Coordinate(tetromino.getPositionX(), tetromino.getPositionY());
             // when
-            boolean moved = gameBoard.tryMovePiece(DirectionFlag.DOWN);
+            boolean moved = gameBoard.trySoftDrop();
             // then
             assertTrue(moved);
             Coordinate newPos = new Coordinate(tetromino.getPositionX(), tetromino.getPositionY());
