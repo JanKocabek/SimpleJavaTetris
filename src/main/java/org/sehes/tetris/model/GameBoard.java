@@ -33,11 +33,11 @@ public class GameBoard {
 
     private final BoardView boardView;
     private Tetromino currentTetromino;
-    private int score;
+    private LastAction lastAction;
+
 
     public GameBoard() {
         board = new TetrominoType[GameParameters.ROWS][GameParameters.COLUMNS];
-        score = 0;
         fillBoard();
         this.boardView = new BoardView() {
             @Override
@@ -60,11 +60,9 @@ public class GameBoard {
         };
     }
 
-    public int getScore() {
-        return score;
-    }
 
     public Tetromino getCurrentTetromino() {
+
         return currentTetromino;
     }
 
@@ -91,11 +89,29 @@ public class GameBoard {
     }
 
     public boolean tryMovePiece(final DirectionFlag flag) {
-        if (this.currentTetromino == null) {
-            return false;
+        if (flag == DirectionFlag.DOWN) {
+            throw new IllegalArgumentException("Use trySoftDrop() for down movement");
         }
         if (canMove(currentTetromino, flag)) {
             currentTetromino.move(flag);
+            lastAction = LastAction.MOVE;
+            return true;
+        }
+        return false;
+    }
+
+    public boolean trySoftDrop() {
+        boolean result = tryGravityMove();
+        if (result) {
+            lastAction = LastAction.DROP;
+        }
+        return result;
+    }
+
+    public boolean tryGravityMove() {
+
+        if (canMove(currentTetromino, DirectionFlag.DOWN)) {
+            currentTetromino.move(DirectionFlag.DOWN);
             return true;
         }
         return false;
@@ -128,6 +144,7 @@ public class GameBoard {
             return false;
         }
         currentTetromino.setNewState(rotatedPosition, nextOrientation);
+        lastAction = LastAction.ROTATE;
         return true;
     }
 
@@ -163,26 +180,21 @@ public class GameBoard {
      * if at least one line was cleared, allowing the game logic to update the
      * score.
      *
-     * @return true if there was at least one line cleared
+     * @return  a LockStateInfo object containing the number of lines cleared ,last action happened and Type of current tetromino
      */
-    public boolean checkAndClearLines() {
-        boolean lineCleared = false;
+    public LockStateInfo checkAndClearLines() {
         int linesClearedCount = 0;
         for (int row = 0; row < board.length; row++) {
             if (isLineFull(board[row])) {
                 shiftLinesDown(row);
                 linesClearedCount++;
-                lineCleared = true;
                 row--;// todo: in future make the counting of line and clearing of lines separated to
                 // prevent this
             }
         }
-        if (lineCleared) {
-            updateScore(linesClearedCount);
-        }
-        return lineCleared;
+        TetrominoType tetrominoType = currentTetromino != null ? currentTetromino.getType() : null;
+        return new LockStateInfo(linesClearedCount, tetrominoType, lastAction);
     }
-
 
     /**
      * This method is responsible for attempting to wall kick the current tetromino
@@ -209,23 +221,6 @@ public class GameBoard {
             }
         }
         return false;
-    }
-
-    /**
-     * Updates the score based on the number of lines cleared. The scoring
-     * system is as follows: - 1 line cleared: 100 points - 2 lines cleared: 300
-     * points - 3 lines cleared: 500 points - 4 lines cleared: 800 points
-     */
-    private void updateScore(int linesCleared) {
-        switch (linesCleared) {
-            case 1 -> score += 100;
-            case 2 -> score += 300;
-            case 3 -> score += 500;
-            case 4 -> score += 800;
-            default -> {
-                break;
-            }
-        }
     }
 
     private boolean isLineFull(final TetrominoType[] boardRow) {
@@ -270,14 +265,14 @@ public class GameBoard {
         return tetrominoPositionValidCheck(coordinates, futureX, futureY);
     }
 
-    public boolean tryHardDrop() {
-        if (currentTetromino == null) return false;
-
+    public int tryHardDrop() {
+        assert currentTetromino != null : "Current tetromino should not be null";
         final var distance = calculateDropDistance();
-        if (distance == 0) return false;
-
-        currentTetromino.setPosition(currentTetromino.getPositionX(), currentTetromino.getPositionY() + distance);
-        return true;
+        if (distance != 0) {
+            currentTetromino.setPosition(currentTetromino.getPositionX(), currentTetromino.getPositionY() + distance);
+            lastAction = LastAction.DROP;
+        }
+        return distance;
     }
 
     private int calculateDropDistance() {
@@ -290,7 +285,6 @@ public class GameBoard {
         }
         return distance;
     }
-
 
     /**
      * Checks if the position after moving or rotating a piece would collide with
@@ -366,7 +360,6 @@ public class GameBoard {
         Arrays.fill(board[0], TetrominoType.NON);
     }
 
-
     /**
      * this method set the current tetromino to the specific tetromino
      *
@@ -383,6 +376,7 @@ public class GameBoard {
 
     /**
      * Checks if the current position of the tetromino is valid.
+     *
      * @param tetromino the tetromino to check
      * @return {@code true} if the current position is valid, {@code false} otherwise
      */
@@ -404,12 +398,6 @@ public class GameBoard {
     private boolean tetrominoPositionValidCheck(List<Coordinate> coordinates, int positionX, int positionY) {
         return isInTheBoundaries(coordinates, positionX, positionY) && isCollisionFree(coordinates, positionX, positionY);
     }
-
-
-
-    /*below are JUNIT TEST ONLY methods
-    after future decoupling logic from state they need to be transfer out of this class to don't pollute
-    production code*/
 
     /**
      * JUNIT TEST ONLY<br>
@@ -434,4 +422,10 @@ public class GameBoard {
     }
 
 
+    /*below are JUNIT TEST ONLY methods
+    after future decoupling logic from state they need to be transfer out of this class to don't pollute
+    production code*/
+
+    public record LockStateInfo(int lineCleared, TetrominoType tetrominoType, LastAction lastAction) {
+    }
 }

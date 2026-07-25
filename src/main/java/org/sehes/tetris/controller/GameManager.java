@@ -2,16 +2,19 @@ package org.sehes.tetris.controller;
 
 import org.sehes.tetris.controller.input.InputAction;
 import org.sehes.tetris.gui.GuiFactory;
-import org.sehes.tetris.gui.ScorePanel;
 import org.sehes.tetris.gui.TetrisCanvas;
 import org.sehes.tetris.model.*;
+import org.sehes.tetris.model.score.HardDropEvent;
+import org.sehes.tetris.model.score.LockPieceEvent;
+import org.sehes.tetris.model.score.SoftDropEvent;
+import org.sehes.tetris.model.score.TSpin;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -126,7 +129,7 @@ public class GameManager implements InputHandler {
         switch (action) {
             case CANCEL -> exitGame();
             case CONFIRM -> pauseGame();
-            case MOVE_DOWN -> movePiece(DirectionFlag.DOWN);
+            case MOVE_DOWN -> softDrop();
             case HARD_DROP -> hardDrop();
             case MOVE_LEFT -> movePiece(DirectionFlag.LEFT);
             case MOVE_RIGHT -> movePiece(DirectionFlag.RIGHT);
@@ -139,10 +142,12 @@ public class GameManager implements InputHandler {
     }
 
     private void hardDrop() {
-        if (gameBoard.tryHardDrop()) {
-            lockPiece();
+        final var distance = gameBoard.tryHardDrop();
+        if (distance > 0) {
+            scoreMessenger.notifyObservers(new HardDropEvent(distance));
             tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
         }
+        lockPiece();
     }
 
     private void preparedInput(InputAction action) {
@@ -168,6 +173,13 @@ public class GameManager implements InputHandler {
         }
     }
 
+    private void softDrop() {
+        if (gameBoard.trySoftDrop()) {
+            scoreMessenger.notifyObservers(new SoftDropEvent(1));
+            tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
+        }
+    }
+
     /**
      * Try to rotate the current piece in the specified direction. If the
      * rotation is successful, repaint the canvas to reflect the new orientation
@@ -182,14 +194,14 @@ public class GameManager implements InputHandler {
     }
 
     private void pauseGame() {
-            gameLoopTimer.stop();
-            stateManager.setState(PAUSED);
+        gameLoopTimer.stop();
+        stateManager.setState(PAUSED);
     }
 
     private void resumeGame() {
-            resetTime();
-            gameLoopTimer.start();
-            stateManager.setState(PLAYING);
+        resetTime();
+        gameLoopTimer.start();
+        stateManager.setState(PLAYING);
     }
 
     /**
@@ -206,7 +218,6 @@ public class GameManager implements InputHandler {
                 gameLoopTimer.start();
             }
             case GAME_OVER -> {
-                scoreUI.resetScore();
                 newGame();
                 gameLoopTimer.restart();
             }
@@ -252,12 +263,19 @@ public class GameManager implements InputHandler {
     private void lockPiece() {
         gameBoard.lockTetrominoInPlace();
         isDirty.set(true);
-        gameBoard.checkAndClearLines();
-        scoreUI.updateScore(gameBoard.getScore());
+        final var lockInfo = gameBoard.checkAndClearLines();
+        LockPieceEvent lockEvent = createLockEvent(lockInfo);
+        scoreMessenger.notifyObservers(lockEvent);
+
         if (!gameBoard.trySetNewTetromino()) {
             setGameOver();
         }
         gravityAccumulator = 0;
+    }
+
+    private LockPieceEvent createLockEvent(final GameBoard.LockStateInfo lockInfo) {
+        final int clearedLines = lockInfo.lineCleared();
+        return new LockPieceEvent(clearedLines, TSpin.NONE);
     }
 
     /**
@@ -270,8 +288,8 @@ public class GameManager implements InputHandler {
      * repaints the canvas to reflect any changes in the game state.
      */
     private class MainLoopListener implements ActionListener, Observable<Integer> {
-        private final List<Observer<Integer>> observers = new CopyOnWriteArrayList<>();
-        private int currentFPS = 0;
+        private final List<Observer<Integer>> observers = new ArrayList<>();
+
 
         @Override
         public void actionPerformed(final ActionEvent e) {
@@ -288,7 +306,7 @@ public class GameManager implements InputHandler {
 
             gravityAccumulator += elapsedTime;
             while (gravityAccumulator >= movementSpeed) {
-                if (!gameBoard.tryMovePiece(DirectionFlag.DOWN)) {
+                if (!gameBoard.tryGravityMove()) {
                     lockPiece();//todo: this will in future update here replaced by delayLock mechanism (soft drop) after GameLoop is made own class and Gui/swing-agnostic!
                     break;//break the while loop
                 }
@@ -299,6 +317,7 @@ public class GameManager implements InputHandler {
         }
 
         private void fpsCalculation(long elapsedTime) {
+            int currentFPS;
             frameCount++;
             fpsTimer += elapsedTime;
 
@@ -306,7 +325,7 @@ public class GameManager implements InputHandler {
                 currentFPS = frameCount; // This is your actual FPS for the last second
                 frameCount = 0;
                 fpsTimer = 0;
-                notifyObservers();
+                notifyObservers(currentFPS);
             }
         }
 
@@ -321,8 +340,8 @@ public class GameManager implements InputHandler {
         }
 
         @Override
-        public void notifyObservers() {
-            observers.forEach(o -> o.update(currentFPS));
+        public void notifyObservers(Integer event) {
+            observers.forEach(o -> o.update(event));
         }
     }
 }
