@@ -67,7 +67,7 @@ The development journey from a core engine to an ARPG-ready platform.
 | **Technical Foundation** | **Menus & UI** |
 | ✔️ Keyboard input handling | ⬜ Main Menu & Options |
 | ✔️ Board state & Active tracking | ⬜ About & Credits screen |
-| ✔️ Basic Shape Rendering | ⬜ Local Saving (High scores) |
+| ✔️ 2.5D Shape Rendering | ⬜ Local Saving (High scores) |
 | ✔️ Game loop (Timer-based) | ⬜ Professional Sprites & Visual Effects |
 | ✔️ Moving & Redrawing logic | ⬜ Separated Threads (Logic vs Render) |
 | **ARPG Vision (Planned)** | **Multiplayer & AI** |
