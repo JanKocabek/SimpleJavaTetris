@@ -239,15 +239,16 @@ public class GameManager implements InputHandler {
     }
 
     private void newGame() {
+        stateManager.setState(NEW_GAME);
         isDirty.set(true);
         gameBoard = new GameBoard();
-        stateManager.setState(PLAYING);
         if (!gameBoard.trySetNewTetromino()) {
             setGameOver();
             return;
         }
         tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
         resetTime();
+        stateManager.setState(PLAYING);
     }
 
     private void setGameOver() {
@@ -257,7 +258,7 @@ public class GameManager implements InputHandler {
 
     private GameSnapshot gameSnapshotFactory(GameState state) {
         final var wasDirty = this.isDirty.getAndSet(false);
-        return (state) == GameState.PLAYING ? new GameSnapshot(getBoardView(), Optional.of(getCurrentTetromino()), wasDirty) : new GameSnapshot(getBoardView(), Optional.empty(), wasDirty);
+        return ((state) == GameState.PLAYING) ? new GameSnapshot(getBoardView(), Optional.of(getCurrentTetromino()), wasDirty) : new GameSnapshot(getBoardView(), Optional.empty(), wasDirty);
     }
 
     private void lockPiece() {

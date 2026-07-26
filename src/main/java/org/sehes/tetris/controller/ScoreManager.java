@@ -23,7 +23,7 @@ public class ScoreManager implements Observable<Integer> {
     }
 
     private void onGameStateChange(GameState state) {
-        if (state == GameState.PLAYING) {
+        if (state == GameState.NEW_GAME) {
             resetScore();
         }
     }
