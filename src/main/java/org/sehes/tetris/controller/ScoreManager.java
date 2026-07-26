@@ -9,6 +9,11 @@ public class ScoreManager implements Observable<Integer> {
 
     private final List<Observer<Integer>> observers = new ArrayList<>();
     private int score;//this is the current game score
+    private boolean isBackToBack;
+
+    public ScoreManager() {
+        isBackToBack = false;
+    }
 
     public Observer<ScoreEvent> scoringObserver() {
         return this::onScoringEvent;
@@ -43,14 +48,21 @@ public class ScoreManager implements Observable<Integer> {
     }
 
     private int lockPieceScoreCalculation(int clearedLines, TSpin tspin) {
-        return switch (clearedLines) {
+        final boolean isDifficult = (clearedLines == 4 || tspin != TSpin.NONE);
+        final boolean applyBonus = isDifficult && isBackToBack;
+        isBackToBack = isDifficult;
+
+
+        int baseScore = switch (clearedLines) {
             case 1 -> 100;
             case 2 -> 300;
             case 3 -> 500;
             case 4 -> 800;
             default -> 0;
         };
+        return applyBonus ? (int) (baseScore * 1.5) : baseScore;
     }
+
 
     /**
      * Registers {@code Observer}. Held by strong reference — callers must
@@ -58,7 +70,7 @@ public class ScoreManager implements Observable<Integer> {
      * (e.g. a panel) is discarded before this manager.<br> Currently, observers
      * are registered once at startup and live for the app's lifetime.
      *
-     * @param observer
+     * @param observer objects who want to be notified of score changes
      */
     @Override
     public void addObserver(Observer<Integer> observer) {

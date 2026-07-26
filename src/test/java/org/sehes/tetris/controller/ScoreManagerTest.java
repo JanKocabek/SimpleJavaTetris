@@ -74,6 +74,28 @@ class ScoreManagerTest {
         
         // then
         assertThat(scoreManager).extracting("score").isEqualTo(800);
+        assertThat(scoreManager).extracting("isBackToBack").isEqualTo(true);
+    }
+
+    @Test
+    void testDoubleTetrisB2BLogic(){
+        //arrange
+        // act
+        scoreMessenger.notifyObservers(new LockPieceEvent(4, TSpin.NONE));
+        scoreMessenger.notifyObservers(new LockPieceEvent(4, TSpin.NONE));
+        // assert
+        assertThat(scoreManager).extracting("isBackToBack").isEqualTo(true);
+        assertThat(scoreManager).extracting("score").isEqualTo(2000);
+    }
+
+    @Test
+    void testBreakB2BWhenNotDifficultAfterTetris(){
+        //arrange
+        //act
+        scoreMessenger.notifyObservers(new LockPieceEvent(4, TSpin.NONE));
+        scoreMessenger.notifyObservers(new LockPieceEvent(3, TSpin.NONE));
+        // assert
+        assertThat(scoreManager).extracting("isBackToBack").isEqualTo(false);
     }
 
     @Test
@@ -103,7 +125,7 @@ class ScoreManagerTest {
         assertThat(scoreManager).extracting("score").isEqualTo(10);
         
         // when
-        scoreManager.gameStateObserver().update(GameState.PLAYING);
+        scoreManager.gameStateObserver().update(GameState.NEW_GAME);
         
         // then
         assertThat(scoreManager).extracting("score").isEqualTo(0);

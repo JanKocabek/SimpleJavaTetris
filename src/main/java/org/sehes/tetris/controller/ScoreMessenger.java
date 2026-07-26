@@ -14,7 +14,7 @@ public class ScoreMessenger implements Observable<ScoreEvent> {
      * (e.g. a panel) is discarded before this manager.<br> Currently, observers
      * are registered once at startup and live for the app's lifetime.
      *
-     * @param observer
+     * @param observer object that will be notified of score changes
      */
     public void addObserver(Observer<ScoreEvent> observer) {
         observers.add(observer);
