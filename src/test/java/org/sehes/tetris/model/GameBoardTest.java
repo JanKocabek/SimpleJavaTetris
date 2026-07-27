@@ -49,7 +49,7 @@ class GameBoardTest {
     @Test
     void testCheckAndClearLinesNoLines() {
         // when
-       final var info = gameBoard.checkAndClearLines();
+       final var info = gameBoard.getLockInfoAndClearLines();
         // then
         assertThat(info).isNotNull();
         assertThat(info.lineCleared()).isZero();
@@ -62,7 +62,7 @@ class GameBoardTest {
         // given
         gameBoard.fillLineForTestOnly();
         // when
-        final var info = gameBoard.checkAndClearLines();
+        final var info = gameBoard.getLockInfoAndClearLines();
         // then
         assertThat(info).isNotNull();
         assertThat(info.lineCleared()).isOne();

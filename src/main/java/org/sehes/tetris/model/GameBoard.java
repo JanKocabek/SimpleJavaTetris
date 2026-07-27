@@ -180,9 +180,20 @@ public class GameBoard {
      * if at least one line was cleared, allowing the game logic to update the
      * score.
      *
-     * @return  a LockStateInfo object containing the number of lines cleared ,last action happened and Type of current tetromino
+     * @return a LockStateInfo object containing the number of lines cleared ,last action happened and Type of current tetromino
      */
-    public LockStateInfo checkAndClearLines() {
+    public LockStateInfo getLockInfoAndClearLines() {
+        final int linesClearedCount = clearLines();
+        final TetrominoType tetrominoType = (currentTetromino != null) ? currentTetromino.getType() : null;
+        final int corners = (tetrominoType == TetrominoType.T) ? cornerTSpinCheck() : 0;
+        return new LockStateInfo(linesClearedCount, tetrominoType, lastAction, corners);
+    }
+
+    private int cornerTSpinCheck() {
+        return 0;
+    }
+
+    private int clearLines() {
         int linesClearedCount = 0;
         for (int row = 0; row < board.length; row++) {
             if (isLineFull(board[row])) {
@@ -192,8 +203,7 @@ public class GameBoard {
                 // prevent this
             }
         }
-        TetrominoType tetrominoType = currentTetromino != null ? currentTetromino.getType() : null;
-        return new LockStateInfo(linesClearedCount, tetrominoType, lastAction);
+        return linesClearedCount;
     }
 
     /**
@@ -426,6 +436,6 @@ public class GameBoard {
     after future decoupling logic from state they need to be transfer out of this class to don't pollute
     production code*/
 
-    public record LockStateInfo(int lineCleared, TetrominoType tetrominoType, LastAction lastAction) {
+    public record LockStateInfo(int lineCleared, TetrominoType tetrominoType, LastAction lastAction, int corners) {
     }
 }

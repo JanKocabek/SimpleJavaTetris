@@ -148,6 +148,7 @@ public class GameManager implements InputHandler {
             tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
         }
         lockPiece();
+        isDirty.set(true);
     }
 
     private void preparedInput(InputAction action) {
@@ -263,8 +264,8 @@ public class GameManager implements InputHandler {
 
     private void lockPiece() {
         gameBoard.lockTetrominoInPlace();
-        isDirty.set(true);
-        final var lockInfo = gameBoard.checkAndClearLines();
+
+        final var lockInfo = gameBoard.getLockInfoAndClearLines();
         LockPieceEvent lockEvent = createLockEvent(lockInfo);
         scoreMessenger.notifyObservers(lockEvent);
 
@@ -308,7 +309,9 @@ public class GameManager implements InputHandler {
             gravityAccumulator += elapsedTime;
             while (gravityAccumulator >= movementSpeed) {
                 if (!gameBoard.tryGravityMove()) {
-                    lockPiece();//todo: this will in future update here replaced by delayLock mechanism (soft drop) after GameLoop is made own class and Gui/swing-agnostic!
+                    //todo: this will in future update here replaced by delayLock mechanism (soft drop) after GameLoop is made own class and Gui/swing-agnostic!
+                    lockPiece();
+                    isDirty.set(true);
                     break;//break the while loop
                 }
                 gravityAccumulator -= movementSpeed;
