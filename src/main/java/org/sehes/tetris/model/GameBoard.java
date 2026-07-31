@@ -1,5 +1,6 @@
 package org.sehes.tetris.model;
 
+import org.jspecify.annotations.NonNull;
 import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.controller.GameManager;
 import org.sehes.tetris.model.ShapeProvider.WallKicks;
@@ -37,32 +38,24 @@ public class GameBoard {
 
 
     public GameBoard() {
-        board = new TetrominoType[GameParameters.ROWS][GameParameters.COLUMNS];
-        fillBoard();
-        this.boardView = new BoardView() {
-            @Override
-            public int getWidth() {
-                return board[0].length;
-            }
-
-            @Override
-            public int getHeight() {
-                return board.length;
-            }
-
-            @Override
-            public TetrominoType getBlockContent(final int row, final int column) {
-                if (row < 0 || row >= board.length || column < 0 || column >= board[row].length) {
-                    throw new IndexOutOfBoundsException("Coordinates are out of bounds. Row: " + row + ", Column: " + column + ". Board size: " + board.length + "x" + board[0].length);
-                }
-                return board[row][column];
-            }
-        };
+        this.board = createEmptyBoard();
+        this.boardView = new MyBoardView();
     }
 
+    private GameBoard(TetrominoType[][] board) {
+        this.board = board;
+        this.boardView = new MyBoardView();
+    }
+
+    public static GameBoard createGameBoard(TetrominoType[][] board) {
+        return new GameBoard(board);
+    }
+
+    private TetrominoType @NonNull [][] createEmptyBoard() {
+        return fillBoard(new TetrominoType[GameParameters.ROWS][GameParameters.COLUMNS]);
+    }
 
     public Tetromino getCurrentTetromino() {
-
         return currentTetromino;
     }
 
@@ -162,7 +155,24 @@ public class GameBoard {
      * allowing the elimination of completed lines and the spawning of a new
      * tetromino to occur in subsequent game logic.
      */
-    public void lockTetrominoInPlace() {
+    public LockStateInfo lockTetrominoInPlace() {
+        final var lockInfo = getLockStateInfo();
+        lockTetromino();
+        return lockInfo;
+    }
+
+    private LockStateInfo getLockStateInfo() {
+        TetrominoType type = currentTetromino.getType();
+        final boolean isTSpinPossible = (type == TetrominoType.T) && (lastAction == LastAction.ROTATE);
+        final int cornersCount = isTSpinPossible ? checkCornersAroundT() : 0;
+        return new LockStateInfo(type, lastAction, cornersCount);
+    }
+
+    /**
+     * add block of current tetromino to the game board
+     * and release current tetromino from board and memory.
+     */
+    private void lockTetromino() {
         for (Coordinate coordinate : currentTetromino.getStateCord()) {
             final int x = currentTetromino.getPositionX() + coordinate.x();
             final int y = currentTetromino.getPositionY() + coordinate.y();
@@ -182,18 +192,7 @@ public class GameBoard {
      *
      * @return a LockStateInfo object containing the number of lines cleared ,last action happened and Type of current tetromino
      */
-    public LockStateInfo getLockInfoAndClearLines() {
-        final int linesClearedCount = clearLines();
-        final TetrominoType tetrominoType = (currentTetromino != null) ? currentTetromino.getType() : null;
-        final int corners = (tetrominoType == TetrominoType.T) ? cornerTSpinCheck() : 0;
-        return new LockStateInfo(linesClearedCount, tetrominoType, lastAction, corners);
-    }
-
-    private int cornerTSpinCheck() {
-        return 0;
-    }
-
-    private int clearLines() {
+    public int clearLines() {
         int linesClearedCount = 0;
         for (int row = 0; row < board.length; row++) {
             if (isLineFull(board[row])) {
@@ -204,6 +203,30 @@ public class GameBoard {
             }
         }
         return linesClearedCount;
+    }
+
+
+    private int checkCornersAroundT() {
+        final var y = currentTetromino.getPositionY();
+        final var x = currentTetromino.getPositionX();
+        /*
+          offsets for diagonal corners of the T shape
+          -1 -> left, +1 -> right
+          -1 -> up, +1 -> down
+         */
+        int[][] offsets = {
+                {-1, -1}, {-1, +1},
+                {+1, -1}, {+1, +1}
+        };
+
+        return (int) Arrays.stream(offsets)
+                .filter(o -> isValidFilledCorner(x + o[0], y + o[1]))
+                .count();
+    }
+
+    private boolean isValidFilledCorner(int x, int y) {
+        final var isInBoard = x >= 0 && y >= 0 && x < board[0].length && y < board.length;
+        return isInBoard && board[y][x] != TetrominoType.NON;
     }
 
     /**
@@ -242,10 +265,11 @@ public class GameBoard {
         return true;
     }
 
-    private void fillBoard() {
+    private TetrominoType[][] fillBoard(TetrominoType[][] board) {
         for (final var cell : board) {
             Arrays.fill(cell, TetrominoType.NON);
         }
+        return board;
     }
 
     /**
@@ -397,6 +421,7 @@ public class GameBoard {
         return tetrominoPositionValidCheck(stateCord, posX, posY);
     }
 
+
     /**
      * Checks if the tetromino based on given coordinates and position(current or future) is in the boundaries and does not collide with any other pieces.
      *
@@ -419,6 +444,14 @@ public class GameBoard {
     }
 
     /**
+     * replace this in the near future
+     *
+     * @param row
+     * @param column
+     * @param type
+     */
+    @Deprecated
+    /**
      * JUNIT TEST ONLY<br>
      * This method sets a specific {@link TetrominoType} to a specific position on the game board.
      * This method is used for testing purposes to fill the game board with {@link TetrominoType}s.
@@ -436,6 +469,26 @@ public class GameBoard {
     after future decoupling logic from state they need to be transfer out of this class to don't pollute
     production code*/
 
-    public record LockStateInfo(int lineCleared, TetrominoType tetrominoType, LastAction lastAction, int corners) {
+    public record LockStateInfo(TetrominoType tetrominoType, LastAction lastAction, int corners) {
+    }
+
+    private class MyBoardView implements BoardView {
+        @Override
+        public int getWidth() {
+            return board[0].length;
+        }
+
+        @Override
+        public int getHeight() {
+            return board.length;
+        }
+
+        @Override
+        public TetrominoType getBlockContent(final int row, final int column) {
+            if (row < 0 || row >= board.length || column < 0 || column >= board[row].length) {
+                throw new IndexOutOfBoundsException("Coordinates are out of bounds. Row: " + row + ", Column: " + column + ". Board size: " + board.length + "x" + board[0].length);
+            }
+            return board[row][column];
+        }
     }
 }

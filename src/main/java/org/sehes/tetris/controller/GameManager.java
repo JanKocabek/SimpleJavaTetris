@@ -60,6 +60,9 @@ public class GameManager implements InputHandler {
         this.gameLoop = new MainLoopListener();
     }
 
+    public void setGameBoard(GameBoard gameBoard) {
+        this.gameBoard = gameBoard;
+    }
     /**
      * Starts the Tetris application by initializing the game state, creating
      * game loop timer, and setting up the game window. The game loop timer is
@@ -263,20 +266,17 @@ public class GameManager implements InputHandler {
     }
 
     private void lockPiece() {
-        gameBoard.lockTetrominoInPlace();
-
-        final var lockInfo = gameBoard.getLockInfoAndClearLines();
-        LockPieceEvent lockEvent = createLockEvent(lockInfo);
+        final var lockInfo = gameBoard.lockTetrominoInPlace();
+        final var removedLines = gameBoard.clearLines();
+        LockPieceEvent lockEvent = createLockEvent(lockInfo, removedLines);
         scoreMessenger.notifyObservers(lockEvent);
-
         if (!gameBoard.trySetNewTetromino()) {
             setGameOver();
         }
         gravityAccumulator = 0;
     }
 
-    private LockPieceEvent createLockEvent(final GameBoard.LockStateInfo lockInfo) {
-        final int clearedLines = lockInfo.lineCleared();
+    private LockPieceEvent createLockEvent(final GameBoard.LockStateInfo lockInfo,int clearedLines) {
         return new LockPieceEvent(clearedLines, TSpin.NONE);
     }
 
