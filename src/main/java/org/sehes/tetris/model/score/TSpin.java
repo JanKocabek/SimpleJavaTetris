@@ -29,9 +29,8 @@ public enum TSpin {
         };
     }
 
-    public static TSpin getTSpin(int frontCornersCount, int backCornersCount, boolean wasRotate) {
-        if (!wasRotate) return NONE;
-        if (frontCornersCount == 2 && backCornersCount == 1) return FULL;
-        return (frontCornersCount == 1 && backCornersCount == 2) ? MINI : NONE;
+    public static TSpin getTSpin(int frontCornersCount, int backCornersCount, boolean wasRotation) {
+        if (!wasRotation) return NONE;
+        return (frontCornersCount + backCornersCount) < 3 ? NONE : frontCornersCount == 2 ? FULL : MINI;
     }
 }
