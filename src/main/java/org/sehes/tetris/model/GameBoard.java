@@ -5,6 +5,7 @@ import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.controller.GameManager;
 import org.sehes.tetris.model.ShapeProvider.WallKicks;
 import org.sehes.tetris.model.ShapeProvider.WallKicks.WallKickType;
+import org.sehes.tetris.model.score.TSpin;
 
 import java.util.Arrays;
 import java.util.List;
@@ -147,30 +148,37 @@ public class GameBoard {
 
     /**
      * This should be called only from {@link GameManager#lockPiece()} <br>
-     * This method is responsible for adding the current tetromino to the game
-     * board when it can no longer move down. It iterates through the grid of
-     * the current tetromino and updates the corresponding positions on the game
-     * board with the appropriate BlockContent based on the color of the
-     * tetromino. This effectively "locks" the tetromino in place on the board,
-     * allowing the elimination of completed lines and the spawning of a new
-     * tetromino to occur in subsequent game logic.
+     * This method is responsible for locking the current tetromino in place on the game board.
+     * It's last places where can be reliably find if the T-spin happened
+     * then locks the tetromino.
+     *
+     * @return The T-spin type if a T-spin was detected, otherwise {@link TSpin#NONE}.
      */
-    public LockStateInfo lockTetrominoInPlace() {
-        final var lockInfo = getLockStateInfo();
+    public TSpin lockTetrominoInPlace() {
+        final var tSpin = checkTspin();
         lockTetromino();
-        return lockInfo;
+        return tSpin;
     }
 
-    private LockStateInfo getLockStateInfo() {
-        TetrominoType type = currentTetromino.getType();
-        final boolean isTSpinPossible = (type == TetrominoType.T) && (lastAction == LastAction.ROTATE);
-        final int cornersCount = isTSpinPossible ? checkCornersAroundT() : 0;
-        return new LockStateInfo(type, lastAction, cornersCount);
+
+    private TSpin checkTspin() {
+        if (currentTetromino.getType() != TetrominoType.T || lastAction != LastAction.ROTATE) return TSpin.NONE;
+        final int[][] frontCornersOffset = TSpin.getFrontCornersOffset(currentTetromino.getCurrentOrientation());
+        final int[][] backCornersOffset = TSpin.getBackCornersOffset(currentTetromino.getCurrentOrientation());
+        final int frontCornersCount = checkCornersAroundT(frontCornersOffset);
+        final int backCornersCount = checkCornersAroundT(backCornersOffset);
+        return TSpin.getTSpin(frontCornersCount, backCornersCount, true);
     }
 
     /**
-     * add block of current tetromino to the game board
-     * and release current tetromino from board and memory.
+     *
+     * This method is responsible for adding the current tetromino to the game
+     * board when it can no longer move down. It iterates through the grid of
+     * the current tetromino and updates the corresponding positions on the game
+     * board with the appropriate TetrominoType.
+     * This effectively "locks" the tetromino in place on the board,
+     * allowing the elimination of completed lines and the spawning of a new
+     * tetromino to occur in subsequent game logic.
      */
     private void lockTetromino() {
         for (Coordinate coordinate : currentTetromino.getStateCord()) {
@@ -206,20 +214,10 @@ public class GameBoard {
     }
 
 
-    private int checkCornersAroundT() {
+    private int checkCornersAroundT(int[][] offset) {
         final var y = currentTetromino.getPositionY();
         final var x = currentTetromino.getPositionX();
-        /*
-          offsets for diagonal corners of the T shape
-          -1 -> left, +1 -> right
-          -1 -> up, +1 -> down
-         */
-        int[][] offsets = {
-                {-1, -1}, {-1, +1},
-                {+1, -1}, {+1, +1}
-        };
-
-        return (int) Arrays.stream(offsets)
+        return (int) Arrays.stream(offset)
                 .filter(o -> isValidFilledCorner(x + o[0], y + o[1]))
                 .count();
     }
@@ -468,9 +466,6 @@ public class GameBoard {
     /*below are JUNIT TEST ONLY methods
     after future decoupling logic from state they need to be transfer out of this class to don't pollute
     production code*/
-
-    public record LockStateInfo(TetrominoType tetrominoType, LastAction lastAction, int corners) {
-    }
 
     private class MyBoardView implements BoardView {
         @Override

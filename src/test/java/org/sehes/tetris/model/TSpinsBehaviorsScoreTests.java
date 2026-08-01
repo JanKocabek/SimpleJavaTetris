@@ -1,6 +1,7 @@
 package org.sehes.tetris.model;
 
 import org.junit.jupiter.api.Test;
+import org.sehes.tetris.model.score.TSpin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sehes.tetris.model.TestUtil.prepareBoard;
@@ -45,6 +46,6 @@ class TSpinsBehaviorsScoreTests {
         gameBoard.tryRotatePiece(RotationFlag.CLOCKWISE);
         final var result = gameBoard.lockTetrominoInPlace();
         //assert
-        assertThat(result.corners()).isEqualTo(3);
+        assertThat(result).isEqualTo(TSpin.FULL);
     }
 }
