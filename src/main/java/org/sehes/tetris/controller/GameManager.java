@@ -151,7 +151,7 @@ public class GameManager implements InputHandler {
             scoreMessenger.notifyObservers(new HardDropEvent(distance));
             tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
         }
-        lockPiece();
+        lockClearAndScorePiece();
         isDirty.set(true);
     }
 
@@ -266,10 +266,11 @@ public class GameManager implements InputHandler {
         return ((state) == GameState.PLAYING) ? new GameSnapshot(getBoardView(), Optional.of(getCurrentTetromino()), wasDirty) : new GameSnapshot(getBoardView(), Optional.empty(), wasDirty);
     }
 
-    private void lockPiece() {
-        final var tSpin = gameBoard.lockTetrominoInPlace();
-        final var removedLines = gameBoard.clearLines();
-        LockPieceEvent lockEvent = createLockEvent(tSpin, removedLines);
+    private void lockClearAndScorePiece() {
+        gameBoard.lockTetrominoInPlace();
+        gameBoard.clearLines();
+        final var lastAction = gameBoard.getLastAction();
+        final LockPieceEvent lockEvent = createLockEvent(lastAction.tSpin(), lastAction.linesCleared());
         scoreMessenger.notifyObservers(lockEvent);
         if (!gameBoard.trySetNewTetromino()) {
             setGameOver();
@@ -311,7 +312,7 @@ public class GameManager implements InputHandler {
             while (gravityAccumulator >= movementSpeed) {
                 if (!gameBoard.tryGravityMove()) {
                     //todo: this will in future update here replaced by delayLock mechanism (soft drop) after GameLoop is made own class and Gui/swing-agnostic!
-                    lockPiece();
+                    lockClearAndScorePiece();
                     isDirty.set(true);
                     break;//break the while loop
                 }

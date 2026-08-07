@@ -32,28 +32,33 @@ public class GameBoard {
     private static final System.Logger myLogger = System.getLogger(GameBoard.class.getName());
     private final TetrominoFactory factory = new TetrominoFactory();
     private final TetrominoType[][] board;
-
     private final BoardView boardView;
+    private final ActionSnapshot lastActionSnapshot;
     private Tetromino currentTetromino;
-    private LastAction lastAction;
-
 
     public GameBoard() {
-        this.board = createEmptyBoard();
-        this.boardView = new MyBoardView();
+        this(createEmptyBoard());
     }
 
     private GameBoard(TetrominoType[][] board) {
         this.board = board;
         this.boardView = new MyBoardView();
+        lastActionSnapshot = new ActionSnapshot();
     }
 
     public static GameBoard createGameBoard(TetrominoType[][] board) {
         return new GameBoard(board);
     }
 
-    private TetrominoType @NonNull [][] createEmptyBoard() {
+    private static TetrominoType @NonNull [][] createEmptyBoard() {
         return fillBoard(new TetrominoType[GameParameters.ROWS][GameParameters.COLUMNS]);
+    }
+
+    private static TetrominoType[][] fillBoard(TetrominoType[][] board) {
+        for (final var cell : board) {
+            Arrays.fill(cell, TetrominoType.NON);
+        }
+        return board;
     }
 
     public Tetromino getCurrentTetromino() {
@@ -88,7 +93,7 @@ public class GameBoard {
         }
         if (canMove(currentTetromino, flag)) {
             currentTetromino.move(flag);
-            lastAction = LastAction.MOVE;
+            lastActionSnapshot.lastActionType = LastActionType.MOVE;
             return true;
         }
         return false;
@@ -97,7 +102,7 @@ public class GameBoard {
     public boolean trySoftDrop() {
         boolean result = tryGravityMove();
         if (result) {
-            lastAction = LastAction.DROP;
+            lastActionSnapshot.lastActionType = LastActionType.DROP;
         }
         return result;
     }
@@ -127,19 +132,27 @@ public class GameBoard {
      *                 {@code CLOCKWISE} for right rotation,
      *                 {@code COUNTER_CLOCKWISE}
      *                 for left rotation)
+     *                 <br>
+     *                 {@code null} is not a valid rotation
+     * @return {@code true} if the rotation was successful, {@code false} otherwise
      */
     public boolean tryRotatePiece(final RotationFlag rotation) {
         if (this.currentTetromino == null || rotation == null || currentTetromino.getType() == TetrominoType.O) {
             return false;
         }
+
         final Orientation nextOrientation = getNextOrientation(rotation);
         final List<Coordinate> rotatedPosition = ShapeProvider.getTetrominoState(currentTetromino.getType(), nextOrientation);
-        if (!canRotate(rotatedPosition) && !tryWallKick(rotatedPosition, nextOrientation)) {
-            return false;
+        final boolean rotatesInPlace = canRotate(rotatedPosition);
+        final TSpinKickType kick = rotatesInPlace ? TSpinKickType.NONE : tryWallKick(rotatedPosition, nextOrientation);
+
+        lastActionSnapshot.tSpinKickType = kick;
+        if (rotatesInPlace || kick != TSpinKickType.NONE) {
+            currentTetromino.setNewState(rotatedPosition, nextOrientation);
+            lastActionSnapshot.lastActionType = LastActionType.ROTATE;
+            return true;
         }
-        currentTetromino.setNewState(rotatedPosition, nextOrientation);
-        lastAction = LastAction.ROTATE;
-        return true;
+        return false;
     }
 
     private Orientation getNextOrientation(RotationFlag rotation) {
@@ -147,27 +160,30 @@ public class GameBoard {
     }
 
     /**
-     * This should be called only from {@link GameManager#lockPiece()} <br>
+     * This should be called only from {@link GameManager#lockClearAndScorePiece()} ()} <br>
      * This method is responsible for locking the current tetromino in place on the game board.
      * It's last places where can be reliably find if the T-spin happened
      * then locks the tetromino.
      *
-     * @return The T-spin type if a T-spin was detected, otherwise {@link TSpin#NONE}.
      */
-    public TSpin lockTetrominoInPlace() {
-        final var tSpin = checkTspin();
+    public void lockTetrominoInPlace() {
+        checkTSpin();
         lockTetromino();
-        return tSpin;
     }
 
-
-    private TSpin checkTspin() {
-        if (currentTetromino.getType() != TetrominoType.T || lastAction != LastAction.ROTATE) return TSpin.NONE;
+    private void checkTSpin() {
+        if (currentTetromino.getType() != TetrominoType.T || lastActionSnapshot.lastActionType != LastActionType.ROTATE) {
+            lastActionSnapshot.tSpin = TSpin.NONE;
+        }
+        if (lastActionSnapshot.tSpinKickType == TSpinKickType.T_SPIN_KICK) {
+            lastActionSnapshot.tSpin = TSpin.FULL;
+            return;
+        }
         final int[][] frontCornersOffset = TSpin.getFrontCornersOffset(currentTetromino.getCurrentOrientation());
         final int[][] backCornersOffset = TSpin.getBackCornersOffset(currentTetromino.getCurrentOrientation());
         final int frontCornersCount = checkCornersAroundT(frontCornersOffset);
         final int backCornersCount = checkCornersAroundT(backCornersOffset);
-        return TSpin.getTSpin(frontCornersCount, backCornersCount, true);
+        lastActionSnapshot.tSpin = TSpin.getTSpin(frontCornersCount, backCornersCount, true);
     }
 
     /**
@@ -197,10 +213,8 @@ public class GameBoard {
      * EMPTY and shifts all rows above it down by one. The method returns true
      * if at least one line was cleared, allowing the game logic to update the
      * score.
-     *
-     * @return a LockStateInfo object containing the number of lines cleared ,last action happened and Type of current tetromino
      */
-    public int clearLines() {
+    public void clearLines() {
         int linesClearedCount = 0;
         for (int row = 0; row < board.length; row++) {
             if (isLineFull(board[row])) {
@@ -210,9 +224,8 @@ public class GameBoard {
                 // prevent this
             }
         }
-        return linesClearedCount;
+        lastActionSnapshot.linesCleared = linesClearedCount;
     }
-
 
     private int checkCornersAroundT(int[][] offset) {
         final var y = currentTetromino.getPositionY();
@@ -233,14 +246,14 @@ public class GameBoard {
      * the wall kick table to find the possible wall kicks that can be applied to
      * the current tetromino, and then checks each wall kick to see if it results in
      * a valid position for the tetromino. If a valid wall kick is found, it updates
-     * the tetromino's position accordingly and returns true. If no valid wall kick
-     * is found, it returns false.
+     * the tetromino's position accordingly.
      *
      * @param rotatedPosition the grid configuration of the tetromino after
      *                        rotation
-     * @return true if a valid wall kick is found, false otherwise
+     * @return value of {@link TSpinKickType} that represents if a valid wall kick
+     * was found and if the kick matches the special 1×2 T-Spin kick
      */
-    private boolean tryWallKick(List<Coordinate> rotatedPosition, Orientation nextOrientation) {
+    private TSpinKickType tryWallKick(List<Coordinate> rotatedPosition, Orientation nextOrientation) {
         WallKickType wallKickType = currentTetromino.getType() == TetrominoType.I ? WallKickType.I_KICKS : WallKickType.NORMAL;
         List<Coordinate> wallKicks = WallKicks.getWallKicks(wallKickType, currentTetromino.getCurrentOrientation().getTransitionTo(nextOrientation));
         for (Coordinate cord : wallKicks) {
@@ -248,10 +261,10 @@ public class GameBoard {
             int testY = currentTetromino.getPositionY() + cord.y();
             if (tetrominoPositionValidCheck(rotatedPosition, testX, testY)) {
                 currentTetromino.setPosition(testX, testY);
-                return true;
+                return Math.abs(cord.x()) == 1 && cord.y() == 2 ? TSpinKickType.T_SPIN_KICK : TSpinKickType.ORDINARY;
             }
         }
-        return false;
+        return TSpinKickType.NONE;
     }
 
     private boolean isLineFull(final TetrominoType[] boardRow) {
@@ -261,13 +274,6 @@ public class GameBoard {
             }
         }
         return true;
-    }
-
-    private TetrominoType[][] fillBoard(TetrominoType[][] board) {
-        for (final var cell : board) {
-            Arrays.fill(cell, TetrominoType.NON);
-        }
-        return board;
     }
 
     /**
@@ -302,7 +308,7 @@ public class GameBoard {
         final var distance = calculateDropDistance();
         if (distance != 0) {
             currentTetromino.setPosition(currentTetromino.getPositionX(), currentTetromino.getPositionY() + distance);
-            lastAction = LastAction.DROP;
+            lastActionSnapshot.lastActionType = LastActionType.DROP;
         }
         return distance;
     }
@@ -401,6 +407,7 @@ public class GameBoard {
     boolean trySpawnTetromino(final Tetromino tetromino) {
         if (tetrominoCurrentPositionValidCheck(tetromino)) {
             this.currentTetromino = tetromino;
+            lastActionSnapshot.reset();
             return true;
         }
         return false;
@@ -432,11 +439,8 @@ public class GameBoard {
         return isInTheBoundaries(coordinates, positionX, positionY) && isCollisionFree(coordinates, positionX, positionY);
     }
 
-    /**
-     * JUNIT TEST ONLY<br>
-     * this method fill last line with blocks
-     */
-    void fillLineForTestOnly() {
+
+    void createGarbageLine() {
         int lastLine = board.length - 1;
         Arrays.fill(board[lastLine], TetrominoType.L);
     }
@@ -448,7 +452,7 @@ public class GameBoard {
      * @param column
      * @param type
      */
-    @Deprecated
+
     /**
      * JUNIT TEST ONLY<br>
      * This method sets a specific {@link TetrominoType} to a specific position on the game board.
@@ -458,14 +462,47 @@ public class GameBoard {
      * @param column the column of the block to be set
      * @param type   the {@link TetrominoType} to be set
      */
+    @Deprecated
     void fillBlockForTestOnly(final int row, final int column, final TetrominoType type) {
         board[row][column] = type;
     }
 
+    public ActionSnapshot.LastActionSnapshot getLastAction() {
+        return lastActionSnapshot.getActionSnapshot();
+    }
 
-    /*below are JUNIT TEST ONLY methods
-    after future decoupling logic from state they need to be transfer out of this class to don't pollute
-    production code*/
+    private static final class ActionSnapshot {
+        private TSpinKickType tSpinKickType;
+        private int linesCleared;
+        private LastActionType lastActionType;
+        private TSpin tSpin;
+
+        ActionSnapshot() {
+            reset();
+        }
+
+        private void reset() {
+            this.tSpinKickType = null;
+            this.linesCleared = 0;
+            this.lastActionType = null;
+            this.tSpin = null;
+        }
+
+        /**
+         * this method should be call only from {@link GameManager#lockClearAndScorePiece()}
+         * its purpose is to return the last action info for score calculation
+         *
+         * @return record {@link LastActionSnapshot} containing tSpin and lines cleared information
+         */
+        public LastActionSnapshot getActionSnapshot() {
+            if (this.tSpin == null)
+                throw new IllegalStateException("wrong place to call tetromino wasn't landed yet");
+            return new LastActionSnapshot(this.tSpin, this.linesCleared);
+        }
+
+        public record LastActionSnapshot(TSpin tSpin, int linesCleared) {
+        }
+    }
 
     private class MyBoardView implements BoardView {
         @Override

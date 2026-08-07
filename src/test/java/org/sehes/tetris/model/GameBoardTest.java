@@ -49,23 +49,23 @@ class GameBoardTest {
     @Test
     void testCheckAndClearLinesNoLines() {
         // when
-       final var info = gameBoard.clearLines();
+        gameBoard.clearLines();
+        final var result= gameBoard.getLastAction();
         // then
-        assertThat(info).isZero();
+        assertThat(result.linesCleared()).isZero();
     }
-
 
 
     @Test
     void testSetLineForTest() {
         // given
-        gameBoard.fillLineForTestOnly();
+        gameBoard.createGarbageLine();
         // when
-        final var info = gameBoard.clearLines();
+        gameBoard.clearLines();
+        final var result = gameBoard.getLastAction();
         // then
-        assertThat(info).isOne();
+        assertThat(result.linesCleared()).isOne();
     }
-
 
 
     @Nested

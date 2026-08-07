@@ -1,6 +1,6 @@
 package org.sehes.tetris.model;
 
-public enum LastAction {
+public enum LastActionType {
     MOVE,
     ROTATE,
     DROP,

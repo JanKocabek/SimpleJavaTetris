@@ -68,10 +68,11 @@ class TSpinsLogicTests {
         assertThat(gameBoard.tryRotatePiece(rotation)).isTrue();
         assertThat(t.getCurrentOrientation()).isEqualTo(Orientation.NORTH);
 
-        TSpin result = gameBoard.lockTetrominoInPlace();
+        gameBoard.lockTetrominoInPlace();
+      final var result=  gameBoard.getLastAction();
 
         // Assert
-        assertThat(result).isEqualTo(TSpin.MINI);
+        assertThat(result.tSpin()).isEqualTo(TSpin.MINI);
     }
 
     @Test
@@ -95,9 +96,10 @@ class TSpinsLogicTests {
         assertThat(gameBoard.tryRotatePiece(rotation)).isTrue();
         assertThat(t.getCurrentOrientation()).isEqualTo(Orientation.SOUTH);
 
-        TSpin result = gameBoard.lockTetrominoInPlace();
+        gameBoard.lockTetrominoInPlace();
+       final var result= gameBoard.getLastAction();
 
         // Assert
-        assertThat(result).isEqualTo(TSpin.FULL);
+        assertThat(result.tSpin()).isEqualTo(TSpin.FULL);
     }
 }
