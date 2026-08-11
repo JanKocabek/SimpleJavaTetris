@@ -58,6 +58,8 @@ public class Tetromino {
      * The shape is defined relative to a center pivot point at (0,0).
      * This list changes when the tetromino rotates (see rotationState).
      * To get absolute board coordinates, add positionX/positionY to each coordinate.
+     * <p>
+     * coordinates are taken from {@link ShapeProvider}
      */
     private List<Coordinate> stateCoordination;
     private Orientation rotationState; // enum represent current rotation state
