@@ -482,10 +482,10 @@ public class GameBoard {
         }
 
         private void reset() {
-            this.tSpinKickType = null;
+            this.tSpinKickType = TSpinKickType.NONE;
             this.linesCleared = 0;
             this.lastActionType = null;
-            this.tSpin = null;
+            this.tSpin = TSpin.NONE;
         }
 
         /**
@@ -495,8 +495,6 @@ public class GameBoard {
          * @return record {@link LastActionSnapshot} containing tSpin and lines cleared information
          */
         public LastActionSnapshot getActionSnapshot() {
-            if (this.tSpin == null)
-                throw new IllegalStateException("wrong place to call tetromino wasn't landed yet");
             return new LastActionSnapshot(this.tSpin, this.linesCleared);
         }
 
