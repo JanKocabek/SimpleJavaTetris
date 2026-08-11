@@ -54,7 +54,7 @@ public class ScoreManager implements Observable<Integer> {
 
 
 
-        int baseScore = switch (getTypeOfScoring(clearedLines,tspin)) {
+        int baseScore = switch (geLineClearType(clearedLines,tspin)) {
             case NONE -> 0;
             case SINGLE, MINI_T_SPIN_NO_LINES -> 100;
             case DOUBLE -> 300;
@@ -68,35 +68,35 @@ public class ScoreManager implements Observable<Integer> {
         return applyBonus ? (int) (baseScore * 1.5) : baseScore;
     }
 
-    private ClearType getTypeOfScoring(int clearedLines, TSpin tspin){
+    private scoreLineClearType geLineClearType(int clearedLines, TSpin tspin){
         switch (tspin) {
             case NONE -> {
                 return switch (clearedLines) {
-                    case 1 -> ClearType.SINGLE;
-                    case 2 -> ClearType.DOUBLE;
-                    case 3 -> ClearType.TRIPLE;
-                    case 4 -> ClearType.TETRIS;
-                    default -> ClearType.NONE;
+                    case 1 -> scoreLineClearType.SINGLE;
+                    case 2 -> scoreLineClearType.DOUBLE;
+                    case 3 -> scoreLineClearType.TRIPLE;
+                    case 4 -> scoreLineClearType.TETRIS;
+                    default -> scoreLineClearType.NONE;
                 };
             }
             case FULL -> {
                 return switch (clearedLines) {
-                    case 0 -> ClearType.T_SPIN_NO_LINES;
-                    case 1 -> ClearType.T_SPIN_SINGLE;
-                    case 2 -> ClearType.T_SPIN_DOUBLE;
-                    case 3 -> ClearType.T_SPIN_TRIPLE;
-                    default -> ClearType.NONE;
+                    case 0 -> scoreLineClearType.T_SPIN_NO_LINES;
+                    case 1 -> scoreLineClearType.T_SPIN_SINGLE;
+                    case 2 -> scoreLineClearType.T_SPIN_DOUBLE;
+                    case 3 -> scoreLineClearType.T_SPIN_TRIPLE;
+                    default -> scoreLineClearType.NONE;
                 };
             }
             case MINI -> {
                 return switch (clearedLines) {
-                    case 0 -> ClearType.MINI_T_SPIN_NO_LINES;
-                    case 1 -> ClearType.MINI_T_SPIN_SINGLE;
-                    case 2 -> ClearType.MINI_T_SPIN_DOUBLE;
-                    default -> ClearType.NONE;
+                    case 0 -> scoreLineClearType.MINI_T_SPIN_NO_LINES;
+                    case 1 -> scoreLineClearType.MINI_T_SPIN_SINGLE;
+                    case 2 -> scoreLineClearType.MINI_T_SPIN_DOUBLE;
+                    default -> scoreLineClearType.NONE;
                 };
             } default -> {
-                return ClearType.NONE;
+                return scoreLineClearType.NONE;
             }
         }
     }
