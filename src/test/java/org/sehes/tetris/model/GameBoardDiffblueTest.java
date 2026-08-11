@@ -9,13 +9,7 @@ import org.sehes.tetris.config.GameParameters;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class GameBoardDiffblueTest {
 
@@ -223,7 +217,7 @@ class GameBoardDiffblueTest {
         GameBoard gameBoard = new GameBoard();
         gameBoard.trySpawnTetromino(
                 TetrominoFactory.spawnSpecificTetromino(
-                        TetrominoType.I, new Coordinate(Integer.MIN_VALUE, 3)));
+                        TetrominoType.I, new Coordinate(4, 1)));
 
         // Act
         boolean actualTryRotatePieceResult = gameBoard.tryRotatePiece(RotationFlag.CLOCKWISE);
