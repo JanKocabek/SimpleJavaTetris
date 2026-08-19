@@ -237,7 +237,7 @@ public class GameBoard {
 
     private boolean isValidFilledCorner(int x, int y) {
         final var isInBoard = x >= 0 && y >= 0 && x < board[0].length && y < board.length;
-        return isInBoard && board[y][x] != TetrominoType.NON;
+        return !isInBoard || board[y][x] != TetrominoType.NON;
     }
 
     /**
