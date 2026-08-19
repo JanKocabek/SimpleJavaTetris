@@ -261,7 +261,7 @@ public class GameBoard {
             int testY = currentTetromino.getPositionY() + cord.y();
             if (tetrominoPositionValidCheck(rotatedPosition, testX, testY)) {
                 currentTetromino.setPosition(testX, testY);
-                return Math.abs(cord.x()) == 1 && cord.y() == 2 ? TSpinKickType.T_SPIN_KICK : TSpinKickType.ORDINARY;
+                return Math.abs(cord.x()) == 1 && Math.abs(cord.y()) == 2 ? TSpinKickType.T_SPIN_KICK : TSpinKickType.ORDINARY;
             }
         }
         return TSpinKickType.NONE;
