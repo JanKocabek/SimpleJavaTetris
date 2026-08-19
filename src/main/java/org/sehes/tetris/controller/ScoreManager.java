@@ -1,6 +1,12 @@
 package org.sehes.tetris.controller;
 
-import org.sehes.tetris.model.score.*;
+import org.jspecify.annotations.NonNull;
+import org.sehes.tetris.model.score.HardDropEvent;
+import org.sehes.tetris.model.score.LockPieceEvent;
+import org.sehes.tetris.model.score.ScoreEvent;
+import org.sehes.tetris.model.score.SoftDropEvent;
+import org.sehes.tetris.model.score.TSpin;
+import org.sehes.tetris.model.score.scoreLineClearType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,8 +59,7 @@ public class ScoreManager implements Observable<Integer> {
         isBackToBack = isDifficult;
 
 
-
-        int baseScore = switch (geLineClearType(clearedLines,tspin)) {
+        int baseScore = switch (geLineClearType(clearedLines, tspin)) {
             case NONE -> 0;
             case SINGLE, MINI_T_SPIN_NO_LINES -> 100;
             case DOUBLE -> 300;
@@ -68,38 +73,35 @@ public class ScoreManager implements Observable<Integer> {
         return applyBonus ? (int) (baseScore * 1.5) : baseScore;
     }
 
-    private scoreLineClearType geLineClearType(int clearedLines, TSpin tspin){
-        switch (tspin) {
-            case NONE -> {
-                return switch (clearedLines) {
-                    case 1 -> scoreLineClearType.SINGLE;
-                    case 2 -> scoreLineClearType.DOUBLE;
-                    case 3 -> scoreLineClearType.TRIPLE;
-                    case 4 -> scoreLineClearType.TETRIS;
-                    default -> scoreLineClearType.NONE;
-                };
-            }
-            case FULL -> {
-                return switch (clearedLines) {
-                    case 0 -> scoreLineClearType.T_SPIN_NO_LINES;
-                    case 1 -> scoreLineClearType.T_SPIN_SINGLE;
-                    case 2 -> scoreLineClearType.T_SPIN_DOUBLE;
-                    case 3 -> scoreLineClearType.T_SPIN_TRIPLE;
-                    default -> scoreLineClearType.NONE;
-                };
-            }
-            case MINI -> {
-                return switch (clearedLines) {
-                    case 0 -> scoreLineClearType.MINI_T_SPIN_NO_LINES;
-                    case 1 -> scoreLineClearType.MINI_T_SPIN_SINGLE;
-                    case 2 -> scoreLineClearType.MINI_T_SPIN_DOUBLE;
-                    default -> scoreLineClearType.NONE;
-                };
-            } default -> {
-                return scoreLineClearType.NONE;
-            }
-        }
+    private scoreLineClearType geLineClearType(int clearedLines, @NonNull TSpin tspin) {
+        return switch (tspin) {
+            case NONE -> switch (clearedLines) {
+                case 0 -> scoreLineClearType.NONE;
+                case 1 -> scoreLineClearType.SINGLE;
+                case 2 -> scoreLineClearType.DOUBLE;
+                case 3 -> scoreLineClearType.TRIPLE;
+                case 4 -> scoreLineClearType.TETRIS;
+                default ->
+                        throw new IllegalStateException("Invalid number of cleared Lines TSpin.NONE: %d, Error must happened in upfront calling  ".formatted(clearedLines));
+            };
+            case FULL -> switch (clearedLines) {
+                case 0 -> scoreLineClearType.T_SPIN_NO_LINES;
+                case 1 -> scoreLineClearType.T_SPIN_SINGLE;
+                case 2 -> scoreLineClearType.T_SPIN_DOUBLE;
+                case 3 -> scoreLineClearType.T_SPIN_TRIPLE;
+                default ->
+                        throw new IllegalStateException("Invalid number of cleared Lines with TSpin_FULL: %d, Error must happened in upfront calling  ".formatted(clearedLines));
+            };
+            case MINI -> switch (clearedLines) {
+                case 0 -> scoreLineClearType.MINI_T_SPIN_NO_LINES;
+                case 1 -> scoreLineClearType.MINI_T_SPIN_SINGLE;
+                case 2 -> scoreLineClearType.MINI_T_SPIN_DOUBLE;
+                default ->
+                        throw new IllegalStateException("Invalid number of cleared Lines with TSpin_MINI: %d, Error must happened in upfront calling  ".formatted(clearedLines));
+            };
+        };
     }
+
 
     /**
      * Registers {@code Observer}. Held by strong reference — callers must
