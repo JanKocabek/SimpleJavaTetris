@@ -4,7 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.sehes.tetris.model.score.TSpin;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sehes.tetris.model.TestUtil.prepareBoard;
+import static org.sehes.tetris.model.UtilForTests.getFullBoard;
+import static org.sehes.tetris.model.UtilForTests.prepareBoard;
 
 
 class TSpinsLogicTests {
@@ -22,30 +23,10 @@ class TSpinsLogicTests {
      *
      * Therefore, the rotation leaves one front and two back corners filled: a MINI T-spin.
      */
-    private static final String T_SPIN_BOARD = """
-            ##########
-            ##########
-            ##########
-            ##########
-            ##########
-            ##########
-            ##########
-            ##########
-            ##########
-            ##########
-            ##########
-            ##########
-            ##########
-            ##########
-            ##########
-            ##########
-            ##########
-            ##########
-            ##########
+    private static final String T_SPIN_BOARD = getFullBoard("""
             ###II#####
             I###I#####
-            II#II#####
-            """;
+            II#II#####""");
 
     @Test
     void lockingTAfterClockwiseRotation_withOneFrontAndTwoBackCorners_returnsMini() {
@@ -69,11 +50,12 @@ class TSpinsLogicTests {
         assertThat(t.getCurrentOrientation()).isEqualTo(Orientation.NORTH);
 
         gameBoard.lockTetrominoInPlace();
-      final var result=  gameBoard.getLastAction();
+        final var result = gameBoard.getLastAction();
 
         // Assert
         assertThat(result.tSpin()).isEqualTo(TSpin.MINI);
     }
+
 
     @Test
     void lockingTAfterCounterClockwiseRotation_withOneBackAndTwoFrontCorners_returnsFull() {
@@ -97,7 +79,7 @@ class TSpinsLogicTests {
         assertThat(t.getCurrentOrientation()).isEqualTo(Orientation.SOUTH);
 
         gameBoard.lockTetrominoInPlace();
-       final var result= gameBoard.getLastAction();
+        final var result = gameBoard.getLastAction();
 
         // Assert
         assertThat(result.tSpin()).isEqualTo(TSpin.FULL);

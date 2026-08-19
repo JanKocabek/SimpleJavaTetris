@@ -4,7 +4,7 @@ import org.sehes.tetris.config.GameParameters;
 
 import java.util.List;
 
-public class TestUtil {
+public class UtilForTests {
 
     public static void printBoardState(BoardView boardView, Tetromino tetromino) {
         final char TETROMINO = 'T';
@@ -98,7 +98,7 @@ public class TestUtil {
         TetrominoType[][] board = new TetrominoType[GameParameters.ROWS][GameParameters.COLUMNS];
         int x = 0;
         int y = 0;
-        String b=boardDescription.strip();
+        String b = boardDescription.strip();
         for (var c : b.toCharArray()) {
 
             switch (c) {
@@ -119,6 +119,24 @@ public class TestUtil {
         return GameBoard.createGameBoard(board);
     }
 
+    public static String boardEmptyLine(int sizeOfLine) {
+        return "#".repeat(sizeOfLine)+"\n";
+    }
+
+    public static String boardEmptyLine() {
+        return boardEmptyLine(GameParameters.COLUMNS);
+    }
+
+    public static String getFullBoard(String filledBoardPart, int rows, int cols) {
+        final var lines = filledBoardPart.lines().count();
+        final var emptyRows = (int) Math.max (0,rows - lines);
+        return boardEmptyLine(cols).repeat(emptyRows) + filledBoardPart;
+    }
+
+
+    public static String getFullBoard(String filledBoardPart) {
+        return getFullBoard(filledBoardPart, GameParameters.ROWS, GameParameters.COLUMNS);
+    }
 }
 
 
