@@ -174,6 +174,7 @@ public class GameBoard {
     private void checkTSpin() {
         if (currentTetromino.getType() != TetrominoType.T || lastActionSnapshot.lastActionType != LastActionType.ROTATE) {
             lastActionSnapshot.tSpin = TSpin.NONE;
+            return;
         }
         if (lastActionSnapshot.tSpinKickType == TSpinKickType.T_SPIN_KICK) {
             lastActionSnapshot.tSpin = TSpin.FULL;
