@@ -18,6 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.sehes.tetris.model.TetrominoFixtures.spawn;
+import static org.sehes.tetris.model.UtilForTests.getFullBoard;
 import static org.sehes.tetris.model.UtilForTests.prepareBoard;
 import static org.sehes.tetris.model.UtilForTests.prepareBoard2T;
 import static org.sehes.tetris.model.UtilForTests.printBoardState;
@@ -58,7 +60,7 @@ class GameBoardTest {
     void testCheckAndClearLinesNoLines() {
         // when
         gameBoard.clearLines();
-        final var result= gameBoard.getLastAction();
+        final var result = gameBoard.getLastAction();
         // then
         assertThat(result.linesCleared()).isZero();
     }
@@ -295,6 +297,100 @@ class GameBoardTest {
             boolean rotated = gameBoard.tryRotatePiece(flag);
             // then
             assertFalse(rotated);
+        }
+
+        /**
+         * T-piece at pivot (4,17) facing NORTH cannot rotate CW to EAST because
+         * the rotated shape and all four SRS wall-kick positions are blocked.
+         *
+         * <pre>
+         *  col:  0123456789
+         *  r16:  ####I#####   ← (4,16) blocks kick 2: pivot (3,16) → EAST cell (4,16)
+         *  r17:  ##########   ← T pivot here (NORTH: left/center/right + top)
+         *  r18:  ###II#####   ← (3,18)+(4,18) block in-place and kick 1
+         *  r19:  ##########     kick 3+4 land at r19/r21 with cells already covered
+         *  r20:  ##########
+         *  r21:  ##########
+         * </pre>
+         *
+         * SRS NORTH→EAST kicks and why each fails:
+         * <ul>
+         *   <li>In-place (4,17): EAST needs (4,18) → filled ✗</li>
+         *   <li>Kick (-1,0) → (3,17): EAST needs (3,18) → filled ✗</li>
+         *   <li>Kick (-1,-1) → (3,16): EAST needs (4,16) → filled ✗</li>
+         *   <li>Kick (0,+2) → (4,19): EAST needs (4,18) and (4,20) — (4,18) filled ✗</li>
+         *   <li>Kick (-1,+2) → (3,19): EAST needs (3,18) — filled ✗</li>
+         * </ul>
+         */
+        @Test
+        void testImpossibleRotation_T() {
+            // 6 lines → getFullBoard prepends 22-6=16 empty rows → lines become rows 16-21
+            final GameBoard localBoard = prepareBoard(getFullBoard("""
+                    ####I#####
+                    ##########
+                    ###II#####
+                    ##########
+                    ##########
+                    ##########
+                    """));
+            localBoard.trySpawnTetromino(spawn(TetrominoType.T, new Coordinate(4, 17), Orientation.NORTH, null).t());
+
+            assertFalse(localBoard.tryRotatePiece(RotationFlag.CLOCKWISE),
+                    "T-piece CW rotation must fail: in-place and all 4 SRS kick positions are blocked");
+        }
+
+        /**
+         * I-piece at pivot (4,12) facing NORTH (horizontal bar) cannot rotate CW
+         * to EAST (vertical) because both full rows at 9 and 14 block every cell
+         * the vertical bar would occupy across all four I-piece SRS kick positions.
+         *
+         * <pre>
+         *  col:  0123456789
+         *  r9:   IIIIIIIIII   ← full row blocks top of any vertical I
+         *  r10:  ##########
+         *  r11:  ##########
+         *  r12:  ##########   ← I pivot here (NORTH: cols 3-6)
+         *  r13:  ##########
+         *  r14:  IIIIIIIIII   ← full row blocks bottom of any vertical I
+         * </pre>
+         *
+         * I EAST offsets are all at x = pivot.x+1, spanning y-1..y+2.
+         * Every kick shifts the pivot horizontally; the vertical bar always
+         * intersects at least one of row 9 or row 14.
+         */
+        @Test
+        void testImpossibleRotation_I() {
+            // 13 lines → getFullBoard prepends 22-13=9 empty rows → lines become rows 9-21
+            final GameBoard localBoard = prepareBoard(getFullBoard("""
+                    IIIIIIIIII
+                    ##########
+                    ##########
+                    ##########
+                    ##########
+                    IIIIIIIIII
+                    ##########
+                    ##########
+                    ##########
+                    ##########
+                    ##########
+                    ##########
+                    ##########
+                    """));
+            localBoard.trySpawnTetromino(spawn(TetrominoType.I, new Coordinate(4, 12), Orientation.NORTH, null).t());
+
+            assertFalse(localBoard.tryRotatePiece(RotationFlag.CLOCKWISE),
+                    "I-piece CW rotation must fail: full rows at 9 and 14 block all SRS kick positions");
+        }
+
+        /**
+         * {@code tryRotatePiece(null)} must always return {@code false}.
+         * The null guard is an early-exit branch independent of board state.
+         */
+        @Test
+        void tryRotatePiece_withNullRotation_returnsFalse() {
+            gameBoard.trySpawnTetromino(TetrominoFactory.spawnSpecificTetromino(TetrominoType.T, new Coordinate(4, 1)));
+            assertFalse(gameBoard.tryRotatePiece(null),
+                    "null rotation flag must always return false");
         }
     }
 

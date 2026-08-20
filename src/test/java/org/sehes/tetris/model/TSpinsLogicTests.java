@@ -6,6 +6,9 @@ import org.sehes.tetris.model.score.LockPieceEvent;
 import org.sehes.tetris.model.score.TSpin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sehes.tetris.model.TetrominoFixtures.SpawnedTetromino;
+import static org.sehes.tetris.model.TetrominoFixtures.spawn;
+import static org.sehes.tetris.model.TetrominoFixtures.spawnT;
 import static org.sehes.tetris.model.UtilForTests.getFullBoard;
 import static org.sehes.tetris.model.UtilForTests.prepareBoard;
 
@@ -29,6 +32,57 @@ class TSpinsLogicTests {
             II#II#####""");
 
     // =========================================================================
+    // T-Spin Logic Tests
+    // =========================================================================
+
+    @Test
+    void lockingTWithoutRotation_withThreeOccupiedCorners_returnsNone() {
+        // This board has three occupied corners around the T pivot.  Corner
+        // occupancy alone must not classify a lock as a T-spin: the last action
+        // also has to be a rotation.
+        assertTSpin(
+                T_SPIN_BOARD,
+                spawnT(new Coordinate(2, 20), Orientation.WEST, null),
+                Orientation.WEST,
+                TSpin.NONE,
+                0,
+                0
+        );
+    }
+
+    @Test
+    void lockingTAfterClockwiseRotation_withOneFrontAndTwoBackCorners_returnsMini() {
+        //   N
+        // W   E
+        //   S
+
+        assertTSpin(
+                T_SPIN_BOARD,
+                spawnT(new Coordinate(2, 20), Orientation.WEST, RotationFlag.CLOCKWISE),
+                Orientation.NORTH,
+                TSpin.MINI,
+                0,
+                100
+        );
+    }
+
+    @Test
+    void lockingTAfterCounterClockwiseRotation_withOneBackAndTwoFrontCorners_returnsFull() {
+        //   N
+        // W   E
+        //   S
+
+        assertTSpin(
+                T_SPIN_BOARD,
+                spawnT(new Coordinate(2, 20), Orientation.WEST, RotationFlag.COUNTER_CLOCKWISE),
+                Orientation.SOUTH,
+                TSpin.FULL,
+                0,
+                400
+        );
+    }
+
+    // =========================================================================
     // T-Spin Scoring Pipeline Tests
     // =========================================================================
 
@@ -36,7 +90,7 @@ class TSpinsLogicTests {
     void testScoreTSpinFullNoLines() {
         assertTSpin(
                 T_SPIN_BOARD,
-                spawnTetromino(new Coordinate(2, 20), Orientation.WEST, RotationFlag.COUNTER_CLOCKWISE),
+                spawnT(new Coordinate(2, 20), Orientation.WEST, RotationFlag.COUNTER_CLOCKWISE),
                 Orientation.SOUTH,
                 TSpin.FULL,
                 0,
@@ -54,7 +108,7 @@ class TSpinsLogicTests {
 
         assertTSpin(
                 board,
-                spawnTetromino(new Coordinate(2, 20), Orientation.WEST, RotationFlag.COUNTER_CLOCKWISE),
+                spawnT(new Coordinate(2, 20), Orientation.WEST, RotationFlag.COUNTER_CLOCKWISE),
                 Orientation.SOUTH,
                 TSpin.FULL,
                 1,
@@ -72,7 +126,7 @@ class TSpinsLogicTests {
 
         assertTSpin(
                 board,
-                spawnTetromino(new Coordinate(2, 20), Orientation.WEST, RotationFlag.COUNTER_CLOCKWISE),
+                spawnT(new Coordinate(2, 20), Orientation.WEST, RotationFlag.COUNTER_CLOCKWISE),
                 Orientation.SOUTH,
                 TSpin.FULL,
                 2,
@@ -93,7 +147,7 @@ class TSpinsLogicTests {
 
         assertTSpin(
                 board,
-                spawnTetromino(new Coordinate(7, 18), Orientation.NORTH, RotationFlag.COUNTER_CLOCKWISE),
+                spawnT(new Coordinate(7, 18), Orientation.NORTH, RotationFlag.COUNTER_CLOCKWISE),
                 Orientation.WEST,
                 TSpin.FULL,
                 3,
@@ -105,7 +159,7 @@ class TSpinsLogicTests {
     void testScoreTSpinMiniNoLines() {
         assertTSpin(
                 T_SPIN_BOARD,
-                spawnTetromino(new Coordinate(2, 20), Orientation.WEST, RotationFlag.CLOCKWISE),
+                spawnT(new Coordinate(2, 20), Orientation.WEST, RotationFlag.CLOCKWISE),
                 Orientation.NORTH,
                 TSpin.MINI,
                 0,
@@ -122,7 +176,7 @@ class TSpinsLogicTests {
 
         assertTSpin(
                 board,
-                spawnTetromino(new Coordinate(2, 20), Orientation.WEST, RotationFlag.CLOCKWISE),
+                spawnT(new Coordinate(2, 20), Orientation.WEST, RotationFlag.CLOCKWISE),
                 Orientation.NORTH,
                 TSpin.MINI,
                 1,
@@ -143,7 +197,7 @@ class TSpinsLogicTests {
 
         assertTSpin(
                 board,
-                spawnTetromino(new Coordinate(7, 18), Orientation.SOUTH, RotationFlag.CLOCKWISE),
+                spawnT(new Coordinate(7, 18), Orientation.SOUTH, RotationFlag.CLOCKWISE),
                 Orientation.WEST,
                 TSpin.MINI,
                 2,
@@ -154,16 +208,6 @@ class TSpinsLogicTests {
     // =========================================================================
     // Unified Reusable Helper Methods & Configurations
     // =========================================================================
-
-    public static SpawnedTetromino spawnTetromino(Coordinate spawnCord, Orientation startOrie, RotationFlag rotation) {
-        return spawnTetromino(TetrominoType.T, spawnCord, startOrie, rotation);
-    }
-
-    public static SpawnedTetromino spawnTetromino(TetrominoType type, Coordinate spawnCord, Orientation startOrie, RotationFlag rotation) {
-        final Tetromino t = new Tetromino(type, spawnCord);
-        t.setNewState(ShapeProvider.getTetrominoState(type, startOrie), startOrie);
-        return new SpawnedTetromino(t, rotation);
-    }
 
     public static TSpinTestResult assertTSpin(
             String initialBoard,
@@ -213,7 +257,7 @@ class TSpinsLogicTests {
     ) {
         return assertTSpin(new TSpinTestCase(
                 initialBoard,
-                spawnTetromino(spawnCord, startOrie, rotation),
+                spawnT(spawnCord, startOrie, rotation),
                 expectedOrientation,
                 expectedTSpin,
                 expectedLinesCleared,
@@ -275,12 +319,6 @@ class TSpinsLogicTests {
         return new TSpinTestResult(gameBoard, tetromino, lastAction.tSpin(), lastAction.linesCleared(), scoreMgr);
     }
 
-    public record SpawnedTetromino(Tetromino tetromino, RotationFlag rotation) {
-        public Tetromino t() {
-            return tetromino;
-        }
-    }
-
     public record TSpinTestCase(
             String initialBoard,
             SpawnedTetromino spawnedTetromino,
@@ -314,12 +352,12 @@ class TSpinsLogicTests {
             }
 
             public TSpinTestBuilder spawnedTetromino(Coordinate spawnCord, Orientation startOrie, RotationFlag rotation) {
-                this.spawnedTetromino = spawnTetromino(spawnCord, startOrie, rotation);
+                this.spawnedTetromino = spawnT(spawnCord, startOrie, rotation);
                 return this;
             }
 
             public TSpinTestBuilder spawnedTetromino(TetrominoType type, Coordinate spawnCord, Orientation startOrie, RotationFlag rotation) {
-                this.spawnedTetromino = spawnTetromino(type, spawnCord, startOrie, rotation);
+                this.spawnedTetromino = spawn(type, spawnCord, startOrie, rotation);
                 return this;
             }
 
