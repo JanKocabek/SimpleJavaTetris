@@ -13,10 +13,11 @@ import java.util.List;
 
 public class ScoreManager implements Observable<Integer> {
 
+    private static final byte COMBO_EMPTY = -1;
     private final List<Observer<Integer>> observers = new ArrayList<>();
     private int score;//this is the current game score
     private boolean isBackToBack;
-    private int combo = -1;
+    private int combo = COMBO_EMPTY;
 
     public ScoreManager() {
         isBackToBack = false;
@@ -42,6 +43,7 @@ public class ScoreManager implements Observable<Integer> {
 
     private void resetScore() {
         score = 0;
+        combo = COMBO_EMPTY;
         notifyObservers(score);
     }
 
@@ -58,7 +60,7 @@ public class ScoreManager implements Observable<Integer> {
         final boolean isDifficult = (clearedLines == 4 || tspin != TSpin.NONE);
         final boolean applyBonus = isDifficult && isBackToBack;
         isBackToBack = isDifficult;
-        combo = (clearedLines != 0) ? ++combo : -1;
+        combo = (clearedLines != 0) ? ++combo : COMBO_EMPTY;
 
         int baseScore = switch (geLineClearType(clearedLines, tspin)) {
             case NONE -> 0;
@@ -71,8 +73,8 @@ public class ScoreManager implements Observable<Integer> {
             case MINI_T_SPIN_SINGLE -> 200;
             case MINI_T_SPIN_DOUBLE, T_SPIN_NO_LINES -> 400;
         };
-        int score= applyBonus ? (int) (baseScore * 1.5) : baseScore;
-        return score+combo*50;
+        int score = applyBonus ? (int) (baseScore * 1.5) : baseScore;
+        return combo > 0 ? score + (combo * 50) : score;
     }
 
     private scoreLineClearType geLineClearType(int clearedLines, @NonNull TSpin tspin) {
