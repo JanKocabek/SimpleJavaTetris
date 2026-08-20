@@ -1,15 +1,15 @@
 package org.sehes.tetris.model;
 
 import org.junit.jupiter.api.Test;
+import org.sehes.tetris.controller.ScoreManager;
+import org.sehes.tetris.model.score.LockPieceEvent;
 import org.sehes.tetris.model.score.TSpin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sehes.tetris.model.UtilForTests.getFullBoard;
 import static org.sehes.tetris.model.UtilForTests.prepareBoard;
 
-
 class TSpinsLogicTests {
-
 
     /*
      * '#' is empty and 'I' is a filled board cell. Coordinates grow right/down.
@@ -28,60 +28,346 @@ class TSpinsLogicTests {
             I###I#####
             II#II#####""");
 
+    // =========================================================================
+    // T-Spin Scoring Pipeline Tests
+    // =========================================================================
+
     @Test
-    void lockingTAfterClockwiseRotation_withOneFrontAndTwoBackCorners_returnsMini() {
-        //   N
-        // W   E
-        //   S
-
-        // Arrange: WEST-facing T at P, with the annotated corner layout above.
-        final Coordinate pivotCord = new Coordinate(2, 20);
-        final Orientation startOrie = Orientation.WEST;
-        final RotationFlag rotation = RotationFlag.CLOCKWISE;
-        // so the T will be rotated to NORTH
-        final Tetromino t = new Tetromino(TetrominoType.T, pivotCord);
-        t.setNewState(ShapeProvider.getTetrominoState(TetrominoType.T, startOrie), startOrie);
-        final GameBoard gameBoard = prepareBoard(T_SPIN_BOARD);
-
-        assertThat(gameBoard.trySpawnTetromino(t)).isTrue();
-
-        // Act: WEST --clockwise--> NORTH, then lock while rotation is the last action.
-        assertThat(gameBoard.tryRotatePiece(rotation)).isTrue();
-        assertThat(t.getCurrentOrientation()).isEqualTo(Orientation.NORTH);
-
-        gameBoard.lockTetrominoInPlace();
-        final var result = gameBoard.getLastAction();
-
-        // Assert
-        assertThat(result.tSpin()).isEqualTo(TSpin.MINI);
+    void testScoreTSpinFullNoLines() {
+        assertTSpin(
+                T_SPIN_BOARD,
+                spawnTetromino(new Coordinate(2, 20), Orientation.WEST, RotationFlag.COUNTER_CLOCKWISE),
+                Orientation.SOUTH,
+                TSpin.FULL,
+                0,
+                400
+        );
     }
 
+    @Test
+    void testScoreTSpinFullSingle() {
+        final var board = getFullBoard("""
+                II#II#####
+                I###I#####
+                II#IIIIIII
+                """);
+
+        assertTSpin(
+                board,
+                spawnTetromino(new Coordinate(2, 20), Orientation.WEST, RotationFlag.COUNTER_CLOCKWISE),
+                Orientation.SOUTH,
+                TSpin.FULL,
+                1,
+                800
+        );
+    }
 
     @Test
-    void lockingTAfterCounterClockwiseRotation_withOneBackAndTwoFrontCorners_returnsFull() {
-        //   N
-        // W   E
-        //   S
+    void testScoreTSpinFullDouble() {
+        final var board = getFullBoard("""
+                II#II#####
+                I###IIIIII
+                II#IIIIIII
+                """);
 
-        // Arrange: WEST-facing T at P, with the annotated corner layout above.
-        final Coordinate pivotCord = new Coordinate(2, 20);
-        final Orientation startOrie = Orientation.WEST;
-        final RotationFlag rotation = RotationFlag.COUNTER_CLOCKWISE;
-        // so the T will be rotated to SOUTH after
-        final Tetromino t = new Tetromino(TetrominoType.T, pivotCord);
-        t.setNewState(ShapeProvider.getTetrominoState(TetrominoType.T, startOrie), startOrie);
-        final GameBoard gameBoard = prepareBoard(T_SPIN_BOARD);
+        assertTSpin(
+                board,
+                spawnTetromino(new Coordinate(2, 20), Orientation.WEST, RotationFlag.COUNTER_CLOCKWISE),
+                Orientation.SOUTH,
+                TSpin.FULL,
+                2,
+                1200
+        );
+    }
 
-        assertThat(gameBoard.trySpawnTetromino(t)).isTrue();
+    @Test
+    void testScoreTSpinFullTriple() {
+        final var board = getFullBoard("""
+                        ########I#
+                        ########II
+                        #########I
+                        IIIIIIII#I
+                        IIIIIII##I
+                        IIIIIIII#I
+                """);
 
-        // Act: WEST --counterClockwise--> South, then lock while rotation is the last action.
-        assertThat(gameBoard.tryRotatePiece(rotation)).isTrue();
-        assertThat(t.getCurrentOrientation()).isEqualTo(Orientation.SOUTH);
+        assertTSpin(
+                board,
+                spawnTetromino(new Coordinate(7, 18), Orientation.NORTH, RotationFlag.COUNTER_CLOCKWISE),
+                Orientation.WEST,
+                TSpin.FULL,
+                3,
+                1600
+        );
+    }
+
+    @Test
+    void testScoreTSpinMiniNoLines() {
+        assertTSpin(
+                T_SPIN_BOARD,
+                spawnTetromino(new Coordinate(2, 20), Orientation.WEST, RotationFlag.CLOCKWISE),
+                Orientation.NORTH,
+                TSpin.MINI,
+                0,
+                100
+        );
+    }
+
+    @Test
+    void testScoreTSpinMiniSingle() {
+        final var board = getFullBoard("""
+                ###II#####
+                I###IIIIII
+                II#II#####""");
+
+        assertTSpin(
+                board,
+                spawnTetromino(new Coordinate(2, 20), Orientation.WEST, RotationFlag.CLOCKWISE),
+                Orientation.NORTH,
+                TSpin.MINI,
+                1,
+                200
+        );
+    }
+
+    @Test
+    void testScoreTSpinMiniDouble() {
+        final var board = getFullBoard("""
+                ########II
+                #######III
+                #########I
+                ########II
+                IIIIII##II
+                IIIIIII#II
+                """);
+
+        assertTSpin(
+                board,
+                spawnTetromino(new Coordinate(7, 18), Orientation.SOUTH, RotationFlag.CLOCKWISE),
+                Orientation.WEST,
+                TSpin.MINI,
+                2,
+                400
+        );
+    }
+
+    // =========================================================================
+    // Unified Reusable Helper Methods & Configurations
+    // =========================================================================
+
+    public static SpawnedTetromino spawnTetromino(Coordinate spawnCord, Orientation startOrie, RotationFlag rotation) {
+        return spawnTetromino(TetrominoType.T, spawnCord, startOrie, rotation);
+    }
+
+    public static SpawnedTetromino spawnTetromino(TetrominoType type, Coordinate spawnCord, Orientation startOrie, RotationFlag rotation) {
+        final Tetromino t = new Tetromino(type, spawnCord);
+        t.setNewState(ShapeProvider.getTetrominoState(type, startOrie), startOrie);
+        return new SpawnedTetromino(t, rotation);
+    }
+
+    public static TSpinTestResult assertTSpin(
+            String initialBoard,
+            SpawnedTetromino spawnedTetromino,
+            Orientation expectedOrientation,
+            TSpin expectedTSpin
+    ) {
+        return assertTSpin(new TSpinTestCase(
+                initialBoard,
+                spawnedTetromino,
+                expectedOrientation,
+                expectedTSpin,
+                null,
+                null,
+                null
+        ));
+    }
+
+    public static TSpinTestResult assertTSpin(
+            String initialBoard,
+            SpawnedTetromino spawnedTetromino,
+            Orientation expectedOrientation,
+            TSpin expectedTSpin,
+            Integer expectedLinesCleared,
+            Integer expectedScore
+    ) {
+        return assertTSpin(new TSpinTestCase(
+                initialBoard,
+                spawnedTetromino,
+                expectedOrientation,
+                expectedTSpin,
+                expectedLinesCleared,
+                expectedScore,
+                null
+        ));
+    }
+
+    public static TSpinTestResult assertTSpin(
+            String initialBoard,
+            Coordinate spawnCord,
+            Orientation startOrie,
+            RotationFlag rotation,
+            Orientation expectedOrientation,
+            TSpin expectedTSpin,
+            Integer expectedLinesCleared,
+            Integer expectedScore
+    ) {
+        return assertTSpin(new TSpinTestCase(
+                initialBoard,
+                spawnTetromino(spawnCord, startOrie, rotation),
+                expectedOrientation,
+                expectedTSpin,
+                expectedLinesCleared,
+                expectedScore,
+                null
+        ));
+    }
+
+    /**
+     * Unified test runner method for T-Spin logic and scoring tests.
+     */
+    public static TSpinTestResult assertTSpin(TSpinTestCase testCase) {
+        final GameBoard gameBoard = prepareBoard(testCase.initialBoard());
+        final SpawnedTetromino spawned = testCase.spawnedTetromino();
+        final Tetromino tetromino = spawned.tetromino();
+
+        assertThat(gameBoard.trySpawnTetromino(tetromino))
+                .withFailMessage("Tetromino failed to spawn on board")
+                .isTrue();
+
+        if (spawned.rotation() != null) {
+            assertThat(gameBoard.tryRotatePiece(spawned.rotation()))
+                    .withFailMessage("Tetromino failed to rotate")
+                    .isTrue();
+        }
+
+        if (testCase.expectedOrientation() != null) {
+            assertThat(tetromino.getCurrentOrientation())
+                    .withFailMessage("Expected orientation: %s, but was: %s", testCase.expectedOrientation(), tetromino.getCurrentOrientation())
+                    .isEqualTo(testCase.expectedOrientation());
+        }
 
         gameBoard.lockTetrominoInPlace();
-        final var result = gameBoard.getLastAction();
+        gameBoard.clearLines();
 
-        // Assert
-        assertThat(result.tSpin()).isEqualTo(TSpin.FULL);
+        final var lastAction = gameBoard.getLastAction();
+
+        if (testCase.expectedTSpin() != null) {
+            assertThat(lastAction.tSpin())
+                    .withFailMessage("Expected T-Spin: %s, but was: %s", testCase.expectedTSpin(), lastAction.tSpin())
+                    .isEqualTo(testCase.expectedTSpin());
+        }
+
+        if (testCase.expectedLinesCleared() != null) {
+            assertThat(lastAction.linesCleared())
+                    .withFailMessage("Expected lines cleared: %d, but was: %d", testCase.expectedLinesCleared(), lastAction.linesCleared())
+                    .isEqualTo(testCase.expectedLinesCleared());
+        }
+
+        final ScoreManager scoreMgr = testCase.scoreManager() != null ? testCase.scoreManager() : new ScoreManager();
+        scoreMgr.updateScore(new LockPieceEvent(lastAction.linesCleared(), lastAction.tSpin()));
+
+        if (testCase.expectedScore() != null) {
+            assertThat(scoreMgr)
+                    .extracting("score")
+                    .isEqualTo(testCase.expectedScore());
+        }
+
+        return new TSpinTestResult(gameBoard, tetromino, lastAction.tSpin(), lastAction.linesCleared(), scoreMgr);
+    }
+
+    public record SpawnedTetromino(Tetromino tetromino, RotationFlag rotation) {
+        public Tetromino t() {
+            return tetromino;
+        }
+    }
+
+    public record TSpinTestCase(
+            String initialBoard,
+            SpawnedTetromino spawnedTetromino,
+            Orientation expectedOrientation,
+            TSpin expectedTSpin,
+            Integer expectedLinesCleared,
+            Integer expectedScore,
+            ScoreManager scoreManager
+    ) {
+        public static TSpinTestBuilder builder() {
+            return new TSpinTestBuilder();
+        }
+
+        public static class TSpinTestBuilder {
+            private String initialBoard;
+            private SpawnedTetromino spawnedTetromino;
+            private Orientation expectedOrientation;
+            private TSpin expectedTSpin;
+            private Integer expectedLinesCleared;
+            private Integer expectedScore;
+            private ScoreManager scoreManager;
+
+            public TSpinTestBuilder initialBoard(String initialBoard) {
+                this.initialBoard = initialBoard;
+                return this;
+            }
+
+            public TSpinTestBuilder spawnedTetromino(SpawnedTetromino spawnedTetromino) {
+                this.spawnedTetromino = spawnedTetromino;
+                return this;
+            }
+
+            public TSpinTestBuilder spawnedTetromino(Coordinate spawnCord, Orientation startOrie, RotationFlag rotation) {
+                this.spawnedTetromino = spawnTetromino(spawnCord, startOrie, rotation);
+                return this;
+            }
+
+            public TSpinTestBuilder spawnedTetromino(TetrominoType type, Coordinate spawnCord, Orientation startOrie, RotationFlag rotation) {
+                this.spawnedTetromino = spawnTetromino(type, spawnCord, startOrie, rotation);
+                return this;
+            }
+
+            public TSpinTestBuilder expectedOrientation(Orientation expectedOrientation) {
+                this.expectedOrientation = expectedOrientation;
+                return this;
+            }
+
+            public TSpinTestBuilder expectedTSpin(TSpin expectedTSpin) {
+                this.expectedTSpin = expectedTSpin;
+                return this;
+            }
+
+            public TSpinTestBuilder expectedLinesCleared(Integer expectedLinesCleared) {
+                this.expectedLinesCleared = expectedLinesCleared;
+                return this;
+            }
+
+            public TSpinTestBuilder expectedScore(Integer expectedScore) {
+                this.expectedScore = expectedScore;
+                return this;
+            }
+
+            public TSpinTestBuilder scoreManager(ScoreManager scoreManager) {
+                this.scoreManager = scoreManager;
+                return this;
+            }
+
+            public TSpinTestCase build() {
+                return new TSpinTestCase(
+                        initialBoard,
+                        spawnedTetromino,
+                        expectedOrientation,
+                        expectedTSpin,
+                        expectedLinesCleared,
+                        expectedScore,
+                        scoreManager
+                );
+            }
+        }
+    }
+
+    public record TSpinTestResult(
+            GameBoard gameBoard,
+            Tetromino tetromino,
+            TSpin tSpin,
+            int linesCleared,
+            ScoreManager scoreManager
+    ) {
     }
 }
