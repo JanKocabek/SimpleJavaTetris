@@ -85,7 +85,7 @@ class ScoreManagerTest {
         scoreMessenger.notifyObservers(new LockPieceEvent(4, TSpin.NONE));
         // assert
         assertThat(scoreManager).extracting("isBackToBack").isEqualTo(true);
-        assertThat(scoreManager).extracting("score").isEqualTo(2000);
+        assertThat(scoreManager).extracting("score").isEqualTo(2050);
     }
 
     @Test
