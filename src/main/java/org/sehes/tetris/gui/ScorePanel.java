@@ -19,12 +19,13 @@ import java.awt.Insets;
 public class ScorePanel extends JPanel implements Observer<ScoreInfoDTO> {
 
     private static final int THICKNESS = 2;
-    private static final String INFO_LABEL_EMPTY=" \n ";
-    private static final String COMBO_EMPTY=" ";
+    private static final String INFO_LABEL_EMPTY = " \n ";
+    private static final String COMBO_EMPTY = " ";
     private final ScoreLabel scoreUI;
     private final Font scoreFont = new Font(Font.MONOSPACED, Font.BOLD, 20);
     private final JLabel clearingInfo = new JLabel(INFO_LABEL_EMPTY, SwingConstants.CENTER);
-    private final  JLabel comboInfo= new JLabel(COMBO_EMPTY, SwingConstants.CENTER);
+    private final JLabel comboInfo = new JLabel(COMBO_EMPTY, SwingConstants.CENTER);
+    private final JLabel b2bInfo = new JLabel(" ", SwingConstants.CENTER);
 
     public ScorePanel() {
         super();
@@ -34,23 +35,26 @@ public class ScorePanel extends JPanel implements Observer<ScoreInfoDTO> {
         //GridBagConstraints for stacking vertically
         setLayout(new GridBagLayout());
         final GridBagConstraints verStackConstr = createVerStackConstr();
-        setupCompGridPos(verStackConstr,0,new Insets(0,0,0,0));
+        setupCompGridPos(verStackConstr, 0, new Insets(0, 0, 0, 0));
         add(scoreUI, verStackConstr);
-        setupCompGridPos(verStackConstr,1,new Insets(0,0,4,0));
+        setupCompGridPos(verStackConstr, 1, new Insets(0, 0, 2, 0));
+        add(b2bInfo, verStackConstr);
+        setupCompGridPos(verStackConstr, 2, new Insets(0, 0, 4, 0));
 //        clearingInfo.setOpaque(true);
 //        clearingInfo.setBackground(Color.BLACK);
         add(clearingInfo, verStackConstr);
-        setupCompGridPos(verStackConstr,2,new Insets(0,0,4,0));
+        setupCompGridPos(verStackConstr, 3, new Insets(0, 0, 4, 0));
 //        comboInfo.setOpaque(true);
 //        comboInfo.setBackground(Color.BLUE);
         add(comboInfo, verStackConstr);
 
     }
 
-    private void setupCompGridPos(GridBagConstraints constraints, int row , Insets insets) {
-        constraints.gridy=row;
-        constraints.insets=insets;
+    private void setupCompGridPos(GridBagConstraints constraints, int row, Insets insets) {
+        constraints.gridy = row;
+        constraints.insets = insets;
     }
+
     private @NonNull GridBagConstraints createVerStackConstr() {
         final GridBagConstraints verStackConstr = new GridBagConstraints();
         verStackConstr.gridx = 0;
@@ -63,13 +67,11 @@ public class ScorePanel extends JPanel implements Observer<ScoreInfoDTO> {
     @Override
     public void update(ScoreInfoDTO info) {
         scoreUI.updateScore(info.score());
-        // Update Line Clear Action
-        // Keep whitespace to prevent panel height collapse
-        String B2B= info.B2BBonus() ? "B2B" : "";
-        if ( !info.clearType().name().equals("NONE"))
-            clearingInfo.setText("%s \n%s ".formatted(B2B,info.clearType().toString().replace("_", " ")));
+        final var b2b = info.B2BBonus() ? "B2B" : " ";
+        b2bInfo.setText(b2b);
+        if (!info.clearType().name().equals("NONE"))
+            clearingInfo.setText("%s ".formatted(info.clearType().toString().replace("_", " ")));
         else clearingInfo.setText(INFO_LABEL_EMPTY);
-        // Update Combo (when you connect it to ScoreInfoDTO)
         if (info.combo() > 0) {
             comboInfo.setText("Combo x" + info.combo());
         } else {
