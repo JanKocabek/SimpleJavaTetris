@@ -1,6 +1,6 @@
 package org.sehes.tetris.model.score;
 
-public enum scoreLineClearType {
+public enum ScoreLineClearType {
     NONE,
     SINGLE,
     DOUBLE,
