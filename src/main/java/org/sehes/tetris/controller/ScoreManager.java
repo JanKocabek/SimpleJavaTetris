@@ -4,23 +4,24 @@ import org.jspecify.annotations.NonNull;
 import org.sehes.tetris.model.score.HardDropEvent;
 import org.sehes.tetris.model.score.LockPieceEvent;
 import org.sehes.tetris.model.score.ScoreEvent;
+import org.sehes.tetris.model.score.ScoreInfoDTO;
+import org.sehes.tetris.model.score.ScoreLineClearType;
 import org.sehes.tetris.model.score.SoftDropEvent;
 import org.sehes.tetris.model.score.TSpin;
-import org.sehes.tetris.model.score.scoreLineClearType;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ScoreManager implements Observable<Integer> {
+public class ScoreManager implements Observable<ScoreInfoDTO> {
 
     private static final byte COMBO_EMPTY = -1;
-    private final List<Observer<Integer>> observers = new ArrayList<>();
-    private int score;//this is the current game score
-    private boolean isBackToBack;
+    private final List<Observer<ScoreInfoDTO>> observers = new ArrayList<>();
+    private int score;
+    /** Whether a difficult clear has started a B2B chain. */
+    private boolean isBackToBackChain;
     private int combo = COMBO_EMPTY;
 
     public ScoreManager() {
-        isBackToBack = false;
     }
 
     public Observer<ScoreEvent> scoringObserver() {
@@ -44,25 +45,32 @@ public class ScoreManager implements Observable<Integer> {
     private void resetScore() {
         score = 0;
         combo = COMBO_EMPTY;
-        notifyObservers(score);
+        isBackToBackChain = false;
+        notifyObservers(new ScoreInfoDTO(score, ScoreLineClearType.NONE, combo, false));
     }
 
     public void updateScore(ScoreEvent scoreEvent) {
-        this.score += switch (scoreEvent) {
+        ScoreLineClearType clearType = ScoreLineClearType.NONE;
+        boolean backToBackBonus = false;
+        int points = switch (scoreEvent) {
             case SoftDropEvent(int cell) -> cell;
             case HardDropEvent(int cell) -> cell * 2;
-            case LockPieceEvent(int clearedLines, TSpin tspin) -> lockPieceScoreCalculation(clearedLines, tspin);
+            case LockPieceEvent(int clearedLines, TSpin tspin) -> {
+                clearType = geLineClearType(clearedLines, tspin);
+                boolean difficultClear = isDifficultClear(clearedLines, tspin);
+                backToBackBonus = difficultClear && isBackToBackChain;
+                yield lockPieceScoreCalculation(clearType, clearedLines, difficultClear, backToBackBonus);
+            }
         };
-        notifyObservers(score);
+        score += points;
+        notifyObservers(new ScoreInfoDTO(score, clearType, combo, backToBackBonus));
     }
 
-    private int lockPieceScoreCalculation(int clearedLines, TSpin tspin) {
-        final boolean isDifficult = (clearedLines == 4 || tspin != TSpin.NONE);
-        final boolean applyBonus = isDifficult && isBackToBack;
-        isBackToBack = isDifficult;
+    private int lockPieceScoreCalculation(ScoreLineClearType clearType, int clearedLines, boolean difficultClear, boolean applyBackToBackBonus) {
+        updateBackToBackChain(clearedLines, difficultClear);
         combo = (clearedLines != 0) ? ++combo : COMBO_EMPTY;
 
-        int baseScore = switch (geLineClearType(clearedLines, tspin)) {
+        int baseScore = switch (clearType) {
             case NONE -> 0;
             case SINGLE, MINI_T_SPIN_NO_LINES -> 100;
             case DOUBLE -> 300;
@@ -73,33 +81,45 @@ public class ScoreManager implements Observable<Integer> {
             case MINI_T_SPIN_SINGLE -> 200;
             case MINI_T_SPIN_DOUBLE, T_SPIN_NO_LINES -> 400;
         };
-        int score = applyBonus ? (int) (baseScore * 1.5) : baseScore;
+        int score = applyBackToBackBonus ? (int) (baseScore * 1.5) : baseScore;
         return combo > 0 ? score + (combo * 50) : score;
     }
 
-    private scoreLineClearType geLineClearType(int clearedLines, @NonNull TSpin tspin) {
+    private boolean isDifficultClear(int clearedLines, TSpin tspin) {
+        return clearedLines == 4 || (clearedLines > 0 && tspin != TSpin.NONE);
+    }
+
+    private void updateBackToBackChain(int clearedLines, boolean difficultClear) {
+        if (difficultClear) {
+            isBackToBackChain = true;
+        } else if (clearedLines > 0) {
+            isBackToBackChain = false;
+        }
+    }
+
+    private ScoreLineClearType geLineClearType(int clearedLines, @NonNull TSpin tspin) {
         return switch (tspin) {
             case NONE -> switch (clearedLines) {
-                case 0 -> scoreLineClearType.NONE;
-                case 1 -> scoreLineClearType.SINGLE;
-                case 2 -> scoreLineClearType.DOUBLE;
-                case 3 -> scoreLineClearType.TRIPLE;
-                case 4 -> scoreLineClearType.TETRIS;
+                case 0 -> ScoreLineClearType.NONE;
+                case 1 -> ScoreLineClearType.SINGLE;
+                case 2 -> ScoreLineClearType.DOUBLE;
+                case 3 -> ScoreLineClearType.TRIPLE;
+                case 4 -> ScoreLineClearType.TETRIS;
                 default ->
                         throw new IllegalStateException("Invalid number of cleared Lines TSpin.NONE: %d, Error must happened in upfront calling  ".formatted(clearedLines));
             };
             case FULL -> switch (clearedLines) {
-                case 0 -> scoreLineClearType.T_SPIN_NO_LINES;
-                case 1 -> scoreLineClearType.T_SPIN_SINGLE;
-                case 2 -> scoreLineClearType.T_SPIN_DOUBLE;
-                case 3 -> scoreLineClearType.T_SPIN_TRIPLE;
+                case 0 -> ScoreLineClearType.T_SPIN_NO_LINES;
+                case 1 -> ScoreLineClearType.T_SPIN_SINGLE;
+                case 2 -> ScoreLineClearType.T_SPIN_DOUBLE;
+                case 3 -> ScoreLineClearType.T_SPIN_TRIPLE;
                 default ->
                         throw new IllegalStateException("Invalid number of cleared Lines with TSpin_FULL: %d, Error must happened in upfront calling  ".formatted(clearedLines));
             };
             case MINI -> switch (clearedLines) {
-                case 0 -> scoreLineClearType.MINI_T_SPIN_NO_LINES;
-                case 1 -> scoreLineClearType.MINI_T_SPIN_SINGLE;
-                case 2 -> scoreLineClearType.MINI_T_SPIN_DOUBLE;
+                case 0 -> ScoreLineClearType.MINI_T_SPIN_NO_LINES;
+                case 1 -> ScoreLineClearType.MINI_T_SPIN_SINGLE;
+                case 2 -> ScoreLineClearType.MINI_T_SPIN_DOUBLE;
                 default ->
                         throw new IllegalStateException("Invalid number of cleared Lines with TSpin_MINI: %d, Error must happened in upfront calling  ".formatted(clearedLines));
             };
@@ -116,17 +136,17 @@ public class ScoreManager implements Observable<Integer> {
      * @param observer objects who want to be notified of score changes
      */
     @Override
-    public void addObserver(Observer<Integer> observer) {
+    public void addObserver(Observer<ScoreInfoDTO> observer) {
         observers.add(observer);
     }
 
     @Override
-    public void removeObserver(Observer<Integer> observer) {
+    public void removeObserver(Observer<ScoreInfoDTO> observer) {
         observers.remove(observer);
     }
 
     @Override
-    public void notifyObservers(Integer event) {
+    public void notifyObservers(ScoreInfoDTO event) {
         observers.forEach(observer -> observer.update(event));
     }
 }

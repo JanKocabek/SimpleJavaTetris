@@ -1,41 +1,80 @@
 package org.sehes.tetris.gui;
 
+import org.jspecify.annotations.NonNull;
 import org.sehes.tetris.controller.Observer;
-
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
+import org.sehes.tetris.model.score.ScoreInfoDTO;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
-public class ScorePanel extends JPanel implements Observer<Integer> {
+public class ScorePanel extends JPanel implements Observer<ScoreInfoDTO> {
 
-    private final ScoreLabel scoreUI;
     private static final int THICKNESS = 2;
-
+    private static final String INFO_LABEL_EMPTY=" \n ";
+    private static final String COMBO_EMPTY=" ";
+    private final ScoreLabel scoreUI;
     private final Font scoreFont = new Font(Font.MONOSPACED, Font.BOLD, 20);
+    private final JLabel clearingInfo = new JLabel(INFO_LABEL_EMPTY, SwingConstants.CENTER);
+    private final  JLabel comboInfo= new JLabel(COMBO_EMPTY, SwingConstants.CENTER);
 
     public ScorePanel() {
         super();
-
         setOpaque(true);
-        this.scoreUI = new ScoreLabel();
         setBackground(Color.WHITE);
-        Border lineBorder = BorderFactory.createLineBorder(Color.BLACK, THICKNESS);
-        Border lineBorderWithTitle = BorderFactory.createTitledBorder(lineBorder, "Score", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.TOP, scoreFont, Color.BLACK);
-        setBorder(lineBorderWithTitle);
-        setLayout(new BorderLayout());
-        add(scoreUI, BorderLayout.NORTH);
+        this.scoreUI = new ScoreLabel();
+        //GridBagConstraints for stacking vertically
+        setLayout(new GridBagLayout());
+        final GridBagConstraints verStackConstr = createVerStackConstr();
+        setupCompGridPos(verStackConstr,0,new Insets(0,0,0,0));
+        add(scoreUI, verStackConstr);
+        setupCompGridPos(verStackConstr,1,new Insets(0,0,4,0));
+//        clearingInfo.setOpaque(true);
+//        clearingInfo.setBackground(Color.BLACK);
+        add(clearingInfo, verStackConstr);
+        setupCompGridPos(verStackConstr,2,new Insets(0,0,4,0));
+//        comboInfo.setOpaque(true);
+//        comboInfo.setBackground(Color.BLUE);
+        add(comboInfo, verStackConstr);
+
+    }
+
+    private void setupCompGridPos(GridBagConstraints constraints, int row , Insets insets) {
+        constraints.gridy=row;
+        constraints.insets=insets;
+    }
+    private @NonNull GridBagConstraints createVerStackConstr() {
+        final GridBagConstraints verStackConstr = new GridBagConstraints();
+        verStackConstr.gridx = 0;
+        verStackConstr.fill = GridBagConstraints.HORIZONTAL;
+        verStackConstr.weightx = 1.0;
+        return verStackConstr;
     }
 
 
     @Override
-    public void update(Integer score) {
-        scoreUI.updateScore(score);
+    public void update(ScoreInfoDTO info) {
+        scoreUI.updateScore(info.score());
+        // Update Line Clear Action
+        // Keep whitespace to prevent panel height collapse
+        String B2B= info.B2BBonus() ? "B2B" : "";
+        if ( !info.clearType().name().equals("NONE"))
+            clearingInfo.setText("%s \n%s ".formatted(B2B,info.clearType().toString().replace("_", " ")));
+        else clearingInfo.setText(INFO_LABEL_EMPTY);
+        // Update Combo (when you connect it to ScoreInfoDTO)
+        if (info.combo() > 0) {
+            comboInfo.setText("Combo x" + info.combo());
+        } else {
+            comboInfo.setText(COMBO_EMPTY);
+        }
     }
 
     /**
@@ -57,11 +96,13 @@ public class ScorePanel extends JPanel implements Observer<Integer> {
             setFont(scoreFont);
             setForeground(Color.BLACK);
             setBackground(Color.WHITE);
-
+            Border lineBorder = BorderFactory.createLineBorder(Color.BLACK, THICKNESS);
+            Border lineBorderWithTitle = BorderFactory.createTitledBorder(lineBorder, "Score", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.TOP, scoreFont, Color.BLACK);
+            setBorder(lineBorderWithTitle);
             setText(String.format(SCORE_FORMAT, 0));
         }
 
-        void updateScore(int score) {
+        private void updateScore(int score) {
             setText(String.format(SCORE_FORMAT, score));
         }
     }

@@ -4,8 +4,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sehes.tetris.model.score.HardDropEvent;
 import org.sehes.tetris.model.score.LockPieceEvent;
+import org.sehes.tetris.model.score.ScoreInfoDTO;
 import org.sehes.tetris.model.score.SoftDropEvent;
 import org.sehes.tetris.model.score.TSpin;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -70,11 +74,14 @@ class ScoreManagerTest {
     @Test
     void testLockPieceScoring_Tetris() {
         // given
+        List<ScoreInfoDTO> updates = new ArrayList<>();
+        scoreManager.addObserver(updates::add);
         scoreMessenger.notifyObservers(new LockPieceEvent(4, TSpin.NONE));
         
         // then
         assertThat(scoreManager).extracting("score").isEqualTo(800);
-        assertThat(scoreManager).extracting("isBackToBack").isEqualTo(true);
+        assertThat(scoreManager).extracting("isBackToBackChain").isEqualTo(true);
+        assertThat(updates).extracting(ScoreInfoDTO::B2BBonus).containsExactly(false);
     }
 
     @Test
@@ -84,8 +91,31 @@ class ScoreManagerTest {
         scoreMessenger.notifyObservers(new LockPieceEvent(4, TSpin.NONE));
         scoreMessenger.notifyObservers(new LockPieceEvent(4, TSpin.NONE));
         // assert
-        assertThat(scoreManager).extracting("isBackToBack").isEqualTo(true);
+        assertThat(scoreManager).extracting("isBackToBackChain").isEqualTo(true);
         assertThat(scoreManager).extracting("score").isEqualTo(2050);
+    }
+
+    @Test
+    void sendsB2BToGuiOnlyForTheClearThatReceivesTheBonus() {
+        List<ScoreInfoDTO> updates = new ArrayList<>();
+        scoreManager.addObserver(updates::add);
+
+        scoreMessenger.notifyObservers(new LockPieceEvent(4, TSpin.NONE));
+        scoreMessenger.notifyObservers(new HardDropEvent(1));
+        scoreMessenger.notifyObservers(new LockPieceEvent(4, TSpin.NONE));
+
+        assertThat(updates)
+                .extracting(ScoreInfoDTO::B2BBonus)
+                .containsExactly(false, false, true);
+    }
+
+    @Test
+    void noLineClearDoesNotBreakABackToBackChain() {
+        scoreMessenger.notifyObservers(new LockPieceEvent(4, TSpin.NONE));
+        scoreMessenger.notifyObservers(new LockPieceEvent(0, TSpin.FULL));
+        scoreMessenger.notifyObservers(new LockPieceEvent(4, TSpin.NONE));
+
+        assertThat(scoreManager).extracting("score").isEqualTo(2400);
     }
 
     @Test
@@ -95,7 +125,7 @@ class ScoreManagerTest {
         scoreMessenger.notifyObservers(new LockPieceEvent(4, TSpin.NONE));
         scoreMessenger.notifyObservers(new LockPieceEvent(3, TSpin.NONE));
         // assert
-        assertThat(scoreManager).extracting("isBackToBack").isEqualTo(false);
+        assertThat(scoreManager).extracting("isBackToBackChain").isEqualTo(false);
     }
 
     @Test
