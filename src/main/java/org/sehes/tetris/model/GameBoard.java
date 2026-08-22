@@ -111,6 +111,7 @@ public class GameBoard {
 
         if (canMove(currentTetromino, DirectionFlag.DOWN)) {
             currentTetromino.move(DirectionFlag.DOWN);
+            lastActionSnapshot.lastActionType = LastActionType.MOVE;
             return true;
         }
         return false;
