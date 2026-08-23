@@ -161,7 +161,7 @@ public class GameBoard {
     }
 
     /**
-     * This should be called only from {@link GameManager#lockClearAndScorePiece()} ()} <br>
+     * This should be called only from {@link GameManager#lockClearAndScorePiece()}  <br>
      * This method is responsible for locking the current tetromino in place on the game board.
      * It's last places where can be reliably find if the T-spin happened
      * then locks the tetromino.
@@ -212,9 +212,8 @@ public class GameBoard {
      * if found. It iterates through each row of the board and uses the
      * checkLine method to determine if a line is full (i.e., contains no EMPTY
      * blocks). If a full line is detected, it sets all blocks in that row to
-     * EMPTY and shifts all rows above it down by one. The method returns true
-     * if at least one line was cleared, allowing the game logic to update the
-     * score.
+     * EMPTY and shifts all rows above it down by one.
+     * The method doesn't return anything but set number of cleared lines into {@link ActionSnapshot.LastActionSnapshot}
      */
     public void clearLines() {
         int linesClearedCount = 0;
