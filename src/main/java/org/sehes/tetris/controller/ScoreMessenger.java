@@ -2,11 +2,11 @@ package org.sehes.tetris.controller;
 
 import org.sehes.tetris.model.score.ScoreEvent;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ScoreMessenger implements Observable<ScoreEvent> {
-    private final List<Observer<ScoreEvent>> observers = new ArrayList<>();
+    private final List<Observer<ScoreEvent>> observers = new CopyOnWriteArrayList<>();
 
     /**
      * Registers {@code Observer}. Held by strong reference — callers must

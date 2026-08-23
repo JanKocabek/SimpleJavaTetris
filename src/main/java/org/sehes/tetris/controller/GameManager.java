@@ -16,9 +16,9 @@ import org.sehes.tetris.model.score.TSpin;
 import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -301,7 +301,7 @@ public class GameManager implements InputHandler {
      * repaints the canvas to reflect any changes in the game state.
      */
     private class MainLoopListener implements ActionListener, Observable<Integer> {
-        private final List<Observer<Integer>> observers = new ArrayList<>();
+        private final List<Observer<Integer>> observers = new CopyOnWriteArrayList<>();
 
 
         @Override

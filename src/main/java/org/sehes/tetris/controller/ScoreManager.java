@@ -9,13 +9,13 @@ import org.sehes.tetris.model.score.ScoreLineClearType;
 import org.sehes.tetris.model.score.SoftDropEvent;
 import org.sehes.tetris.model.score.TSpin;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ScoreManager implements Observable<ScoreInfoDTO> {
 
     private static final byte COMBO_EMPTY = -1;
-    private final List<Observer<ScoreInfoDTO>> observers = new ArrayList<>();
+    private final List<Observer<ScoreInfoDTO>> observers = new CopyOnWriteArrayList<>();
     private int score;
     /** Whether a difficult clear has started a B2B chain. */
     private boolean isBackToBackChain;
