@@ -177,15 +177,12 @@ public class GameBoard {
             lastActionSnapshot.tSpin = TSpin.NONE;
             return;
         }
-        if (lastActionSnapshot.tSpinKickType == TSpinKickType.T_SPIN_KICK) {
-            lastActionSnapshot.tSpin = TSpin.FULL;
-            return;
-        }
         final int[][] frontCornersOffset = TSpin.getFrontCornersOffset(currentTetromino.getCurrentOrientation());
         final int[][] backCornersOffset = TSpin.getBackCornersOffset(currentTetromino.getCurrentOrientation());
         final int frontCornersCount = checkCornersAroundT(frontCornersOffset);
         final int backCornersCount = checkCornersAroundT(backCornersOffset);
-        lastActionSnapshot.tSpin = TSpin.getTSpin(frontCornersCount, backCornersCount, true);
+        final var isTSpinKick = lastActionSnapshot.tSpinKickType == TSpinKickType.T_SPIN_KICK;
+        lastActionSnapshot.tSpin = TSpin.getTSpin(frontCornersCount, backCornersCount, true, isTSpinKick);
     }
 
     /**
@@ -231,9 +228,7 @@ public class GameBoard {
     private int checkCornersAroundT(int[][] offset) {
         final var y = currentTetromino.getPositionY();
         final var x = currentTetromino.getPositionX();
-        return (int) Arrays.stream(offset)
-                .filter(o -> isValidFilledCorner(x + o[0], y + o[1]))
-                .count();
+        return (int) Arrays.stream(offset).filter(o -> isValidFilledCorner(x + o[0], y + o[1])).count();
     }
 
     private boolean isValidFilledCorner(int x, int y) {
