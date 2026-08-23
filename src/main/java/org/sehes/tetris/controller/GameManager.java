@@ -3,13 +3,17 @@ package org.sehes.tetris.controller;
 import org.sehes.tetris.controller.input.InputAction;
 import org.sehes.tetris.gui.GuiFactory;
 import org.sehes.tetris.gui.TetrisCanvas;
-import org.sehes.tetris.model.*;
+import org.sehes.tetris.model.BoardView;
+import org.sehes.tetris.model.DirectionFlag;
+import org.sehes.tetris.model.GameBoard;
+import org.sehes.tetris.model.RotationFlag;
+import org.sehes.tetris.model.Tetromino;
 import org.sehes.tetris.model.score.HardDropEvent;
 import org.sehes.tetris.model.score.LockPieceEvent;
 import org.sehes.tetris.model.score.SoftDropEvent;
 import org.sehes.tetris.model.score.TSpin;
 
-import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -18,7 +22,12 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.sehes.tetris.controller.GameState.*;
+import static org.sehes.tetris.controller.GameState.GAME_OVER;
+import static org.sehes.tetris.controller.GameState.INIT;
+import static org.sehes.tetris.controller.GameState.NEW_GAME;
+import static org.sehes.tetris.controller.GameState.PAUSED;
+import static org.sehes.tetris.controller.GameState.PLAYING;
+import static org.sehes.tetris.controller.GameState.PREPARED;
 
 
 /**
@@ -85,11 +94,11 @@ public class GameManager implements InputHandler {
         return gameLoop;
     }
 
-    public BoardView getBoardView() {
+    private BoardView getBoardView() {
         return gameBoard.getBoardView();
     }
 
-    public Tetromino getCurrentTetromino() {
+    private Tetromino getCurrentTetromino() {
         return gameBoard.getCurrentTetromino();
     }
 
