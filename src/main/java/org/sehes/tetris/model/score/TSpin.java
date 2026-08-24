@@ -1,7 +1,9 @@
 package org.sehes.tetris.model.score;
 
+import org.jspecify.annotations.NullMarked;
 import org.sehes.tetris.model.Orientation;
 
+@NullMarked
 public enum TSpin {
     NONE, FULL, MINI;
 
@@ -29,7 +31,7 @@ public enum TSpin {
         };
     }
 
-    public static TSpin getTSpin(int frontCornersCount, int backCornersCount, boolean wasRotation, boolean isTSpinKick) {
-        return !wasRotation || (frontCornersCount + backCornersCount) < 3 ? NONE : frontCornersCount == 2 || isTSpinKick ? FULL : MINI;
+    public static TSpin getTSpin(int frontCornersCount, int backCornersCount, boolean isTSpinKick) {
+        return (frontCornersCount + backCornersCount) < 3 ? NONE : frontCornersCount == 2 || isTSpinKick ? FULL : MINI;
     }
 }

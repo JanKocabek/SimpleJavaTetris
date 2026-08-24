@@ -78,7 +78,11 @@ public class ShapeProvider {
                     new Coordinate(-1, -1),
                     new Coordinate(0, 2),
                     new Coordinate(-1, 2)));
-            WALL_KICKS.get(WallKickType.NORMAL).put(Transition.WEST_TO_SOUTH, List.of(new Coordinate(-1, 0), new Coordinate(-1, 1), new Coordinate(0, -2), new Coordinate(-1, -2)));
+            WALL_KICKS.get(WallKickType.NORMAL).put(Transition.WEST_TO_SOUTH, List.of(
+                    new Coordinate(-1, 0),
+                    new Coordinate(-1, 1),
+                    new Coordinate(0, -2),
+                    new Coordinate(-1, -2)));
             WALL_KICKS.get(WallKickType.NORMAL).put(Transition.WEST_TO_NORTH, List.of(new Coordinate(-1, 0), new Coordinate(-1, 1), new Coordinate(0, -2), new Coordinate(-1, -2)));
             WALL_KICKS.get(WallKickType.NORMAL).put(Transition.NORTH_TO_WEST, List.of(new Coordinate(1, 0), new Coordinate(1, -1), new Coordinate(0, 2), new Coordinate(1, 2)));
             WALL_KICKS.get(WallKickType.I_KICKS).put(Transition.NORTH_TO_EAST, List.of(new Coordinate(-2, 0), new Coordinate(1, 0), new Coordinate(-2, 1), new Coordinate(1, -2)));

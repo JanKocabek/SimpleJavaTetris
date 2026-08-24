@@ -182,7 +182,7 @@ public class GameBoard {
         final int frontCornersCount = checkCornersAroundT(frontCornersOffset);
         final int backCornersCount = checkCornersAroundT(backCornersOffset);
         final var isTSpinKick = lastActionSnapshot.tSpinKickType == TSpinKickType.T_SPIN_KICK;
-        lastActionSnapshot.tSpin = TSpin.getTSpin(frontCornersCount, backCornersCount, true, isTSpinKick);
+        lastActionSnapshot.tSpin = TSpin.getTSpin(frontCornersCount, backCornersCount, isTSpinKick);
     }
 
     /**
