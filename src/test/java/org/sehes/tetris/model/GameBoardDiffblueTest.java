@@ -9,7 +9,14 @@ import org.sehes.tetris.config.GameParameters;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GameBoardDiffblueTest {
 
@@ -93,9 +100,9 @@ class GameBoardDiffblueTest {
     @Tag("ContributionFromDiffblue")
     @ManagedByDiffblue
     @MethodsUnderTest({"boolean GameBoard.tryMovePiece(DirectionFlag)"})
-    void testTryMovePiece_givenGameBoard_whenDown_thenReturnFalse() {
+    void testTryMovePiece_givenGameBoard_whenDown_ThrowExceptionWithoutTetromino() {
         // Arrange, Act and Assert
-        assertFalse(new GameBoard().tryMovePiece(DirectionFlag.DOWN));
+        assertThatNullPointerException().isThrownBy(() -> new GameBoard().trySoftDrop());
     }
 
     /**
@@ -116,9 +123,9 @@ class GameBoardDiffblueTest {
     void testTryMovePiece_thenGameBoardCurrentTetrominoPositionYIsMinusOne() {
         // Arrange
         GameBoard gameBoard = new GameBoard();
-        final var startPos=new Coordinate(-1, -1);
+        final var startPos = new Coordinate(-1, -1);
         gameBoard.trySpawnTetromino(
-                TetrominoFactory.spawnSpecificTetromino(TetrominoType.I,startPos ));
+                TetrominoFactory.spawnSpecificTetromino(TetrominoType.I, startPos));
 
         // Act
         boolean actualTryMovePieceResult = gameBoard.tryMovePiece(DirectionFlag.RIGHT);
@@ -131,7 +138,6 @@ class GameBoardDiffblueTest {
                 new int[]{-40, -120, 0, -120, -80, -120, 40, -120},
                 currentTetromino.getPixelCoordinates());
     }
-
 
 
     /**
@@ -579,9 +585,6 @@ class GameBoardDiffblueTest {
     }
 
 
-
-
-
     /**
      * Test {@link GameBoard#lockTetrominoInPlace()}.
      *
@@ -668,7 +671,6 @@ class GameBoardDiffblueTest {
     }
 
 
-
     /**
      * Test {@link GameBoard#tryRotatePiece(RotationFlag)}.
      *
@@ -742,8 +744,6 @@ class GameBoardDiffblueTest {
     }
 
 
-
-
     /**
      * Test {@link GameBoard#tryRotatePiece(RotationFlag)}.
      *
@@ -788,8 +788,6 @@ class GameBoardDiffblueTest {
     }
 
 
-
-
     /**
      * Test {@link GameBoard#tryRotatePiece(RotationFlag)}.
      *
@@ -824,8 +822,6 @@ class GameBoardDiffblueTest {
         assertArrayEquals(
                 new int[]{0, 60, 30, 60, 30, 30, 30, 0}, currentTetromino.getPixelCoordinates());
     }
-
-
 
 
     /**
