@@ -88,6 +88,7 @@ public class GameBoard {
     }
 
     public boolean tryMovePiece(final DirectionFlag flag) {
+        if(currentTetromino == null) return false;
         if (flag == DirectionFlag.DOWN) {
             throw new IllegalArgumentException("Use trySoftDrop() for down movement");
         }
@@ -108,7 +109,7 @@ public class GameBoard {
     }
 
     public boolean tryGravityMove() {
-
+        if(currentTetromino == null) return false;
         if (canMove(currentTetromino, DirectionFlag.DOWN)) {
             currentTetromino.move(DirectionFlag.DOWN);
             lastActionSnapshot.lastActionType = LastActionType.MOVE;
@@ -300,7 +301,9 @@ public class GameBoard {
     }
 
     public int tryHardDrop() {
-        assert currentTetromino != null : "Current tetromino should not be null";
+        if(currentTetromino == null) {
+            return 0;
+        }
         final var distance = calculateDropDistance();
         if (distance != 0) {
             currentTetromino.setPosition(currentTetromino.getPositionX(), currentTetromino.getPositionY() + distance);
