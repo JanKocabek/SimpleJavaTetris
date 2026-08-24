@@ -3,6 +3,7 @@ package org.sehes.tetris.controller;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+
 public class GameStateManager implements StateManager<GameState>, Observable<GameState> {
     private final List<Observer<GameState>> observers;
     private GameState currentState;
@@ -20,7 +21,7 @@ public class GameStateManager implements StateManager<GameState>, Observable<Gam
     @Override
     public void setState(GameState state) {
         this.currentState = state;
-        notifyObservers();
+        notifyObservers(state);
     }
 
     @Override
@@ -34,7 +35,7 @@ public class GameStateManager implements StateManager<GameState>, Observable<Gam
     }
 
     @Override
-    public void notifyObservers( ) {
-        this.observers.forEach(observer -> observer.update(currentState));
+    public void notifyObservers(GameState event) {
+        this.observers.forEach(observer -> observer.update(event));
     }
 }

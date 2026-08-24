@@ -11,8 +11,19 @@ import org.sehes.tetris.config.GameParameters;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.sehes.tetris.model.TestUtil.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.sehes.tetris.model.TetrominoFixtures.spawn;
+import static org.sehes.tetris.model.UtilForTests.getFullBoard;
+import static org.sehes.tetris.model.UtilForTests.prepareBoard;
+import static org.sehes.tetris.model.UtilForTests.prepareBoard2T;
+import static org.sehes.tetris.model.UtilForTests.printBoardState;
 
 class GameBoardTest {
 
@@ -49,36 +60,24 @@ class GameBoardTest {
     @Test
     void testCheckAndClearLinesNoLines() {
         // when
-        boolean result = gameBoard.checkAndClearLines();
+        gameBoard.clearLines();
+        final var result = gameBoard.getLastAction();
         // then
-        assertFalse(result);
+        assertThat(result.linesCleared()).isZero();
     }
 
-    @Test
-    void testScoreInitialization() {
-        assertEquals(0, gameBoard.getScore());
-    }
 
     @Test
     void testSetLineForTest() {
         // given
-        gameBoard.fillLineForTestOnly();
+        gameBoard.createGarbageLine();
         // when
-        boolean result = gameBoard.checkAndClearLines();
+        gameBoard.clearLines();
+        final var result = gameBoard.getLastAction();
         // then
-        assertTrue(result);
+        assertThat(result.linesCleared()).isOne();
     }
 
-    @Test
-    void testUpdateScoreSingleLine() {
-        // given
-        int initialScore = gameBoard.getScore();
-        gameBoard.fillLineForTestOnly();
-        // when
-        gameBoard.checkAndClearLines();
-        // then
-        assertEquals(initialScore + 100, gameBoard.getScore());
-    }
 
     @Nested
     @DisplayName("basic functionality")
@@ -86,7 +85,6 @@ class GameBoardTest {
         @Test
         void testGameBoardInitialization() {
             assertNotNull(gameBoard);
-            assertEquals(0, gameBoard.getScore());
             assertNull(gameBoard.getCurrentTetromino());
         }
 
@@ -123,14 +121,6 @@ class GameBoardTest {
     @Nested
     @DisplayName("crash cases")
     class CrashCases {
-
-        @ParameterizedTest
-        @EnumSource(value = DirectionFlag.class, names = {"LEFT", "RIGHT", "DOWN"})
-        void testTryMovePieceWithoutTetromino(DirectionFlag flag) {
-            boolean result = gameBoard.tryMovePiece(flag);
-            assertFalse(result, "Movement should not be possible without a tetromino");
-        }
-
         @ParameterizedTest
         @EnumSource(value = RotationFlag.class, names = {"CLOCKWISE", "COUNTER_CLOCKWISE"})
         void testTryRotatePieceWithoutTetromino(RotationFlag flag) {
@@ -142,6 +132,14 @@ class GameBoardTest {
         void testBoardViewGetBlockContentOutOfBounds() {
             BoardView boardView = gameBoard.getBoardView();
             assertThrows(IndexOutOfBoundsException.class, () -> boardView.getBlockContent(-1, 0));
+        }
+
+        @Test
+        void spawningPieceOutsideBoard_isRejectedWithoutAnActivePiece() {
+            final Tetromino piece = spawn(TetrominoType.I, new Coordinate(-2, 1), Orientation.NORTH, null).t();
+
+            assertThat(gameBoard.trySpawnTetromino(piece)).isFalse();
+            assertThat(gameBoard.getCurrentTetromino()).isNull();
         }
 
     }
@@ -191,7 +189,7 @@ class GameBoardTest {
             Tetromino tetromino = gameBoard.getCurrentTetromino();
             Coordinate initialPos = new Coordinate(tetromino.getPositionX(), tetromino.getPositionY());
             // when
-            boolean moved = gameBoard.tryMovePiece(DirectionFlag.DOWN);
+            boolean moved = gameBoard.trySoftDrop();
             // then
             assertTrue(moved);
             Coordinate newPos = new Coordinate(tetromino.getPositionX(), tetromino.getPositionY());
@@ -200,6 +198,32 @@ class GameBoardTest {
 
         }
 
+        @Test
+        void movingDownWithHorizontalMoveApi_explainsWhichApiToUse() {
+            assertThatThrownBy(() -> gameBoard.tryMovePiece(DirectionFlag.DOWN))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Use trySoftDrop() for down movement");
+        }
+
+    }
+
+    @Nested
+    @DisplayName("line clearing cases")
+    class LineClearingCases {
+
+        @Test
+        void clearingFullLine_movesTheRowsAboveDown() {
+            final GameBoard board = prepareBoard(getFullBoard("""
+                    I#########
+                    IIIIIIIIII
+                    """));
+
+            board.clearLines();
+
+            assertThat(board.getLastAction().linesCleared()).isOne();
+            assertThat(board.getBoardView().getBlockContent(21, 0)).isEqualTo(TetrominoType.I);
+            assertThat(board.getBoardView().getBlockContent(21, 1)).isEqualTo(TetrominoType.NON);
+        }
     }
 
     @Nested
@@ -308,6 +332,100 @@ class GameBoardTest {
             boolean rotated = gameBoard.tryRotatePiece(flag);
             // then
             assertFalse(rotated);
+        }
+
+        /**
+         * T-piece at pivot (4,17) facing NORTH cannot rotate CW to EAST because
+         * the rotated shape and all four SRS wall-kick positions are blocked.
+         *
+         * <pre>
+         *  col:  0123456789
+         *  r16:  ####I#####   ← (4,16) blocks kick 2: pivot (3,16) → EAST cell (4,16)
+         *  r17:  ##########   ← T pivot here (NORTH: left/center/right + top)
+         *  r18:  ###II#####   ← (3,18)+(4,18) block in-place and kick 1
+         *  r19:  ##########     kick 3+4 land at r19/r21 with cells already covered
+         *  r20:  ##########
+         *  r21:  ##########
+         * </pre>
+         *
+         * SRS NORTH→EAST kicks and why each fails:
+         * <ul>
+         *   <li>In-place (4,17): EAST needs (4,18) → filled ✗</li>
+         *   <li>Kick (-1,0) → (3,17): EAST needs (3,18) → filled ✗</li>
+         *   <li>Kick (-1,-1) → (3,16): EAST needs (4,16) → filled ✗</li>
+         *   <li>Kick (0,+2) → (4,19): EAST needs (4,18) and (4,20) — (4,18) filled ✗</li>
+         *   <li>Kick (-1,+2) → (3,19): EAST needs (3,18) — filled ✗</li>
+         * </ul>
+         */
+        @Test
+        void testImpossibleRotation_T() {
+            // 6 lines → getFullBoard prepends 22-6=16 empty rows → lines become rows 16-21
+            final GameBoard localBoard = prepareBoard(getFullBoard("""
+                    ####I#####
+                    ##########
+                    ###II#####
+                    ##########
+                    ##########
+                    ##########
+                    """));
+            localBoard.trySpawnTetromino(spawn(TetrominoType.T, new Coordinate(4, 17), Orientation.NORTH, null).t());
+
+            assertFalse(localBoard.tryRotatePiece(RotationFlag.CLOCKWISE),
+                    "T-piece CW rotation must fail: in-place and all 4 SRS kick positions are blocked");
+        }
+
+        /**
+         * I-piece at pivot (4,12) facing NORTH (horizontal bar) cannot rotate CW
+         * to EAST (vertical) because both full rows at 9 and 14 block every cell
+         * the vertical bar would occupy across all four I-piece SRS kick positions.
+         *
+         * <pre>
+         *  col:  0123456789
+         *  r9:   IIIIIIIIII   ← full row blocks top of any vertical I
+         *  r10:  ##########
+         *  r11:  ##########
+         *  r12:  ##########   ← I pivot here (NORTH: cols 3-6)
+         *  r13:  ##########
+         *  r14:  IIIIIIIIII   ← full row blocks bottom of any vertical I
+         * </pre>
+         *
+         * I EAST offsets are all at x = pivot.x+1, spanning y-1..y+2.
+         * Every kick shifts the pivot horizontally; the vertical bar always
+         * intersects at least one of row 9 or row 14.
+         */
+        @Test
+        void testImpossibleRotation_I() {
+            // 13 lines → getFullBoard prepends 22-13=9 empty rows → lines become rows 9-21
+            final GameBoard localBoard = prepareBoard(getFullBoard("""
+                    IIIIIIIIII
+                    ##########
+                    ##########
+                    ##########
+                    ##########
+                    IIIIIIIIII
+                    ##########
+                    ##########
+                    ##########
+                    ##########
+                    ##########
+                    ##########
+                    ##########
+                    """));
+            localBoard.trySpawnTetromino(spawn(TetrominoType.I, new Coordinate(4, 12), Orientation.NORTH, null).t());
+
+            assertFalse(localBoard.tryRotatePiece(RotationFlag.CLOCKWISE),
+                    "I-piece CW rotation must fail: full rows at 9 and 14 block all SRS kick positions");
+        }
+
+        /**
+         * {@code tryRotatePiece(null)} must always return {@code false}.
+         * The null guard is an early-exit branch independent of board state.
+         */
+        @Test
+        void tryRotatePiece_withNullRotation_returnsFalse() {
+            gameBoard.trySpawnTetromino(TetrominoFactory.spawnSpecificTetromino(TetrominoType.T, new Coordinate(4, 1)));
+            assertFalse(gameBoard.tryRotatePiece(null),
+                    "null rotation flag must always return false");
         }
     }
 

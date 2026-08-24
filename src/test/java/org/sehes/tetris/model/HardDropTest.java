@@ -41,22 +41,12 @@ class HardDropTest {
         final var result = gameBoard.tryHardDrop();
         final var newYPos = mino.getPositionY();
         //assert
-        assertThat(result).isTrue();
-        assertThat(gameBoard.tryMovePiece(DirectionFlag.DOWN)).isFalse();
+        assertThat(result).isEqualTo(20);
+        assertThat(gameBoard.trySoftDrop()).isFalse();
         assertThat(newYPos).isEqualTo(GameParameters.ROWS - 1);
 
     }
 
-    @Test
-    void hardDropTetrominoIsNullTest() {
-        //arrange
-        final var mino = gameBoard.getCurrentTetromino();
-        //act
-        boolean result = gameBoard.tryHardDrop();
-        //assert
-        assertThat(mino).isNull();
-        assertThat(result).isFalse();
-    }
 
     @Test
     void hardDropOnOtherMinoTest() {
@@ -69,8 +59,8 @@ class HardDropTest {
         //act
         final var result = gameBoard.tryHardDrop();
         //assert
-        assertThat(result).isTrue();
-        assertThat(gameBoard.tryMovePiece(DirectionFlag.DOWN)).isFalse();
+        assertThat(result).isEqualTo(18);
+        assertThat(gameBoard.trySoftDrop()).isFalse();
         assertThat(mino.getPositionY()).isEqualTo(19);
     }
 
@@ -82,7 +72,7 @@ class HardDropTest {
         final var result = gameBoard.tryHardDrop();
         //assert
         assertThat(happened).isTrue();
-        assertThat(result).isFalse();
+        assertThat(result).isZero();
     }
 
 }

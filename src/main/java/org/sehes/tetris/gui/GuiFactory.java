@@ -3,6 +3,7 @@ package org.sehes.tetris.gui;
 import org.sehes.tetris.controller.GameSnapshot;
 import org.sehes.tetris.controller.GameState;
 import org.sehes.tetris.controller.Observer;
+import org.sehes.tetris.model.score.ScoreInfoDTO;
 
 import javax.swing.Painter;
 import javax.swing.SwingUtilities;
@@ -132,9 +133,7 @@ public class GuiFactory {
         return new ScorePanel();
     }
 
-    public record WholeGui(TetrisCanvas canvas, ScorePanel scoreUI, InfoPanel infoP, GameWindow window)  {
-
-
+    public record WholeGui(TetrisCanvas canvas, ScorePanel scoreUI, InfoPanel infoP, GameWindow window) {
         public Runnable exitAction() {
             return () -> window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
         }
@@ -147,6 +146,10 @@ public class GuiFactory {
 
         public Observer<Integer> fpsObserver() {
             return infoP.fpsUpdateObserver();
+        }
+
+        public Observer<ScoreInfoDTO> scoreObserver() {
+            return scoreUI;
         }
     }
 }
