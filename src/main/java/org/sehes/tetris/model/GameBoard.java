@@ -304,8 +304,8 @@ public class GameBoard {
         final var distance = calculateDropDistance();
         if (distance != 0) {
             currentTetromino.setPosition(currentTetromino.getPositionX(), currentTetromino.getPositionY() + distance);
-            lastActionSnapshot.lastActionType = LastActionType.DROP;
         }
+        lastActionSnapshot.lastActionType = LastActionType.DROP;
         return distance;
     }
 
