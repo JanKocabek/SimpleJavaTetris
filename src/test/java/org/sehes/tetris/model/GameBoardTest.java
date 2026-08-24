@@ -11,6 +11,7 @@ import org.sehes.tetris.config.GameParameters;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -133,6 +134,14 @@ class GameBoardTest {
             assertThrows(IndexOutOfBoundsException.class, () -> boardView.getBlockContent(-1, 0));
         }
 
+        @Test
+        void spawningPieceOutsideBoard_isRejectedWithoutAnActivePiece() {
+            final Tetromino piece = spawn(TetrominoType.I, new Coordinate(-2, 1), Orientation.NORTH, null).t();
+
+            assertThat(gameBoard.trySpawnTetromino(piece)).isFalse();
+            assertThat(gameBoard.getCurrentTetromino()).isNull();
+        }
+
     }
 
     @Nested
@@ -189,6 +198,32 @@ class GameBoardTest {
 
         }
 
+        @Test
+        void movingDownWithHorizontalMoveApi_explainsWhichApiToUse() {
+            assertThatThrownBy(() -> gameBoard.tryMovePiece(DirectionFlag.DOWN))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Use trySoftDrop() for down movement");
+        }
+
+    }
+
+    @Nested
+    @DisplayName("line clearing cases")
+    class LineClearingCases {
+
+        @Test
+        void clearingFullLine_movesTheRowsAboveDown() {
+            final GameBoard board = prepareBoard(getFullBoard("""
+                    I#########
+                    IIIIIIIIII
+                    """));
+
+            board.clearLines();
+
+            assertThat(board.getLastAction().linesCleared()).isOne();
+            assertThat(board.getBoardView().getBlockContent(21, 0)).isEqualTo(TetrominoType.I);
+            assertThat(board.getBoardView().getBlockContent(21, 1)).isEqualTo(TetrominoType.NON);
+        }
     }
 
     @Nested
