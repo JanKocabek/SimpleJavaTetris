@@ -1,7 +1,5 @@
 package org.sehes.tetris.model;
 
-import org.sehes.tetris.config.GameParameters;
-
 import java.util.List;
 
 /**
@@ -34,7 +32,7 @@ import java.util.List;
  */
 public class Tetromino {
 
-    private final int[] pixelCoordinates;// pixel coordination of the blocks for the drawing
+
     private final TetrominoType type;
     /**
      * The X (column) coordinate of the tetromino's position on the game board.
@@ -73,8 +71,6 @@ public class Tetromino {
         this.positionY = spawnPosition.y();
         this.type = type;
         updateStateCoordination();
-        pixelCoordinates = new int[stateCoordination.size() * 2];
-        updatePixelCoordinates();
     }
 
     public TetrominoType getType() {
@@ -86,9 +82,6 @@ public class Tetromino {
         return stateCoordination;
     }
 
-    public int[] getPixelCoordinates() {
-        return pixelCoordinates;
-    }
 
     /**
      * Returns the X (column) coordinate of the tetromino's position.
@@ -106,7 +99,7 @@ public class Tetromino {
     public void setPosition(final int x, final int y) {
         this.positionX = x;
         this.positionY = y;
-        updatePixelCoordinates();
+        //updatePixelCoordinates();
     }
 
     public void move(final DirectionFlag flag) {
@@ -115,7 +108,7 @@ public class Tetromino {
         }
         positionX += flag.getX();
         positionY += flag.getY();
-        updatePixelCoordinates();
+        //updatePixelCoordinates();
     }
 
 
@@ -132,7 +125,7 @@ public class Tetromino {
         }
         this.stateCoordination = coordinates;
         this.rotationState = nextOrientation;
-        updatePixelCoordinates();
+        //updatePixelCoordinates();
     }
 
     Orientation getCurrentOrientation() {
@@ -141,24 +134,5 @@ public class Tetromino {
 
     private void updateStateCoordination() {
         stateCoordination = ShapeProvider.getTetrominoState(type, rotationState);
-    }
-
-    /**
-     * Updates the pixel coordinates of the tetromino based on its current state
-     * and position. The method takes the state coordinates, scales them by the
-     * block size, and then applies the position offset to get the final
-     * pixel coordinates.
-     */
-    private void updatePixelCoordinates() {
-        final int COORDS_PER_BLOCK = 2;
-        final int pX = positionX * GameParameters.BLOCK_SIZE;
-        final int pY = (positionY - GameParameters.HIDDEN_ROWS) * GameParameters.BLOCK_SIZE;
-        final int blockSize = GameParameters.BLOCK_SIZE;
-        for (int i = 0; i < stateCoordination.size(); i++) {
-            final int x = stateCoordination.get(i).x() * blockSize + pX;
-            final int y = stateCoordination.get(i).y() * blockSize + pY;
-            pixelCoordinates[i * COORDS_PER_BLOCK] = x;
-            pixelCoordinates[(i * COORDS_PER_BLOCK) + 1] = y;
-        }
     }
 }
