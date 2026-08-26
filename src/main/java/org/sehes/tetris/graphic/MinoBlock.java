@@ -25,7 +25,7 @@ package org.sehes.tetris.graphic;
  *
  */
 
-public class BlockGraphic {
+public class MinoBlock {
     private static final int L_OUT_TOP = 0;
     private static final int R_OUT_TOP = 1;
     private static final int L_IN_TOP = 2;
@@ -47,7 +47,7 @@ public class BlockGraphic {
     private final int[][] vBuffer;
     private final Renderable[] shapes;
 
-    public BlockGraphic(int blockSize, int thickness) {
+    public MinoBlock(int blockSize, int thickness) {
         final int rX = L_X + blockSize;
         final int inRtx = rX - thickness;
         final int inLtx = L_X + thickness;

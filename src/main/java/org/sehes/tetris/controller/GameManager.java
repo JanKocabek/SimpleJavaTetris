@@ -272,7 +272,7 @@ public class GameManager implements InputHandler {
 
     private GameSnapshot gameSnapshotFactory(GameState state) {
         final var wasDirty = this.isDirty.getAndSet(false);
-        return ((state) == GameState.PLAYING) ? new GameSnapshot(getBoardView(), Optional.of(getCurrentTetromino()), wasDirty) : new GameSnapshot(getBoardView(), Optional.empty(), wasDirty);
+        return ((state) == GameState.PLAYING) ? new GameSnapshot(getBoardView(), Optional.of(getCurrentTetromino()), wasDirty,gameBoard.calculateDropDistance()) : new GameSnapshot(getBoardView(), Optional.empty(), wasDirty,0);
     }
 
     private void lockClearAndScorePiece() {

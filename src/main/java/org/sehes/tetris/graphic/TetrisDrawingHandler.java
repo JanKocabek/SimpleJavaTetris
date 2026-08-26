@@ -1,4 +1,4 @@
-package org.sehes.tetris.gui;
+package org.sehes.tetris.graphic;
 
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -26,17 +26,19 @@ import java.util.Map;
 @NullMarked
 public class TetrisDrawingHandler implements Painter<GameSnapshot> {
 
+    private static final int COORDS_PER_BLOCK = 2;
     private final BufferedImage boardImg;
     private final Map<TetrominoType, BufferedImage> assets;
     private final RenderingHints renderingHints;
+    private final BufferedImage ghostTile;
 
-    public TetrisDrawingHandler(Map<TetrominoType, BufferedImage> assets, RenderingHints renderingHints) {
+    public TetrisDrawingHandler(Map<TetrominoType, BufferedImage> assets, RenderingHints renderingHints,BufferedImage ghostBlock) {
         this.assets = assets;
         this.renderingHints = renderingHints;
         boardImg = new BufferedImage(GameParameters.COLUMNS * GameParameters.BLOCK_SIZE,
                 GameParameters.VISIBLE_ROWS * GameParameters.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
+        this.ghostTile=ghostBlock;
     }
-
 
 
     private void paintGameBoard(Graphics2D g2d, BoardView boardView, boolean isBoardDirty) {
@@ -80,15 +82,41 @@ public class TetrisDrawingHandler implements Painter<GameSnapshot> {
      * @param g2d the Graphics2D object to draw on
      * @param t   the Tetromino to draw - cannot be null
      */
-    private void drawCurrentTetromino(Graphics2D g2d, Tetromino t) {
+    private void drawCurrentTetromino(Graphics2D g2d, Tetromino t,int ghostDistance) {
 
         //todo separate pixel coordinates from tetromino object
-        int[] pixelCoordinates = t.getPixelCoordinates();
+        int[] pixelCoordinates = calculatePixelCoordinates(t);
         for (int i = 0; i < pixelCoordinates.length; i += 2) {
             g2d.drawImage(assets.get(t.getType()), pixelCoordinates[i], pixelCoordinates[i + 1], null);
         }
+        drawCurrentGhostBlock(g2d, pixelCoordinates, ghostDistance);
     }
 
+    private void drawCurrentGhostBlock(Graphics2D g2d, int[] coordinate, int distance) {
+        final var PIXEL_DIST = distance * GameParameters.BLOCK_SIZE;
+        for (int i = 0; i < coordinate.length; i += 2) {
+            g2d.drawImage(ghostTile, coordinate[i] , coordinate[i + 1] + PIXEL_DIST, null);
+        }
+    }
+
+    /**
+     * Calculate the pixel coordinates of the tetromino for drawing them based on its current state
+     * and position. The method takes the state coordinates, scales them by the
+     * block size, and then applies the position offset to get the final
+     * pixel coordinates.
+     */
+    private int[] calculatePixelCoordinates(Tetromino tetromino) {
+        int[] pixelCoordinates = new int[2 * tetromino.getStateCord().size()];
+        final int pX = tetromino.getPositionX() * GameParameters.BLOCK_SIZE;
+        final int pY = (tetromino.getPositionY() - GameParameters.HIDDEN_ROWS) * GameParameters.BLOCK_SIZE;
+        for (int i = 0; i < tetromino.getStateCord().size(); i++) {
+            final int x = tetromino.getStateCord().get(i).x() * GameParameters.BLOCK_SIZE + pX;
+            final int y = tetromino.getStateCord().get(i).y() * GameParameters.BLOCK_SIZE + pY;
+            pixelCoordinates[i * COORDS_PER_BLOCK] = x;
+            pixelCoordinates[(i * COORDS_PER_BLOCK) + 1] = y;
+        }
+        return pixelCoordinates;
+    }
 
     @Override
     public void paint(Graphics2D g, @Nullable GameSnapshot snapshot, int width, int height) {
@@ -98,7 +126,7 @@ public class TetrisDrawingHandler implements Painter<GameSnapshot> {
         final BoardView board = snapshot.boardView();
         final boolean wasBoardDirty = snapshot.isBoardDirty();
         paintGameBoard(g, board, wasBoardDirty);
-        snapshot.currentTetromino().ifPresent(tetromino -> drawCurrentTetromino(g, tetromino));
+        snapshot.currentTetromino().ifPresent(tetromino -> drawCurrentTetromino(g, tetromino,snapshot.distance()));
     }
 }
 

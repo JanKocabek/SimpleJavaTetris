@@ -3,7 +3,10 @@ package org.sehes.tetris.graphic;
 import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.model.TetrominoType;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.RenderingHints;
+import java.awt.Stroke;
 import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
 import java.util.EnumMap;
@@ -11,7 +14,7 @@ import java.util.Map;
 
 public final class AssetsManager {
     private final EnumMap<TetrominoType, BufferedImage> tiles;
-    private final BlockGraphic block;
+    private final MinoBlock block;
     private final RenderingHints hints;
 
     private BufferedImage createTile(TetrominoType type) {
@@ -36,7 +39,7 @@ public final class AssetsManager {
 
     public AssetsManager(RenderingHints hints) {
         this.hints = hints;
-        this.block = new BlockGraphic(GameParameters.BLOCK_SIZE, Config.BLOCK_THICKNESS);
+        this.block = new MinoBlock(GameParameters.BLOCK_SIZE, Config.BLOCK_THICKNESS);
         tiles = new EnumMap<>(TetrominoType.class);
     }
 
@@ -46,5 +49,17 @@ public final class AssetsManager {
         }
 
         return tiles;
+    }
+
+    public BufferedImage createGhostTile() {
+        BufferedImage buffer = new BufferedImage(GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
+        final var g2d = buffer.createGraphics();
+        final var THICKNESS = 3f;
+        Stroke thickStroke = new BasicStroke(THICKNESS);
+        g2d.setColor(Color.WHITE);
+        g2d.setStroke(thickStroke);
+        g2d.drawRect(0, 0, (int) (GameParameters.BLOCK_SIZE - THICKNESS), (int) (GameParameters.BLOCK_SIZE - THICKNESS));
+        g2d.dispose();
+        return buffer;
     }
 }

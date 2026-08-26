@@ -1,16 +1,25 @@
 package org.sehes.tetris;
 
-import org.sehes.tetris.controller.*;
-import org.sehes.tetris.controller.input.*;
+import org.sehes.tetris.controller.GameManager;
+import org.sehes.tetris.controller.GameState;
+import org.sehes.tetris.controller.GameStateManager;
+import org.sehes.tetris.controller.Observable;
+import org.sehes.tetris.controller.Observer;
+import org.sehes.tetris.controller.ScoreManager;
+import org.sehes.tetris.controller.ScoreMessenger;
+import org.sehes.tetris.controller.input.InputMapper;
+import org.sehes.tetris.controller.input.InputReceiver;
+import org.sehes.tetris.controller.input.InputRouter;
+import org.sehes.tetris.controller.input.KeyMap;
+import org.sehes.tetris.controller.input.TetrisKeyAdapter;
 import org.sehes.tetris.graphic.AssetsManager;
 import org.sehes.tetris.graphic.RenderingHintsFactory;
+import org.sehes.tetris.graphic.TetrisDrawingHandler;
 import org.sehes.tetris.gui.GuiFactory;
-import org.sehes.tetris.gui.TetrisDrawingHandler;
 import org.sehes.tetris.model.TetrominoType;
-import org.sehes.tetris.controller.ScoreManager;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.SwingWorker;
+import java.awt.RenderingHints;
 import java.awt.event.KeyAdapter;
 import java.awt.image.BufferedImage;
 import java.util.Map;
@@ -79,7 +88,7 @@ public class App {
         protected void done() {
             try {
                 final var assets = get();
-                final var painter = new TetrisDrawingHandler(assets, qualityRenderingHints);
+                final var painter = new TetrisDrawingHandler(assets, qualityRenderingHints,assetsManager.createGhostTile());
                 final GuiFactory.WholeGui wholeGui = GuiFactory.assembly(this.gui, painter, tetrisKeyAdapter);
                 gameManager.prepareGame(wholeGui);
                 wholeGui.window().setVisible(true);
