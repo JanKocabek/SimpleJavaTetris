@@ -5,5 +5,5 @@ import org.sehes.tetris.model.Tetromino;
 
 import java.util.Optional;
 
-public record GameSnapshot(BoardView boardView, Optional<Tetromino> currentTetromino, boolean isBoardDirty,int distance) {
+public record GameSnapshot(BoardView boardView, Optional<Tetromino> currentTetromino, boolean isBoardDirty,int distance,boolean isGhostActive) {
 }

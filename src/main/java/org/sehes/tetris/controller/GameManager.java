@@ -61,9 +61,11 @@ public class GameManager implements InputHandler {
     private int frameCount = 0;
     private long fpsTimer = 0;
     private Runnable gameExit = () -> System.exit(0);
+    private boolean isGhostActive;
 
 
     public GameManager(StateManager<GameState> stateManager, ScoreMessenger scoreMessenger) {
+        this.isGhostActive = true;
         this.stateManager = stateManager;
         this.scoreMessenger = scoreMessenger;
         this.gameLoop = new MainLoopListener();
@@ -148,10 +150,16 @@ public class GameManager implements InputHandler {
             case MOVE_RIGHT -> movePiece(DirectionFlag.RIGHT);
             case ROTATE_CW -> rotatePiece(RotationFlag.CLOCKWISE);
             case ROTATE_CCW -> rotatePiece(RotationFlag.COUNTER_CLOCKWISE);
+            case TOGGLE_GHOST -> toggleGhostPiece();
             default -> {
                 break;
             }
         }
+    }
+
+    private void toggleGhostPiece() {
+        isGhostActive = !isGhostActive;
+        tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
     }
 
     private void hardDrop() {
@@ -272,7 +280,7 @@ public class GameManager implements InputHandler {
 
     private GameSnapshot gameSnapshotFactory(GameState state) {
         final var wasDirty = this.isDirty.getAndSet(false);
-        return ((state) == GameState.PLAYING) ? new GameSnapshot(getBoardView(), Optional.of(getCurrentTetromino()), wasDirty,gameBoard.calculateDropDistance()) : new GameSnapshot(getBoardView(), Optional.empty(), wasDirty,0);
+        return ((state) == GameState.PLAYING) ? new GameSnapshot(getBoardView(), Optional.of(getCurrentTetromino()), wasDirty,gameBoard.calculateDropDistance(),isGhostActive) : new GameSnapshot(getBoardView(), Optional.empty(), wasDirty,0,false);
     }
 
     private void lockClearAndScorePiece() {

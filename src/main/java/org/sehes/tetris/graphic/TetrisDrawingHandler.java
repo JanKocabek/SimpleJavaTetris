@@ -82,14 +82,13 @@ public class TetrisDrawingHandler implements Painter<GameSnapshot> {
      * @param g2d the Graphics2D object to draw on
      * @param t   the Tetromino to draw - cannot be null
      */
-    private void drawCurrentTetromino(Graphics2D g2d, Tetromino t,int ghostDistance) {
-
-        //todo separate pixel coordinates from tetromino object
+    private void drawCurrentTetromino(Graphics2D g2d, Tetromino t,int ghostDistance,boolean isGhostActive) {
         int[] pixelCoordinates = calculatePixelCoordinates(t);
+        if (isGhostActive) drawCurrentGhostBlock(g2d, pixelCoordinates, ghostDistance);//draw first so the real block is draw over not otherwise around
         for (int i = 0; i < pixelCoordinates.length; i += 2) {
             g2d.drawImage(assets.get(t.getType()), pixelCoordinates[i], pixelCoordinates[i + 1], null);
         }
-        drawCurrentGhostBlock(g2d, pixelCoordinates, ghostDistance);
+
     }
 
     private void drawCurrentGhostBlock(Graphics2D g2d, int[] coordinate, int distance) {
@@ -126,7 +125,7 @@ public class TetrisDrawingHandler implements Painter<GameSnapshot> {
         final BoardView board = snapshot.boardView();
         final boolean wasBoardDirty = snapshot.isBoardDirty();
         paintGameBoard(g, board, wasBoardDirty);
-        snapshot.currentTetromino().ifPresent(tetromino -> drawCurrentTetromino(g, tetromino,snapshot.distance()));
+        snapshot.currentTetromino().ifPresent(tetromino -> drawCurrentTetromino(g, tetromino,snapshot.distance(),snapshot.isGhostActive()));
     }
 }
 

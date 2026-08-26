@@ -32,7 +32,8 @@ public enum InputAction {
     /**
      * Rotate mino clockwise
      */
-    ROTATE_CW(false);
+    ROTATE_CW(false),
+    TOGGLE_GHOST(false),;
 
     private final boolean triggersOnPress;
 
