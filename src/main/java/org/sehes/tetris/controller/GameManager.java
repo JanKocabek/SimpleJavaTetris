@@ -2,8 +2,7 @@ package org.sehes.tetris.controller;
 
 import org.sehes.tetris.config.GhostType;
 import org.sehes.tetris.controller.input.InputAction;
-import org.sehes.tetris.gui.GuiFactory;
-import org.sehes.tetris.gui.TetrisCanvas;
+import org.sehes.tetris.gui.Rendering;
 import org.sehes.tetris.model.BoardView;
 import org.sehes.tetris.model.DirectionFlag;
 import org.sehes.tetris.model.GameBoard;
@@ -51,10 +50,9 @@ public class GameManager implements InputHandler {
     private final long movementSpeed = TimeUnit.MILLISECONDS.toNanos(BASE_SPEED);
     private final MainLoopListener gameLoop;
     private final ScoreMessenger scoreMessenger;
-    private TetrisCanvas tetrisCanvas; // Reference to the canvas for repainting
+    private Rendering tetrisCanvas; // Reference to the canvas for repainting
     private GameBoard gameBoard; // reference to the game board for managing game logic
     private Timer gameLoopTimer; // Timer for the main game loop to control the game speed
-    // private ScorePanel scoreUI;// Reference to the score UI for updating the score display
     // Loop Time vars
     private long prevTime;
     private long gravityAccumulator;
@@ -82,11 +80,11 @@ public class GameManager implements InputHandler {
      * configured to trigger the main game loop at a fixed interval defined by
      * GameParameters.GAME_SPEED.
      */
-    public void prepareGame(GuiFactory.gui gui) {
+    public void prepareGame(Rendering canvas, Runnable exitAction) {
         if (stateManager.getState() == INIT) {
-            this.tetrisCanvas = gui.canvas();
+            this.tetrisCanvas = canvas;
             gameLoopTimer = new Timer(FRAME_TIME_MS, gameLoop);
-            gameExit = gui.exitAction();
+            gameExit = exitAction;
             stateManager.setState(PREPARED);
         }
 
@@ -281,8 +279,8 @@ public class GameManager implements InputHandler {
 
     private GameSnapshot createGameSnapshot() {
         final var wasDirty = isDirty.getAndSet(false);
-        Tetromino current= getCurrentTetromino();
-            return new GameSnapshot(getBoardView(), Optional.ofNullable(current), wasDirty,current==null ?0: gameBoard.calculateDropDistance(),current==null?GhostType.NONE: ghostType);
+        Tetromino current = getCurrentTetromino();
+        return new GameSnapshot(getBoardView(), Optional.ofNullable(current), wasDirty, current == null ? 0 : gameBoard.calculateDropDistance(), current == null ? GhostType.NONE : ghostType);
     }
 
     private void lockClearAndScorePiece() {

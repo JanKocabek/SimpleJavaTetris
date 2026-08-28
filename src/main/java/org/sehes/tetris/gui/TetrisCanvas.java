@@ -19,7 +19,7 @@ import static org.sehes.tetris.gui.GuiFactory.CANVAS_SIZE;
  * state changes, ensuring that the visual representation of the game is always
  * up to date.
  */
-public class TetrisCanvas extends JPanel {
+public class TetrisCanvas extends JPanel implements Rendering {
 
     private static final Color backgroundColor = new Color(15, 15, 25);
     private final transient Painter<GameSnapshot> painter;
@@ -44,6 +44,7 @@ public class TetrisCanvas extends JPanel {
      * Repaints the canvas based on the provided game snapshot
      * @param gameSnapshot the snapshot of the current game state
      */
+    @Override
     public void render(GameSnapshot gameSnapshot) {
         this.gameSnapshot = gameSnapshot;
         super.repaint();

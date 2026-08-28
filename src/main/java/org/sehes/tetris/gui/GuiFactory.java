@@ -19,19 +19,18 @@ import static org.sehes.tetris.config.GameParameters.COLUMNS;
 import static org.sehes.tetris.config.GameParameters.VISIBLE_ROWS;
 
 public class GuiFactory {
-    public static final Dimension CANVAS_SIZE = new Dimension(BLOCK_SIZE * COLUMNS,
-            BLOCK_SIZE * VISIBLE_ROWS);
+    public static final Dimension CANVAS_SIZE = new Dimension(BLOCK_SIZE * COLUMNS, BLOCK_SIZE * VISIBLE_ROWS);
 
     private GuiFactory() {
     }
 
-    public static gui assembly(Painter<GameSnapshot> painter, KeyAdapter tetrisKeyAdapter) {
+    public static guiDTO assembly(Painter<GameSnapshot> painter, KeyAdapter tetrisKeyAdapter) {
         final ScorePanel scoreUI = assemblyScoreUI();
         final GameContainer gameContainer = assemblyGameContainer();
         final InfoPanel infoP = new InfoPanel();
         final MainPane mainPane = assemblyMainPane(gameContainer, scoreUI, infoP);
         final GameWindow window = new GameWindow(mainPane);
-        TetrisCanvas canvas = assemblyCanvas(painter, tetrisKeyAdapter);
+        final TetrisCanvas canvas = assemblyCanvas(painter, tetrisKeyAdapter);
         gameContainer.add(canvas, BorderLayout.CENTER);
         gameContainer.revalidate();
         gameContainer.repaint();
@@ -40,7 +39,7 @@ public class GuiFactory {
         window.pack();
         window.setLocationRelativeTo(null);
 
-        return new gui(canvas, scoreUI, infoP, window);
+        return new guiDTO(canvas, scoreUI, infoP.infoUpdateObserver(), infoP.fpsUpdateObserver(), window);
     }
 
     private static MainPane assemblyMainPane(final GameContainer container, ScorePanel scoreP, InfoPanel infoP) {
@@ -123,21 +122,11 @@ public class GuiFactory {
         return new ScorePanel();
     }
 
-    public record gui(TetrisCanvas canvas, ScorePanel scoreUI, InfoPanel infoP, GameWindow window) {
-        public Observer<GameState> infoObserver() {
-            return infoP.infoUpdateObserver();
-        }
-
-        public Observer<Integer> fpsObserver() {
-            return infoP.fpsUpdateObserver();
-        }
-
-        public Observer<ScoreInfoDTO> scoreObserver() {
-            return scoreUI;
-        }
-
+    public record guiDTO(TetrisCanvas canvas, Observer<ScoreInfoDTO> scoreObserver, Observer<GameState> infoObserver,
+                         Observer<Integer> fpsObserver, GameWindow window) {
         public Runnable exitAction() {
             return () -> window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
         }
+
     }
 }

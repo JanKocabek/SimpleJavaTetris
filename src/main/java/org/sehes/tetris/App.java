@@ -35,14 +35,14 @@ public class App {
     public void run() {
         final RenderingHints qualityRenderingHints = RenderingHintsFactory.qualityRenderingHints();
         final var assetsManager = new AssetsManager(qualityRenderingHints);
-        final var painter = new TetrisDrawingHandler(qualityRenderingHints,assetsManager);
-        final GuiFactory.gui gui = GuiFactory.assembly( painter, tetrisKeyAdapter);
+        final var painter = new TetrisDrawingHandler(qualityRenderingHints, assetsManager);
+        final GuiFactory.guiDTO gui = GuiFactory.assembly(painter, tetrisKeyAdapter);
         addObserver(stateManager, gui.infoObserver());
         addObserver(gameManager.fpsObservable(), gui.fpsObserver());
         addObserver(scoreMessenger, scoreManager.scoringObserver());
         addObserver(stateManager, scoreManager.gameStateObserver());
         addObserver(scoreManager, gui.scoreObserver());
-        gameManager.prepareGame(gui);
+        gameManager.prepareGame(gui.canvas(), gui.exitAction());
         gui.window().setVisible(true);
         gui.canvas().requestFocusInWindow();
     }
