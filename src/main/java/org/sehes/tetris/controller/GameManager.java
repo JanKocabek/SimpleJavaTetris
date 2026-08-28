@@ -81,7 +81,7 @@ public class GameManager implements InputHandler {
      * configured to trigger the main game loop at a fixed interval defined by
      * GameParameters.GAME_SPEED.
      */
-    public void prepareGame(GuiFactory.WholeGui gui) {
+    public void prepareGame(GuiFactory.gui gui) {
         if (stateManager.getState() == INIT) {
             this.tetrisCanvas = gui.canvas();
             gameLoopTimer = new Timer(FRAME_TIME_MS, gameLoop);
