@@ -3,6 +3,7 @@ package org.sehes.tetris.graphic;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.sehes.tetris.config.GameParameters;
+import org.sehes.tetris.config.GhostType;
 import org.sehes.tetris.controller.GameSnapshot;
 import org.sehes.tetris.model.BoardView;
 import org.sehes.tetris.model.Tetromino;

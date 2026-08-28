@@ -1,6 +1,7 @@
 package org.sehes.tetris.graphic;
 
 import org.sehes.tetris.config.GameParameters;
+import org.sehes.tetris.config.GhostType;
 import org.sehes.tetris.model.TetrominoType;
 
 import java.awt.BasicStroke;

@@ -1,4 +1,4 @@
-package org.sehes.tetris.graphic;
+package org.sehes.tetris.config;
 
 public enum GhostType {
     FULL,
