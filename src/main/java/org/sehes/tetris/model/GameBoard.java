@@ -312,7 +312,10 @@ public class GameBoard {
         return distance;
     }
 
-    private int calculateDropDistance() {
+    public int calculateDropDistance() {
+        if(currentTetromino == null) {
+            throw new IllegalStateException("Cannot calculate drop distance when no tetromino is present");
+        }
         var distance = 0;
         final var coordinates = currentTetromino.getStateCord();
         final var posX = currentTetromino.getPositionX();

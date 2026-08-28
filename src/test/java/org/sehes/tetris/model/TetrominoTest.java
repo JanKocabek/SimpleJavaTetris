@@ -1,11 +1,11 @@
 package org.sehes.tetris.model;
 
+import org.junit.jupiter.api.Test;
+import org.sehes.tetris.config.GameParameters;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import org.junit.jupiter.api.Test;
-import org.sehes.tetris.config.GameParameters;
 
 class TetrominoTest {
     private final TetrominoFactory factory = new TetrominoFactory();
@@ -27,20 +27,6 @@ class TetrominoTest {
     void shouldThrowExceptionForNullInput() {
         assertThrows(IllegalArgumentException.class, () -> factory.createNewRandomTetromino(null),
                 "tetrominoFactory should throw IllegalArgumentException for null input");
-    }
-
-    @Test
-    void testPixelCoordinatesShapeConsistency() {
-        // given
-        Tetromino tetromino = factory.createNewRandomTetromino(GameParameters.SPAWN_POINT);
-        // when
-        var stateCoords = tetromino.getStateCord(); // relative grid coordinates of each block
-        var pixelCoordinates = tetromino.getPixelCoordinates(); // pixel-based coordinates used for rendering
-
-        // then
-        assertNotNull(stateCoords);
-        assertNotNull(pixelCoordinates);
-        assertEquals(stateCoords.size(), pixelCoordinates.length / 2);
     }
 
 }

@@ -1,24 +1,25 @@
 package org.sehes.tetris;
 
-import org.sehes.tetris.controller.*;
-import org.sehes.tetris.controller.input.*;
+import org.sehes.tetris.controller.GameManager;
+import org.sehes.tetris.controller.GameState;
+import org.sehes.tetris.controller.GameStateManager;
+import org.sehes.tetris.controller.Observable;
+import org.sehes.tetris.controller.Observer;
+import org.sehes.tetris.controller.ScoreManager;
+import org.sehes.tetris.controller.ScoreMessenger;
+import org.sehes.tetris.controller.input.InputMapper;
+import org.sehes.tetris.controller.input.InputReceiver;
+import org.sehes.tetris.controller.input.InputRouter;
+import org.sehes.tetris.controller.input.KeyMap;
+import org.sehes.tetris.controller.input.TetrisKeyAdapter;
 import org.sehes.tetris.graphic.AssetsManager;
 import org.sehes.tetris.graphic.RenderingHintsFactory;
+import org.sehes.tetris.graphic.TetrisDrawingHandler;
 import org.sehes.tetris.gui.GuiFactory;
-import org.sehes.tetris.gui.TetrisDrawingHandler;
-import org.sehes.tetris.model.TetrominoType;
-import org.sehes.tetris.controller.ScoreManager;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.RenderingHints;
 import java.awt.event.KeyAdapter;
-import java.awt.image.BufferedImage;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static org.sehes.tetris.gui.GuiFactory.assembly;
 
 public class App {
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
@@ -32,14 +33,18 @@ public class App {
     private final KeyAdapter tetrisKeyAdapter = new TetrisKeyAdapter(inputRouter);
 
     public void run() {
-        final GuiFactory.BasicGui basicGui = assembly();
-        final var canvasWorker = new CanvasWorker(basicGui);
-        canvasWorker.execute();
-        addObserver(stateManager, basicGui.infoObserver());
-        addObserver(gameManager.fpsObservable(), basicGui.fpsObserver());
+        final RenderingHints qualityRenderingHints = RenderingHintsFactory.qualityRenderingHints();
+        final var assetsManager = new AssetsManager(qualityRenderingHints);
+        final var painter = new TetrisDrawingHandler(qualityRenderingHints,assetsManager);
+        final GuiFactory.gui gui = GuiFactory.assembly( painter, tetrisKeyAdapter);
+        addObserver(stateManager, gui.infoObserver());
+        addObserver(gameManager.fpsObservable(), gui.fpsObserver());
         addObserver(scoreMessenger, scoreManager.scoringObserver());
         addObserver(stateManager, scoreManager.gameStateObserver());
-        addObserver(scoreManager, basicGui.scoreObserver());
+        addObserver(scoreManager, gui.scoreObserver());
+        gameManager.prepareGame(gui);
+        gui.window().setVisible(true);
+        gui.canvas().requestFocusInWindow();
     }
 
     /**
@@ -56,44 +61,6 @@ public class App {
         sender.addObserver(receiver);
         return () -> sender.removeObserver(receiver);
     }
-
-    private class CanvasWorker extends SwingWorker<Map<TetrominoType, BufferedImage>, Void> {
-        private final GuiFactory.BasicGui gui;
-        private final AssetsManager assetsManager;
-        private final RenderingHints qualityRenderingHints;
-
-        public CanvasWorker(GuiFactory.BasicGui gui) {
-            this.gui = gui;
-            qualityRenderingHints = RenderingHintsFactory.qualityRenderingHints();
-            this.assetsManager = new AssetsManager(qualityRenderingHints);
-        }
-
-
-        @Override
-        protected Map<TetrominoType, BufferedImage> doInBackground() {
-            return assetsManager.createAssets();
-        }
-
-
-        @Override
-        protected void done() {
-            try {
-                final var assets = get();
-                final var painter = new TetrisDrawingHandler(assets, qualityRenderingHints);
-                final GuiFactory.WholeGui wholeGui = GuiFactory.assembly(this.gui, painter, tetrisKeyAdapter);
-                gameManager.prepareGame(wholeGui);
-                wholeGui.window().setVisible(true);
-                wholeGui.canvas().requestFocusInWindow();
-
-
-            } catch (InterruptedException | ExecutionException e) {
-                LOGGER.log(Level.SEVERE, "Interrupted or execution exception in CanvasWorker", e);
-                Thread.currentThread().interrupt();
-            }
-        }
-
-    }
-
 }
 
 

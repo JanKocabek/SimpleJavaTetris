@@ -1,20 +1,48 @@
 package org.sehes.tetris.graphic;
 
 import org.sehes.tetris.config.GameParameters;
+import org.sehes.tetris.config.GhostType;
 import org.sehes.tetris.model.TetrominoType;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.RenderingHints;
+import java.awt.Stroke;
 import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
 import java.util.EnumMap;
-import java.util.Map;
 
 public final class AssetsManager {
     private final EnumMap<TetrominoType, BufferedImage> tiles;
-    private final BlockGraphic block;
-    private final RenderingHints hints;
+    private final EnumMap<GhostType, BufferedImage> ghostTiles;
 
-    private BufferedImage createTile(TetrominoType type) {
+    public AssetsManager(RenderingHints hints) {
+        final MinoBlock block = new MinoBlock(GameParameters.BLOCK_SIZE, Config.BLOCK_THICKNESS);
+        tiles = prepareMinoTiles(block, hints);
+        ghostTiles = prepareGhostTiles(hints);
+    }
+
+    private EnumMap<GhostType, BufferedImage> prepareGhostTiles(RenderingHints hints) {
+        final var BASIC_THICKNESS = 5f;
+        final var DASH_THICKNESS = 1f;
+        final float[] dashPattern = {10.0f, 10.0f};
+        final var dashStroke = new BasicStroke(DASH_THICKNESS, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10f, dashPattern, 0.0f);
+        final var ghostTiles = new EnumMap<GhostType, BufferedImage>(GhostType.class);
+        ghostTiles.put(GhostType.FULL, createGhostTile(hints, BASIC_THICKNESS, new BasicStroke(BASIC_THICKNESS), Color.WHITE));
+        ghostTiles.put(GhostType.DASH, createGhostTile(hints, DASH_THICKNESS, dashStroke, Color.WHITE));
+        return ghostTiles;
+    }
+
+    private EnumMap<TetrominoType, BufferedImage> prepareMinoTiles(MinoBlock block, RenderingHints hints) {
+        final var tilesMap = new EnumMap<TetrominoType, BufferedImage>(TetrominoType.class);
+        for (TetrominoType type : TetrominoType.getTetrominoShapes()) {
+            tilesMap.put(type, createMinoTile(type, block, hints));
+        }
+
+        return tilesMap;
+    }
+
+    private BufferedImage createMinoTile(TetrominoType type, MinoBlock block, RenderingHints hints) {
         final var img = new BufferedImage(GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
         final var g2d = img.createGraphics();
         g2d.setRenderingHints(hints);
@@ -34,17 +62,26 @@ public final class AssetsManager {
         return img;
     }
 
-    public AssetsManager(RenderingHints hints) {
-        this.hints = hints;
-        this.block = new BlockGraphic(GameParameters.BLOCK_SIZE, Config.BLOCK_THICKNESS);
-        tiles = new EnumMap<>(TetrominoType.class);
+    private BufferedImage createGhostTile(RenderingHints hints, float thickness, Stroke stroke, Color strokeColor) {
+        BufferedImage buffer = new BufferedImage(GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
+        final var g2d = buffer.createGraphics();
+        g2d.setRenderingHints(hints);
+        final var sideSize = (int) (GameParameters.BLOCK_SIZE - thickness-2);
+        g2d.setColor(strokeColor);
+        g2d.setStroke(stroke);
+        g2d.drawRect(0, 0, sideSize, sideSize);
+        g2d.dispose();
+        return buffer;
     }
 
-    public Map<TetrominoType, BufferedImage> createAssets() {
-        for (TetrominoType type : TetrominoType.getTetrominoShapes()) {
-            tiles.put(type, createTile(type));
-        }
+    public BufferedImage getTile(TetrominoType type) {
+        return tiles.get(type);
+    }
 
-        return tiles;
+    public BufferedImage getGhostTile(GhostType type) {
+        return switch (type) {
+            case FULL, DASH -> ghostTiles.get(type);
+            case NONE -> throw new IllegalArgumentException("Empty ghost Tile was called as regular one");
+        };
     }
 }

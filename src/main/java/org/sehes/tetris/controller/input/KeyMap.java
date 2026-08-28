@@ -4,8 +4,24 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static java.awt.event.KeyEvent.*;
-import static org.sehes.tetris.controller.input.InputAction.*;
+import static java.awt.event.KeyEvent.VK_A;
+import static java.awt.event.KeyEvent.VK_DOWN;
+import static java.awt.event.KeyEvent.VK_ENTER;
+import static java.awt.event.KeyEvent.VK_ESCAPE;
+import static java.awt.event.KeyEvent.VK_LEFT;
+import static java.awt.event.KeyEvent.VK_RIGHT;
+import static java.awt.event.KeyEvent.VK_SPACE;
+import static java.awt.event.KeyEvent.VK_UP;
+import static java.awt.event.KeyEvent.VK_V;
+import static org.sehes.tetris.controller.input.InputAction.CANCEL;
+import static org.sehes.tetris.controller.input.InputAction.CONFIRM;
+import static org.sehes.tetris.controller.input.InputAction.HARD_DROP;
+import static org.sehes.tetris.controller.input.InputAction.MOVE_DOWN;
+import static org.sehes.tetris.controller.input.InputAction.MOVE_LEFT;
+import static org.sehes.tetris.controller.input.InputAction.MOVE_RIGHT;
+import static org.sehes.tetris.controller.input.InputAction.ROTATE_CCW;
+import static org.sehes.tetris.controller.input.InputAction.ROTATE_CW;
+import static org.sehes.tetris.controller.input.InputAction.TOGGLE_GHOST;
 
 public class KeyMap implements KeyRebinding {
     /**
@@ -23,7 +39,8 @@ public class KeyMap implements KeyRebinding {
             VK_SPACE, HARD_DROP,
             VK_DOWN, MOVE_DOWN,
             VK_LEFT, MOVE_LEFT,
-            VK_RIGHT, MOVE_RIGHT);
+            VK_RIGHT, MOVE_RIGHT,
+            VK_V, TOGGLE_GHOST);
 
     private final Map<Integer, InputAction> map;
 

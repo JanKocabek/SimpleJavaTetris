@@ -1,8 +1,9 @@
-package org.sehes.tetris.gui;
+package org.sehes.tetris.graphic;
 
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.sehes.tetris.config.GameParameters;
+import org.sehes.tetris.config.GhostType;
 import org.sehes.tetris.controller.GameSnapshot;
 import org.sehes.tetris.model.BoardView;
 import org.sehes.tetris.model.Tetromino;
@@ -13,7 +14,6 @@ import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.util.Map;
 
 /**
  * The TetrisDrawingHandler class is responsible for rendering the game state
@@ -25,18 +25,16 @@ import java.util.Map;
  */
 @NullMarked
 public class TetrisDrawingHandler implements Painter<GameSnapshot> {
-
     private final BufferedImage boardImg;
-    private final Map<TetrominoType, BufferedImage> assets;
     private final RenderingHints renderingHints;
+    private final AssetsManager assets;
 
-    public TetrisDrawingHandler(Map<TetrominoType, BufferedImage> assets, RenderingHints renderingHints) {
+    public TetrisDrawingHandler(RenderingHints renderingHints, AssetsManager assets) {
         this.assets = assets;
         this.renderingHints = renderingHints;
         boardImg = new BufferedImage(GameParameters.COLUMNS * GameParameters.BLOCK_SIZE,
                 GameParameters.VISIBLE_ROWS * GameParameters.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
     }
-
 
 
     private void paintGameBoard(Graphics2D g2d, BoardView boardView, boolean isBoardDirty) {
@@ -64,7 +62,7 @@ public class TetrisDrawingHandler implements Painter<GameSnapshot> {
                 if (content != TetrominoType.NON && content != null) {
                     int x = col * GameParameters.BLOCK_SIZE;
                     int y = (row - GameParameters.HIDDEN_ROWS) * GameParameters.BLOCK_SIZE;
-                    g2d.drawImage(assets.get(content), x, y, null);
+                    g2d.drawImage(assets.getTile(content), x, y, null);
                 }
             }
         }
@@ -80,15 +78,33 @@ public class TetrisDrawingHandler implements Painter<GameSnapshot> {
      * @param g2d the Graphics2D object to draw on
      * @param t   the Tetromino to draw - cannot be null
      */
-    private void drawCurrentTetromino(Graphics2D g2d, Tetromino t) {
-
-        //todo separate pixel coordinates from tetromino object
-        int[] pixelCoordinates = t.getPixelCoordinates();
-        for (int i = 0; i < pixelCoordinates.length; i += 2) {
-            g2d.drawImage(assets.get(t.getType()), pixelCoordinates[i], pixelCoordinates[i + 1], null);
-        }
+    private void drawCurrentTetromino(Graphics2D g2d, Tetromino t, int ghostDistance, GhostType ghostType) {
+        //  int[] pixelCoordinates = calculatePixelCoordinates(t);
+        if (ghostType != GhostType.NONE)
+            drawGhostMino(g2d, t, ghostDistance, ghostType);//draw first so the real block is draw over not otherwise around
+        drawTetromino(g2d, t);
     }
 
+    private void drawTetromino(Graphics2D g2d, Tetromino t) {
+        drawBlocks(g2d, t, assets.getTile(t.getType()), 0);
+    }
+
+    private void drawGhostMino(Graphics2D g2d, Tetromino t, int ghostOffset, GhostType ghostType) {
+        final var PIXEL_OFFSET = ghostOffset * GameParameters.BLOCK_SIZE;
+
+        drawBlocks(g2d, t, assets.getGhostTile(ghostType), PIXEL_OFFSET);
+
+    }
+
+    private void drawBlocks(Graphics2D g2d, Tetromino t, BufferedImage tile, int offsetY) {
+        final int pX = t.getPositionX() * GameParameters.BLOCK_SIZE;
+        final int pY = (t.getPositionY() - GameParameters.HIDDEN_ROWS) * GameParameters.BLOCK_SIZE;
+        for (var block : t.getStateCord()) {
+            final int x = block.x() * GameParameters.BLOCK_SIZE + pX;
+            final int y = block.y() * GameParameters.BLOCK_SIZE + pY + offsetY;
+            g2d.drawImage(tile, x, y, null);
+        }
+    }
 
     @Override
     public void paint(Graphics2D g, @Nullable GameSnapshot snapshot, int width, int height) {
@@ -98,7 +114,7 @@ public class TetrisDrawingHandler implements Painter<GameSnapshot> {
         final BoardView board = snapshot.boardView();
         final boolean wasBoardDirty = snapshot.isBoardDirty();
         paintGameBoard(g, board, wasBoardDirty);
-        snapshot.currentTetromino().ifPresent(tetromino -> drawCurrentTetromino(g, tetromino));
+        snapshot.currentTetromino().ifPresent(tetromino -> drawCurrentTetromino(g, tetromino, snapshot.distance(), snapshot.ghostType()));
     }
 }
 
