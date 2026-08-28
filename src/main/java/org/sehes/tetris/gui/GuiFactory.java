@@ -24,7 +24,7 @@ public class GuiFactory {
     private GuiFactory() {
     }
 
-    public static guiDTO assembly(Painter<GameSnapshot> painter, KeyAdapter tetrisKeyAdapter) {
+    public static gameUI assembly(Painter<GameSnapshot> painter, KeyAdapter tetrisKeyAdapter) {
         final ScorePanel scoreUI = assemblyScoreUI();
         final GameContainer gameContainer = assemblyGameContainer();
         final InfoPanel infoP = new InfoPanel();
@@ -39,7 +39,7 @@ public class GuiFactory {
         window.pack();
         window.setLocationRelativeTo(null);
 
-        return new guiDTO(canvas, scoreUI, infoP.infoUpdateObserver(), infoP.fpsUpdateObserver(), window);
+        return new gameUI(canvas, scoreUI, infoP.infoUpdateObserver(), infoP.fpsUpdateObserver(), window);
     }
 
     private static MainPane assemblyMainPane(final GameContainer container, ScorePanel scoreP, InfoPanel infoP) {
@@ -122,7 +122,7 @@ public class GuiFactory {
         return new ScorePanel();
     }
 
-    public record guiDTO(TetrisCanvas canvas, Observer<ScoreInfoDTO> scoreObserver, Observer<GameState> infoObserver,
+    public record gameUI(TetrisCanvas canvas, Observer<ScoreInfoDTO> scoreObserver, Observer<GameState> infoObserver,
                          Observer<Integer> fpsObserver, GameWindow window) {
         public Runnable exitAction() {
             return () -> window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));

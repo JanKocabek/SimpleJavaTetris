@@ -1,6 +1,7 @@
 package org.sehes.tetris.gui;
 
 import org.sehes.tetris.controller.GameSnapshot;
+import org.sehes.tetris.controller.Rendering;
 
 import javax.swing.JPanel;
 import javax.swing.Painter;

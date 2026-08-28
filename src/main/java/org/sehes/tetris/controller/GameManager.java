@@ -2,7 +2,6 @@ package org.sehes.tetris.controller;
 
 import org.sehes.tetris.config.GhostType;
 import org.sehes.tetris.controller.input.InputAction;
-import org.sehes.tetris.gui.Rendering;
 import org.sehes.tetris.model.BoardView;
 import org.sehes.tetris.model.DirectionFlag;
 import org.sehes.tetris.model.GameBoard;

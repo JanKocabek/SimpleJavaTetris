@@ -36,7 +36,7 @@ public class App {
         final RenderingHints qualityRenderingHints = RenderingHintsFactory.qualityRenderingHints();
         final var assetsManager = new AssetsManager(qualityRenderingHints);
         final var painter = new TetrisDrawingHandler(qualityRenderingHints, assetsManager);
-        final GuiFactory.guiDTO gui = GuiFactory.assembly(painter, tetrisKeyAdapter);
+        final GuiFactory.gameUI gui = GuiFactory.assembly(painter, tetrisKeyAdapter);
         addObserver(stateManager, gui.infoObserver());
         addObserver(gameManager.fpsObservable(), gui.fpsObserver());
         addObserver(scoreMessenger, scoreManager.scoringObserver());
