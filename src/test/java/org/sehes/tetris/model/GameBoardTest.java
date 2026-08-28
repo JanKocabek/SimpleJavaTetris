@@ -200,6 +200,7 @@ class GameBoardTest {
 
         @Test
         void movingDownWithHorizontalMoveApi_explainsWhichApiToUse() {
+            gameBoard.trySetNewTetromino();
             assertThatThrownBy(() -> gameBoard.tryMovePiece(DirectionFlag.DOWN))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("Use trySoftDrop() for down movement");
