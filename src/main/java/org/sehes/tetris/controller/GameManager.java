@@ -1,6 +1,7 @@
 package org.sehes.tetris.controller;
 
 import org.sehes.tetris.controller.input.InputAction;
+import org.sehes.tetris.graphic.GhostType;
 import org.sehes.tetris.gui.GuiFactory;
 import org.sehes.tetris.gui.TetrisCanvas;
 import org.sehes.tetris.model.BoardView;
@@ -61,11 +62,11 @@ public class GameManager implements InputHandler {
     private int frameCount = 0;
     private long fpsTimer = 0;
     private Runnable gameExit = () -> System.exit(0);
-    private boolean isGhostActive;
+    private GhostType ghostType;
 
 
     public GameManager(StateManager<GameState> stateManager, ScoreMessenger scoreMessenger) {
-        this.isGhostActive = true;
+        this.ghostType = GhostType.FULL;
         this.stateManager = stateManager;
         this.scoreMessenger = scoreMessenger;
         this.gameLoop = new MainLoopListener();
@@ -158,15 +159,15 @@ public class GameManager implements InputHandler {
     }
 
     private void toggleGhostPiece() {
-        isGhostActive = !isGhostActive;
-        tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
+        ghostType = ghostType.next();
+        tetrisCanvas.render(createGameSnapshot());
     }
 
     private void hardDrop() {
         final var distance = gameBoard.tryHardDrop();
         if (distance > 0) {
             scoreMessenger.notifyObservers(new HardDropEvent(distance));
-            tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
+            tetrisCanvas.render(createGameSnapshot());
         }
         lockClearAndScorePiece();
         isDirty.set(true);
@@ -191,14 +192,14 @@ public class GameManager implements InputHandler {
      */
     private void movePiece(final DirectionFlag direction) {
         if (gameBoard.tryMovePiece(direction)) {
-            tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
+            tetrisCanvas.render(createGameSnapshot());
         }
     }
 
     private void softDrop() {
         if (gameBoard.trySoftDrop()) {
             scoreMessenger.notifyObservers(new SoftDropEvent(1));
-            tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
+            tetrisCanvas.render(createGameSnapshot());
         }
     }
 
@@ -211,7 +212,7 @@ public class GameManager implements InputHandler {
      */
     private void rotatePiece(final RotationFlag rotate) {
         if (gameBoard.tryRotatePiece(rotate)) {
-            tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
+            tetrisCanvas.render(createGameSnapshot());
         }
     }
 
@@ -268,7 +269,7 @@ public class GameManager implements InputHandler {
             setGameOver();
             return;
         }
-        tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
+        tetrisCanvas.render(createGameSnapshot());
         resetTime();
         stateManager.setState(PLAYING);
     }
@@ -278,9 +279,10 @@ public class GameManager implements InputHandler {
         stateManager.setState(GAME_OVER);
     }
 
-    private GameSnapshot gameSnapshotFactory(GameState state) {
-        final var wasDirty = this.isDirty.getAndSet(false);
-        return ((state) == GameState.PLAYING) ? new GameSnapshot(getBoardView(), Optional.of(getCurrentTetromino()), wasDirty,gameBoard.calculateDropDistance(),isGhostActive) : new GameSnapshot(getBoardView(), Optional.empty(), wasDirty,0,false);
+    private GameSnapshot createGameSnapshot() {
+        final var wasDirty = isDirty.getAndSet(false);
+        Tetromino current= getCurrentTetromino();
+            return new GameSnapshot(getBoardView(), Optional.ofNullable(current), wasDirty,current==null ?0: gameBoard.calculateDropDistance(),current==null?GhostType.NONE: ghostType);
     }
 
     private void lockClearAndScorePiece() {
@@ -336,7 +338,7 @@ public class GameManager implements InputHandler {
                 gravityAccumulator -= movementSpeed;
             }
 
-            tetrisCanvas.render(gameSnapshotFactory(stateManager.getState()));
+            tetrisCanvas.render(createGameSnapshot());
         }
 
         private void fpsCalculation(long elapsedTime) {
