@@ -30,9 +30,9 @@ public class ScorePanel extends JPanel implements Observer<ScoreInfoDTO> {
         super();
         setOpaque(true);
         setBackground(Color.WHITE);
-        this.scoreUI = new ScoreLabel();
         //GridBagConstraints for stacking vertically
         setLayout(new GridBagLayout());
+        this.scoreUI = new ScoreLabel();
         final GridBagConstraints verStackConstr = createVerStackConstr();
         setupCompGridPos(verStackConstr, 0, new Insets(0, 0, 0, 0));
         add(scoreUI, verStackConstr);

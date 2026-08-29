@@ -20,15 +20,17 @@ import static org.sehes.tetris.config.GameParameters.VISIBLE_ROWS;
 
 public class GuiFactory {
     public static final Dimension CANVAS_SIZE = new Dimension(BLOCK_SIZE * COLUMNS, BLOCK_SIZE * VISIBLE_ROWS);
+    public static final int GRID_COLUMNS = 2;
 
     private GuiFactory() {
     }
 
     public static gameUI assembly(Painter<GameSnapshot> painter, KeyAdapter tetrisKeyAdapter) {
-        final ScorePanel scoreUI = assemblyScoreUI();
+        /*creation of ScorePanel is putted here if their be any needs of additional assembly in the future */
+        final RightPanel rightPanel = new RightPanel();
         final GameContainer gameContainer = assemblyGameContainer();
         final InfoPanel infoP = new InfoPanel();
-        final MainPane mainPane = assemblyMainPane(gameContainer, scoreUI, infoP);
+        final MainPane mainPane = assemblyMainPane(gameContainer, rightPanel, infoP);
         final GameWindow window = new GameWindow(mainPane);
         final TetrisCanvas canvas = assemblyCanvas(painter, tetrisKeyAdapter);
         gameContainer.add(canvas, BorderLayout.CENTER);
@@ -39,10 +41,10 @@ public class GuiFactory {
         window.pack();
         window.setLocationRelativeTo(null);
 
-        return new gameUI(canvas, scoreUI, infoP.infoUpdateObserver(), infoP.fpsUpdateObserver(), window);
+        return new gameUI(canvas, rightPanel.getScoreObserver(), infoP.infoUpdateObserver(), infoP.fpsUpdateObserver(), window);
     }
 
-    private static MainPane assemblyMainPane(final GameContainer container, ScorePanel scoreP, InfoPanel infoP) {
+    private static MainPane assemblyMainPane(final GameContainer container, RightPanel rightP, InfoPanel infoP) {
         final MainPane pane = new MainPane(new GridBagLayout());
 
         GridBagConstraints gbcContain = new GridBagConstraints();
@@ -54,37 +56,35 @@ public class GuiFactory {
         gbcContain.anchor = GridBagConstraints.CENTER;
         gbcContain.fill = GridBagConstraints.BOTH;
         // These insets replace the EmptyBorder from GameContainer.
-        int topMain = 12;//space which made canvas and score panel at the same starting height
+        int topMain = 11;//space which made canvas and score panel at the same starting height
         int leftMain = 8;
         int bottomMain = 4;
         int rightName = 4;
         gbcContain.insets = new Insets(topMain, leftMain, bottomMain, rightName);
         pane.add(container, gbcContain);
 
-        GridBagConstraints gbcScore = new GridBagConstraints();
-        gbcScore.gridx = 1;//second column for score panel
-        gbcScore.gridy = 0;
-        gbcScore.weightx = 0.25;
-        gbcScore.weighty = 0.0;
-        gbcScore.gridwidth = 1;
-        gbcScore.anchor = GridBagConstraints.NORTHEAST;
-        gbcScore.fill = GridBagConstraints.NONE;
-        // Insets provide padding. A 5px left inset here + 5px right inset on the
-        // container creates a 10px gap between components.
+        GridBagConstraints gbcRight = new GridBagConstraints();
+        gbcRight.gridx = 1;//second column for right panel
+        gbcRight.gridy = 0;
+        gbcRight.weightx = 0.25;
+        gbcRight.weighty = 1.0;
+        gbcRight.gridwidth = 1;
+        gbcRight.anchor = GridBagConstraints.NORTHEAST;
+        gbcRight.fill = GridBagConstraints.NONE;
 
         int topScore = 0;
         int leftScore = 0;
         int bottomScore = 0;
         int rightScore = leftMain;
-        gbcScore.insets = new Insets(topScore, leftScore, bottomScore, rightScore);
-        pane.add(scoreP, gbcScore);
+        gbcRight.insets = new Insets(topScore, leftScore, bottomScore, rightScore);
+        pane.add(rightP, gbcRight);
 
         GridBagConstraints gbcInfo = new GridBagConstraints();
         gbcInfo.gridx = 0;
         gbcInfo.gridy = 1;//second row for info panel
         gbcInfo.weightx = 1.0;
         gbcInfo.weighty = 1.0;
-        gbcInfo.gridwidth = 2;
+        gbcInfo.gridwidth = GRID_COLUMNS;
         gbcInfo.gridheight = 1;
         gbcInfo.insets = new Insets(0, 0, 0, 0);
         gbcInfo.anchor = GridBagConstraints.SOUTHWEST;
@@ -115,11 +115,6 @@ public class GuiFactory {
         final TetrisCanvas canvas = new TetrisCanvas(painter);
         canvas.addKeyListener(keyInputHandler);
         return canvas;
-    }
-
-    private static ScorePanel assemblyScoreUI() {
-        /*creation of ScorePanel is putted here if their be any needs of additional assembly in the future */
-        return new ScorePanel();
     }
 
     public record gameUI(TetrisCanvas canvas, Observer<ScoreInfoDTO> scoreObserver, Observer<GameState> infoObserver,
