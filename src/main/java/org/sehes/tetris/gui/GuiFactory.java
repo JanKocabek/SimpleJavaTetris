@@ -3,6 +3,7 @@ package org.sehes.tetris.gui;
 import org.sehes.tetris.controller.GameSnapshot;
 import org.sehes.tetris.controller.GameState;
 import org.sehes.tetris.controller.Observer;
+import org.sehes.tetris.model.TetrominoType;
 import org.sehes.tetris.model.score.ScoreInfoDTO;
 
 import javax.swing.Painter;
@@ -25,11 +26,13 @@ public class GuiFactory {
     private GuiFactory() {
     }
 
-    public static gameUI assembly(Painter<GameSnapshot> painter, KeyAdapter tetrisKeyAdapter) {
+    public static gameUI assembly(Painter<GameSnapshot> painter, KeyAdapter tetrisKeyAdapter,Painter<TetrominoType> tetrisPainter) {
         /*creation of ScorePanel is putted here if their be any needs of additional assembly in the future */
-        final RightPanel rightPanel = new RightPanel();
+
         final GameContainer gameContainer = assemblyGameContainer();
         final InfoPanel infoP = new InfoPanel();
+        final PreviewWindow previewWindow= new PreviewWindow(tetrisPainter);
+        final RightPanel rightPanel = new RightPanel(previewWindow);
         final MainPane mainPane = assemblyMainPane(gameContainer, rightPanel, infoP);
         final GameWindow window = new GameWindow(mainPane);
         final TetrisCanvas canvas = assemblyCanvas(painter, tetrisKeyAdapter);
@@ -41,7 +44,7 @@ public class GuiFactory {
         window.pack();
         window.setLocationRelativeTo(null);
 
-        return new gameUI(canvas, rightPanel.getScoreObserver(), infoP.infoUpdateObserver(), infoP.fpsUpdateObserver(), window);
+        return new gameUI(canvas, rightPanel.getScoreObserver(), infoP.infoUpdateObserver(), infoP.fpsUpdateObserver(), window, rightPanel.previewObserver());
     }
 
     private static MainPane assemblyMainPane(final GameContainer container, RightPanel rightP, InfoPanel infoP) {
@@ -83,7 +86,7 @@ public class GuiFactory {
         gbcInfo.gridx = 0;
         gbcInfo.gridy = 1;//second row for info panel
         gbcInfo.weightx = 1.0;
-        gbcInfo.weighty = 1.0;
+        gbcInfo.weighty = 0.0;
         gbcInfo.gridwidth = GRID_COLUMNS;
         gbcInfo.gridheight = 1;
         gbcInfo.insets = new Insets(0, 0, 0, 0);
@@ -118,7 +121,7 @@ public class GuiFactory {
     }
 
     public record gameUI(TetrisCanvas canvas, Observer<ScoreInfoDTO> scoreObserver, Observer<GameState> infoObserver,
-                         Observer<Integer> fpsObserver, GameWindow window) {
+                         Observer<Integer> fpsObserver, GameWindow window, Observer<TetrominoType> previewObserver) {
         public Runnable exitAction() {
             return () -> window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
         }

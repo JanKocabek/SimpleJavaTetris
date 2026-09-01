@@ -13,6 +13,7 @@ import org.sehes.tetris.controller.input.InputRouter;
 import org.sehes.tetris.controller.input.KeyMap;
 import org.sehes.tetris.controller.input.TetrisKeyAdapter;
 import org.sehes.tetris.graphic.AssetsManager;
+import org.sehes.tetris.graphic.PreviewDrawingHandler;
 import org.sehes.tetris.graphic.RenderingHintsFactory;
 import org.sehes.tetris.graphic.TetrisDrawingHandler;
 import org.sehes.tetris.gui.GuiFactory;
@@ -38,13 +39,15 @@ public class App {
     public void run() {
         final RenderingHints qualityRenderingHints = RenderingHintsFactory.qualityRenderingHints();
         final var assetsManager = new AssetsManager(qualityRenderingHints);
-        final var painter = new TetrisDrawingHandler(qualityRenderingHints, assetsManager);
-        final GuiFactory.gameUI gui = GuiFactory.assembly(painter, tetrisKeyAdapter);
+        final var tetrisPainter = new TetrisDrawingHandler(qualityRenderingHints, assetsManager);
+        final var previewPainter = new PreviewDrawingHandler(qualityRenderingHints, assetsManager);
+        final GuiFactory.gameUI gui = GuiFactory.assembly(tetrisPainter, tetrisKeyAdapter,previewPainter);
         addObserver(stateManager, gui.infoObserver());
         addObserver(gameManager.fpsObservable(), gui.fpsObserver());
         addObserver(scoreMessenger, scoreManager.scoringObserver());
         addObserver(stateManager, scoreManager.gameStateObserver());
         addObserver(scoreManager, gui.scoreObserver());
+        addObserver(gameManager.getSpawnObservable(),gui.previewObserver());
         gameManager.prepareGame(gui.canvas(), gui.exitAction());
         gui.window().setVisible(true);
         gui.canvas().requestFocusInWindow();

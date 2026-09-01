@@ -8,6 +8,7 @@ import org.sehes.tetris.model.GameBoard;
 import org.sehes.tetris.model.PieceGenerator;
 import org.sehes.tetris.model.RotationFlag;
 import org.sehes.tetris.model.Tetromino;
+import org.sehes.tetris.model.TetrominoType;
 import org.sehes.tetris.model.score.HardDropEvent;
 import org.sehes.tetris.model.score.LockPieceEvent;
 import org.sehes.tetris.model.score.SoftDropEvent;
@@ -36,20 +37,18 @@ import static org.sehes.tetris.controller.GameState.PREPARED;
  * components, starts the game loop, and provides methods for moving and
  * rotating pieces, as well as pausing and resuming the game.
  */
-
-
 public class GameManager implements InputHandler {
-
 
     private static final int FPS = 60;
     private static final int FRAME_TIME_MS = 1000 / FPS;
     private static final int BASE_SPEED = 600;
+    private final SpawnObservable spawnObservable = new SpawnObservable();
     private final StateManager<GameState> stateManager;
     private final PieceGenerator generator;
     // is full redraw needed?
     private final AtomicBoolean isDirty = new AtomicBoolean(false);
     private final long movementSpeed = TimeUnit.MILLISECONDS.toNanos(BASE_SPEED);
-    private final MainLoopListener gameLoop;
+    private final MainLoopListener gameLoop = new MainLoopListener();
     private final ScoreMessenger scoreMessenger;
     private Rendering tetrisCanvas; // Reference to the canvas for repainting
     private GameBoard gameBoard; // reference to the game board for managing game logic
@@ -68,11 +67,6 @@ public class GameManager implements InputHandler {
         this.ghostType = GhostType.FULL;
         this.stateManager = stateManager;
         this.scoreMessenger = scoreMessenger;
-        this.gameLoop = new MainLoopListener();
-    }
-
-    public void setGameBoard(GameBoard gameBoard) {
-        this.gameBoard = gameBoard;
     }
 
     /**
@@ -90,20 +84,6 @@ public class GameManager implements InputHandler {
         }
     }
 
-
-    public Observable<Integer> fpsObservable() {
-        return gameLoop;
-    }
-
-    private BoardView getBoardView() {
-        return gameBoard.getBoardView();
-    }
-
-    private Tetromino getCurrentTetromino() {
-        return gameBoard.getCurrentTetromino();
-    }
-
-
     @Override
     public void handleInput(InputAction action) {
         switch (stateManager.getState()) {
@@ -117,6 +97,22 @@ public class GameManager implements InputHandler {
 
         }
 
+    }
+
+    public Observable<TetrominoType> getSpawnObservable() {
+        return spawnObservable;
+    }
+
+    public Observable<Integer> fpsObservable() {
+        return gameLoop;
+    }
+
+    private BoardView getBoardView() {
+        return gameBoard.getBoardView();
+    }
+
+    private Tetromino getCurrentTetromino() {
+        return gameBoard.getCurrentTetromino();
     }
 
     private void gameOverInput(InputAction action) {
@@ -263,13 +259,14 @@ public class GameManager implements InputHandler {
         stateManager.setState(NEW_GAME);
         isDirty.set(true);
         gameBoard = new GameBoard();
-        if (!trySpawnTetromino()) {
+        spawnObservable.notifyObservers(generator.peekNext());
+        if (trySpawnTetromino()) {
+            tetrisCanvas.render(createGameSnapshot());
+            resetTime();
+            stateManager.setState(PLAYING);
+        } else {
             setGameOver();
-            return;
         }
-        tetrisCanvas.render(createGameSnapshot());
-        resetTime();
-        stateManager.setState(PLAYING);
     }
 
     private void setGameOver() {
@@ -286,6 +283,7 @@ public class GameManager implements InputHandler {
     private boolean trySpawnTetromino() {
         final var piece = generator.getNextPiece();
         if (gameBoard.trySetNewTetromino(piece)) {
+            spawnObservable.notifyObservers(generator.peekNext());
             return true;
         }
         return false;
@@ -297,9 +295,7 @@ public class GameManager implements InputHandler {
         final var lastAction = gameBoard.getLastAction();
         final LockPieceEvent lockEvent = createLockEvent(lastAction.tSpin(), lastAction.linesCleared());
         scoreMessenger.notifyObservers(lockEvent);
-        if (!trySpawnTetromino()) {
-            setGameOver();
-        }
+        if (!trySpawnTetromino()) setGameOver();
         gravityAccumulator = 0;
     }
 
@@ -373,6 +369,27 @@ public class GameManager implements InputHandler {
         @Override
         public void notifyObservers(Integer event) {
             observers.forEach(o -> o.update(event));
+        }
+    }
+
+    private static class SpawnObservable implements Observable<TetrominoType> {
+        private final List<Observer<TetrominoType>> tetrominoTypes = new CopyOnWriteArrayList<>();
+
+        @Override
+        public void addObserver(Observer<TetrominoType> observer) {
+            tetrominoTypes.add(observer);
+        }
+
+        @Override
+        public void removeObserver(Observer<TetrominoType> observer) {
+            tetrominoTypes.remove(observer);
+        }
+
+        @Override
+        public void notifyObservers(TetrominoType piece) {
+            for (Observer<TetrominoType> observer : tetrominoTypes) {
+                observer.update(piece);
+            }
         }
     }
 }
