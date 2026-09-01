@@ -8,12 +8,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class HardDropTest {
 
-
-    GameBoard gameBoard;
+    private PieceGenerator generator;
+    private GameBoard gameBoard;
 
     @BeforeEach
     void setUp() {
         gameBoard = new GameBoard();
+        generator = new RandomPieceGenerator();
     }
 
     /**
@@ -35,7 +36,7 @@ class HardDropTest {
     @Test
     void hardDropBasicSuccessCallTest() {
         //arrange
-        gameBoard.trySetNewTetromino();
+        gameBoard.trySetNewTetromino(generator.getNextPiece());
         final var mino = gameBoard.getCurrentTetromino();
         //act
         final var result = gameBoard.tryHardDrop();
@@ -54,7 +55,7 @@ class HardDropTest {
         gameBoard.trySpawnTetromino(new Tetromino(TetrominoType.T, GameParameters.SPAWN_POINT));
         gameBoard.tryHardDrop();
         gameBoard.lockTetrominoInPlace();
-        gameBoard.trySetNewTetromino();
+        gameBoard.trySetNewTetromino(generator.getNextPiece());
         final var mino = gameBoard.getCurrentTetromino();
         //act
         final var result = gameBoard.tryHardDrop();

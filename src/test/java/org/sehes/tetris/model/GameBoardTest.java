@@ -28,10 +28,12 @@ import static org.sehes.tetris.model.UtilForTests.printBoardState;
 class GameBoardTest {
 
     private GameBoard gameBoard;
+    private PieceGenerator generator;
 
     @BeforeEach
     void setUp() {
         gameBoard = new GameBoard();
+        generator = new RandomPieceGenerator();
     }
 
     /**
@@ -44,7 +46,7 @@ class GameBoardTest {
     @Test
     void testLockTetrominoInPlace() {
         // given
-        gameBoard.trySetNewTetromino();
+        gameBoard.trySetNewTetromino(generator.getNextPiece());
         final var tetromino = gameBoard.getCurrentTetromino();
         final var cord = tetromino.getStateCord();
         // when
@@ -104,14 +106,14 @@ class GameBoardTest {
 
         @Test
         void testTrySetNewTetromino() {
-            boolean result = gameBoard.trySetNewTetromino();
+            boolean result =    gameBoard.trySetNewTetromino(generator.getNextPiece());
             assertTrue(result);
             assertNotNull(gameBoard.getCurrentTetromino());
         }
 
         @Test
         void testGetCurrentTetrominoAfterSet() {
-            gameBoard.trySetNewTetromino();
+               gameBoard.trySetNewTetromino(generator.getNextPiece());
             Tetromino current = gameBoard.getCurrentTetromino();
             assertNotNull(current);
         }
@@ -151,7 +153,7 @@ class GameBoardTest {
         @Test
         void testTryMovePieceLeft() {
             // given
-            gameBoard.trySetNewTetromino();
+               gameBoard.trySetNewTetromino(generator.getNextPiece());
             Tetromino tetromino = gameBoard.getCurrentTetromino();
             Coordinate initialPos = new Coordinate(tetromino.getPositionX(), tetromino.getPositionY());
             // when
@@ -167,7 +169,7 @@ class GameBoardTest {
         @Test
         void testTryMovePieceRight() {
             // given
-            gameBoard.trySetNewTetromino();
+               gameBoard.trySetNewTetromino(generator.getNextPiece());
             Tetromino tetromino = gameBoard.getCurrentTetromino();
             assertNotNull(tetromino);
             Coordinate initialPos = new Coordinate(tetromino.getPositionX(), tetromino.getPositionY());
@@ -185,7 +187,7 @@ class GameBoardTest {
         @Test
         void testTryMovePieceDown() {
             // given
-            gameBoard.trySetNewTetromino();
+               gameBoard.trySetNewTetromino(generator.getNextPiece());
             Tetromino tetromino = gameBoard.getCurrentTetromino();
             Coordinate initialPos = new Coordinate(tetromino.getPositionX(), tetromino.getPositionY());
             // when
@@ -200,7 +202,7 @@ class GameBoardTest {
 
         @Test
         void movingDownWithHorizontalMoveApi_explainsWhichApiToUse() {
-            gameBoard.trySetNewTetromino();
+               gameBoard.trySetNewTetromino(generator.getNextPiece());
             assertThatThrownBy(() -> gameBoard.tryMovePiece(DirectionFlag.DOWN))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("Use trySoftDrop() for down movement");
@@ -234,7 +236,7 @@ class GameBoardTest {
         @Test
         void testTryRotatePiece() {
             // arrange
-            final var happened = gameBoard.trySpawnTetromino(TetrominoFactory.spawnSpecificTetromino(TetrominoType.O, new Coordinate(4, 1)));
+            final var happened = gameBoard.trySpawnTetromino(TetrominoFactory.spawnTetromino(TetrominoType.O, new Coordinate(4, 1)));
             // act
             boolean rotated = gameBoard.tryRotatePiece(RotationFlag.CLOCKWISE);
             // assert
@@ -252,7 +254,7 @@ class GameBoardTest {
         @EnumSource(value = RotationFlag.class, names = {"CLOCKWISE", "COUNTER_CLOCKWISE"})
         void testPositionIsTheSameAfterRotation(RotationFlag rotation) {
             // given
-            Tetromino tetromino = TetrominoFactory.spawnSpecificTetromino(TetrominoType.T, new Coordinate(4, 1));
+            Tetromino tetromino = TetrominoFactory.spawnTetromino(TetrominoType.T, new Coordinate(4, 1));
             gameBoard.trySpawnTetromino(tetromino);
             Tetromino currentTetromino = gameBoard.getCurrentTetromino();
             Coordinate initialPos = new Coordinate(currentTetromino.getPositionX(), currentTetromino.getPositionY());
@@ -269,7 +271,7 @@ class GameBoardTest {
         @EnumSource(value = TetrominoType.class, names = {"I", "O", "S", "Z", "L", "J", "T"})
         void testTryReturnIntoBaseState(TetrominoType type) {
             // given
-            Tetromino tetromino = TetrominoFactory.spawnSpecificTetromino(type, new Coordinate(4, 2));
+            Tetromino tetromino = TetrominoFactory.spawnTetromino(type, new Coordinate(4, 2));
             gameBoard.trySpawnTetromino(tetromino);
             var baseCord = tetromino.getStateCord();
             Orientation tetrominoState = tetromino.getCurrentOrientation();
@@ -287,7 +289,7 @@ class GameBoardTest {
         @Test
         void testTryRotatePieceRight() {
             // given
-            Tetromino tetromino = TetrominoFactory.spawnSpecificTetromino(TetrominoType.T, new Coordinate(4, 1));
+            Tetromino tetromino = TetrominoFactory.spawnTetromino(TetrominoType.T, new Coordinate(4, 1));
             gameBoard.trySpawnTetromino(tetromino);
             // when
             boolean rotated = gameBoard.tryRotatePiece(RotationFlag.CLOCKWISE);
@@ -307,7 +309,7 @@ class GameBoardTest {
         @Test
         void testTryRotatePieceLeft() {
             // given
-            Tetromino tetromino = TetrominoFactory.spawnSpecificTetromino(TetrominoType.T, new Coordinate(4, 1));
+            Tetromino tetromino = TetrominoFactory.spawnTetromino(TetrominoType.T, new Coordinate(4, 1));
             gameBoard.trySpawnTetromino(tetromino);
             // when
             boolean rotated = gameBoard.tryRotatePiece(RotationFlag.COUNTER_CLOCKWISE);
@@ -327,7 +329,7 @@ class GameBoardTest {
         @EnumSource(value = RotationFlag.class, names = {"CLOCKWISE", "COUNTER_CLOCKWISE"})
         void testTryRotateOPiece(RotationFlag flag) {
             // given
-            Tetromino tetromino = TetrominoFactory.spawnSpecificTetromino(TetrominoType.O, new Coordinate(4, 1));
+            Tetromino tetromino = TetrominoFactory.spawnTetromino(TetrominoType.O, new Coordinate(4, 1));
             gameBoard.trySpawnTetromino(tetromino);
             // when
             boolean rotated = gameBoard.tryRotatePiece(flag);
@@ -424,7 +426,7 @@ class GameBoardTest {
          */
         @Test
         void tryRotatePiece_withNullRotation_returnsFalse() {
-            gameBoard.trySpawnTetromino(TetrominoFactory.spawnSpecificTetromino(TetrominoType.T, new Coordinate(4, 1)));
+            gameBoard.trySpawnTetromino(TetrominoFactory.spawnTetromino(TetrominoType.T, new Coordinate(4, 1)));
             assertFalse(gameBoard.tryRotatePiece(null),
                     "null rotation flag must always return false");
         }
@@ -440,7 +442,7 @@ class GameBoardTest {
             // given
             prepareBoard(gameBoard);
             gameBoard.trySpawnTetromino(
-                    TetrominoFactory.spawnSpecificTetromino(TetrominoType.T, new Coordinate(2, 4)));
+                    TetrominoFactory.spawnTetromino(TetrominoType.T, new Coordinate(2, 4)));
 
             // when
             gameBoard.tryRotatePiece(RotationFlag.COUNTER_CLOCKWISE);
@@ -451,7 +453,7 @@ class GameBoardTest {
         @Test
         void testWallKicks_T2() {
             //given
-            gameBoard.trySpawnTetromino(TetrominoFactory.spawnSpecificTetromino(TetrominoType.T, new Coordinate(2, 4)));
+            gameBoard.trySpawnTetromino(TetrominoFactory.spawnTetromino(TetrominoType.T, new Coordinate(2, 4)));
             prepareBoard2T(gameBoard);
             final var t = gameBoard.getCurrentTetromino();
             final var basePos = new Coordinate(t.getPositionX(), t.getPositionY());
@@ -480,7 +482,7 @@ class GameBoardTest {
         void testWallKicks_L() {
             //given
             prepareBoard(gameBoard);
-            gameBoard.trySpawnTetromino(TetrominoFactory.spawnSpecificTetromino(TetrominoType.L, new Coordinate(2, 4)));
+            gameBoard.trySpawnTetromino(TetrominoFactory.spawnTetromino(TetrominoType.L, new Coordinate(2, 4)));
             final var t = gameBoard.getCurrentTetromino();
             final var basePos = new Coordinate(t.getPositionX(), t.getPositionY());
             printBoardState(gameBoard.getBoardView(), t);

@@ -5,15 +5,15 @@ import org.sehes.tetris.config.GameParameters;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class TetrominoTest {
-    private final TetrominoFactory factory = new TetrominoFactory();
+
+    private final PieceGenerator generator = new RandomPieceGenerator();
 
     @Test
     void testTetrominoFactory_ValidTetrominoCreation() {
         // given
-        Tetromino tetromino = factory.createNewRandomTetromino(GameParameters.SPAWN_POINT);
+        Tetromino tetromino = TetrominoFactory.spawnTetromino(generator.getNextPiece(), GameParameters.SPAWN_POINT);
         // when
         // then
         assertNotNull(tetromino, "tetrominoFactory should not return null");
@@ -22,11 +22,4 @@ class TetrominoTest {
         assertNotNull(tetromino.getType());
         assertNotNull(tetromino.getStateCord());
     }
-
-    @Test
-    void shouldThrowExceptionForNullInput() {
-        assertThrows(IllegalArgumentException.class, () -> factory.createNewRandomTetromino(null),
-                "tetrominoFactory should throw IllegalArgumentException for null input");
-    }
-
 }
