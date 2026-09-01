@@ -26,16 +26,16 @@ public class GuiFactory {
     private GuiFactory() {
     }
 
-    public static gameUI assembly(Painter<GameSnapshot> painter, KeyAdapter tetrisKeyAdapter,Painter<TetrominoType> tetrisPainter) {
+    public static gameUI assembly(Painter<GameSnapshot> TetrisPainter, KeyAdapter tetrisKeyAdapter,Painter<TetrominoType> previewPainter) {
         /*creation of ScorePanel is putted here if their be any needs of additional assembly in the future */
 
         final GameContainer gameContainer = assemblyGameContainer();
         final InfoPanel infoP = new InfoPanel();
-        final PreviewWindow previewWindow= new PreviewWindow(tetrisPainter);
+        final PreviewWindow previewWindow= new PreviewWindow(previewPainter);
         final RightPanel rightPanel = new RightPanel(previewWindow);
         final MainPane mainPane = assemblyMainPane(gameContainer, rightPanel, infoP);
         final GameWindow window = new GameWindow(mainPane);
-        final TetrisCanvas canvas = assemblyCanvas(painter, tetrisKeyAdapter);
+        final TetrisCanvas canvas = assemblyCanvas(TetrisPainter, tetrisKeyAdapter);
         gameContainer.add(canvas, BorderLayout.CENTER);
         gameContainer.revalidate();
         gameContainer.repaint();
