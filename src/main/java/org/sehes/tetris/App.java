@@ -16,6 +16,8 @@ import org.sehes.tetris.graphic.AssetsManager;
 import org.sehes.tetris.graphic.RenderingHintsFactory;
 import org.sehes.tetris.graphic.TetrisDrawingHandler;
 import org.sehes.tetris.gui.GuiFactory;
+import org.sehes.tetris.model.PieceGenerator;
+import org.sehes.tetris.model.RandomPieceGenerator;
 
 import java.awt.RenderingHints;
 import java.awt.event.KeyAdapter;
@@ -28,7 +30,8 @@ public class App {
     private final InputMapper inputMapper = new InputMapper(KeyMap.createDefault());
     private final ScoreManager scoreManager = new ScoreManager();
     private final ScoreMessenger scoreMessenger = new ScoreMessenger();
-    private final GameManager gameManager = new GameManager(stateManager, scoreMessenger);
+    private final PieceGenerator randomPieceGenerator = new RandomPieceGenerator();
+    private final GameManager gameManager = new GameManager(stateManager, scoreMessenger,randomPieceGenerator);
     private final InputReceiver inputRouter = new InputRouter(inputMapper, gameManager);
     private final KeyAdapter tetrisKeyAdapter = new TetrisKeyAdapter(inputRouter);
 

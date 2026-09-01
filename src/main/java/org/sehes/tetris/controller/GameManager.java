@@ -5,6 +5,7 @@ import org.sehes.tetris.controller.input.InputAction;
 import org.sehes.tetris.model.BoardView;
 import org.sehes.tetris.model.DirectionFlag;
 import org.sehes.tetris.model.GameBoard;
+import org.sehes.tetris.model.PieceGenerator;
 import org.sehes.tetris.model.RotationFlag;
 import org.sehes.tetris.model.Tetromino;
 import org.sehes.tetris.model.score.HardDropEvent;
@@ -44,6 +45,7 @@ public class GameManager implements InputHandler {
     private static final int FRAME_TIME_MS = 1000 / FPS;
     private static final int BASE_SPEED = 600;
     private final StateManager<GameState> stateManager;
+    private final PieceGenerator generator;
     // is full redraw needed?
     private final AtomicBoolean isDirty = new AtomicBoolean(false);
     private final long movementSpeed = TimeUnit.MILLISECONDS.toNanos(BASE_SPEED);
@@ -61,8 +63,8 @@ public class GameManager implements InputHandler {
     private Runnable gameExit = () -> System.exit(0);
     private GhostType ghostType;
 
-
-    public GameManager(StateManager<GameState> stateManager, ScoreMessenger scoreMessenger) {
+    public GameManager(StateManager<GameState> stateManager, ScoreMessenger scoreMessenger, PieceGenerator generator) {
+        this.generator = generator;
         this.ghostType = GhostType.FULL;
         this.stateManager = stateManager;
         this.scoreMessenger = scoreMessenger;
@@ -86,7 +88,6 @@ public class GameManager implements InputHandler {
             gameExit = exitAction;
             stateManager.setState(PREPARED);
         }
-
     }
 
 
@@ -262,7 +263,7 @@ public class GameManager implements InputHandler {
         stateManager.setState(NEW_GAME);
         isDirty.set(true);
         gameBoard = new GameBoard();
-        if (!gameBoard.trySetNewTetromino()) {
+        if (!trySpawnTetromino()) {
             setGameOver();
             return;
         }
@@ -282,13 +283,21 @@ public class GameManager implements InputHandler {
         return new GameSnapshot(getBoardView(), Optional.ofNullable(current), wasDirty, current == null ? 0 : gameBoard.calculateDropDistance(), current == null ? GhostType.NONE : ghostType);
     }
 
+    private boolean trySpawnTetromino() {
+        final var piece = generator.getNextPiece();
+        if (gameBoard.trySetNewTetromino(piece)) {
+            return true;
+        }
+        return false;
+    }
+
     private void lockClearAndScorePiece() {
         gameBoard.lockTetrominoInPlace();
         gameBoard.clearLines();
         final var lastAction = gameBoard.getLastAction();
         final LockPieceEvent lockEvent = createLockEvent(lastAction.tSpin(), lastAction.linesCleared());
         scoreMessenger.notifyObservers(lockEvent);
-        if (!gameBoard.trySetNewTetromino()) {
+        if (!trySpawnTetromino()) {
             setGameOver();
         }
         gravityAccumulator = 0;
