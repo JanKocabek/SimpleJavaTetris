@@ -97,13 +97,9 @@ public class TetrisDrawingHandler implements Painter<GameSnapshot> {
     }
 
     private void drawBlocks(Graphics2D g2d, Tetromino t, BufferedImage tile, int offsetY) {
-        final int pX = t.getPositionX() * GameParameters.BLOCK_SIZE;
-        final int pY = (t.getPositionY() - GameParameters.HIDDEN_ROWS) * GameParameters.BLOCK_SIZE;
-        for (var block : t.getStateCord()) {
-            final int x = block.x() * GameParameters.BLOCK_SIZE + pX;
-            final int y = block.y() * GameParameters.BLOCK_SIZE + pY + offsetY;
-            g2d.drawImage(tile, x, y, null);
-        }
+        final int originX = t.getPositionX() * tile.getWidth();
+        final int originY = (t.getPositionY() - GameParameters.HIDDEN_ROWS) * tile.getWidth();
+        TetrominoRenderer.drawMinoAt(g2d, t.getStateCord(), tile, tile.getWidth(), originX, originY, offsetY);
     }
 
     @Override
