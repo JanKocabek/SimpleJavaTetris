@@ -46,7 +46,11 @@ public class ScorePanel extends JPanel implements Observer<ScoreInfoDTO> {
 //        comboInfo.setOpaque(true);
 //        comboInfo.setBackground(Color.BLUE);
         add(comboInfo, verStackConstr);
-
+        //uncomment if needed move up
+//        GridBagConstraints fillerConstraints = new GridBagConstraints();
+//        fillerConstraints.gridy = 4;
+//        fillerConstraints.weighty = 1.0; // Pushes everything above it to the top
+//        add(javax.swing.Box.createVerticalGlue(), fillerConstraints);
     }
 
     private void setupCompGridPos(GridBagConstraints constraints, int row, Insets insets) {
