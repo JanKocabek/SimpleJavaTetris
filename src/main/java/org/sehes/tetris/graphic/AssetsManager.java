@@ -21,8 +21,20 @@ public final class AssetsManager {
         final MinoBlock block = new MinoBlock(Config.BLOCK_SIZE, Config.BLOCK_THICKNESS);
         tetrominoTiles = prepareMinoTiles(block, hints);
         ghostTiles = prepareGhostTiles(hints);
-        previewTiles = prepareMinoTiles(block, hints, 30);
         previewTiles = prepareMinoTiles(block, hints, Config.PREVIEW_BLOCK_SIZE);
+    }
+
+    private EnumMap<TetrominoType, BufferedImage> prepareMinoTiles(MinoBlock block, RenderingHints hints) {
+        return prepareMinoTiles(block, hints, Config.BLOCK_SIZE);
+    }
+
+    private EnumMap<TetrominoType, BufferedImage> prepareMinoTiles(MinoBlock block, RenderingHints hints, int tileSize) {
+        final var tilesMap = new EnumMap<TetrominoType, BufferedImage>(TetrominoType.class);
+        for (TetrominoType type : TetrominoType.getTetrominoShapes()) {
+            tilesMap.put(type, createMinoTile(type, block, hints, tileSize));
+        }
+
+        return tilesMap;
     }
 
     private EnumMap<GhostType, BufferedImage> prepareGhostTiles(RenderingHints hints) {
@@ -36,29 +48,25 @@ public final class AssetsManager {
         return ghostTiles;
     }
 
-    private EnumMap<TetrominoType, BufferedImage> prepareMinoTiles(MinoBlock block, RenderingHints hints) {
-        return prepareMinoTiles(block, hints, GameParameters.BLOCK_SIZE);
-    }
-
-    private EnumMap<TetrominoType, BufferedImage> prepareMinoTiles(MinoBlock block, RenderingHints hints, int tileSize) {
-        final var tilesMap = new EnumMap<TetrominoType, BufferedImage>(TetrominoType.class);
-        for (TetrominoType type : TetrominoType.getTetrominoShapes()) {
-            tilesMap.put(type, createMinoTile(type, block, hints, tileSize));
-        }
-
-        return tilesMap;
-    }
-
-    private BufferedImage createMinoTile(TetrominoType type, MinoBlock block, RenderingHints hints, int blockSize) {
-        final var img = new BufferedImage(blockSize, blockSize, BufferedImage.TYPE_INT_ARGB);
+    private BufferedImage createMinoTile(TetrominoType type, MinoBlock block, RenderingHints hints, int tileSize) {
+        final var img = new BufferedImage(tileSize, tileSize, BufferedImage.TYPE_INT_ARGB);
         final var g2d = img.createGraphics();
         g2d.setRenderingHints(hints);
+        scaleCheck(tileSize, g2d);
         drawShape(type, block, g2d);
         g2d.dispose();
         return img;
     }
 
+    private void scaleCheck(int tileSize, Graphics2D g2d) {
+        if (tileSize != Config.BLOCK_SIZE) {
+            double scale = (double) tileSize / Config.BLOCK_SIZE;
+            g2d.scale(scale, scale);
+        }
+    }
+
     private void drawShape(TetrominoType type, MinoBlock block, Graphics2D g2d) {
+
         for (Renderable shape : block.getShapes()) {
             final var side = shape.getSide();
             final var points = shape.getPoints();
