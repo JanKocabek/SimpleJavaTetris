@@ -1,6 +1,5 @@
 package org.sehes.tetris.graphic;
 
-import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.config.GhostType;
 import org.sehes.tetris.model.TetrominoType;
 
@@ -19,10 +18,11 @@ public final class AssetsManager {
     private final EnumMap<TetrominoType, BufferedImage> previewTiles;
 
     public AssetsManager(RenderingHints hints) {
-        final MinoBlock block = new MinoBlock(GameParameters.BLOCK_SIZE, Config.BLOCK_THICKNESS);
+        final MinoBlock block = new MinoBlock(Config.BLOCK_SIZE, Config.BLOCK_THICKNESS);
         tetrominoTiles = prepareMinoTiles(block, hints);
         ghostTiles = prepareGhostTiles(hints);
         previewTiles = prepareMinoTiles(block, hints, 30);
+        previewTiles = prepareMinoTiles(block, hints, Config.PREVIEW_BLOCK_SIZE);
     }
 
     private EnumMap<GhostType, BufferedImage> prepareGhostTiles(RenderingHints hints) {
@@ -74,10 +74,10 @@ public final class AssetsManager {
     }
 
     private BufferedImage createGhostTile(RenderingHints hints, float thickness, Stroke stroke, Color strokeColor) {
-        BufferedImage buffer = new BufferedImage(GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage buffer = new BufferedImage(Config.BLOCK_SIZE, Config.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
         final var g2d = buffer.createGraphics();
         g2d.setRenderingHints(hints);
-        final var sideSize = (int) (GameParameters.BLOCK_SIZE - thickness - 2);
+        final var sideSize = (int) (Config.BLOCK_SIZE - thickness - 2);
         g2d.setColor(strokeColor);
         g2d.setStroke(stroke);
         g2d.drawRect(0, 0, sideSize, sideSize);

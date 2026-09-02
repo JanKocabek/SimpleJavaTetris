@@ -1,6 +1,5 @@
 package org.sehes.tetris.graphic;
 
-import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.model.Orientation;
 import org.sehes.tetris.model.ShapeProvider;
 import org.sehes.tetris.model.TetrominoType;

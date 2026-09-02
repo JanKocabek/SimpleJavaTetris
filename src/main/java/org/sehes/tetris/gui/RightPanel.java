@@ -25,7 +25,7 @@ public class RightPanel extends JPanel {
         add(Box.createVerticalGlue());
     }
 
-    public Observer<TetrominoType> previewObserver() {
+    public Observer<TetrominoType> getPreviewObserver() {
         return previewWindow.previewObserver();
     }
 

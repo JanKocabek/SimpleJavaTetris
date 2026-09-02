@@ -32,8 +32,8 @@ public class TetrisDrawingHandler implements Painter<GameSnapshot> {
     public TetrisDrawingHandler(RenderingHints renderingHints, AssetsManager assets) {
         this.assets = assets;
         this.renderingHints = renderingHints;
-        boardImg = new BufferedImage(GameParameters.COLUMNS * GameParameters.BLOCK_SIZE,
-                GameParameters.VISIBLE_ROWS * GameParameters.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
+        boardImg = new BufferedImage(GameParameters.COLUMNS * Config.BLOCK_SIZE,
+                GameParameters.VISIBLE_ROWS * Config.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
     }
 
 
@@ -60,8 +60,8 @@ public class TetrisDrawingHandler implements Painter<GameSnapshot> {
             for (int col = boardView.getWidth() - 1; col >= 0; col--) {
                 TetrominoType content = boardView.getBlockContent(row, col);
                 if (content != TetrominoType.NON && content != null) {
-                    int x = col * GameParameters.BLOCK_SIZE;
-                    int y = (row - GameParameters.HIDDEN_ROWS) * GameParameters.BLOCK_SIZE;
+                    int x = col * Config.BLOCK_SIZE;
+                    int y = (row - GameParameters.HIDDEN_ROWS) * Config.BLOCK_SIZE;
                     g2d.drawImage(assets.getTile(content), x, y, null);
                 }
             }
@@ -90,7 +90,7 @@ public class TetrisDrawingHandler implements Painter<GameSnapshot> {
     }
 
     private void drawGhostMino(Graphics2D g2d, Tetromino t, int ghostOffset, GhostType ghostType) {
-        final var PIXEL_OFFSET = ghostOffset * GameParameters.BLOCK_SIZE;
+        final var PIXEL_OFFSET = ghostOffset * Config.BLOCK_SIZE;
 
         drawBlocks(g2d, t, assets.getGhostTile(ghostType), PIXEL_OFFSET);
 

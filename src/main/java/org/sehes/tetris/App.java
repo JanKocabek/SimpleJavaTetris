@@ -26,13 +26,12 @@ import java.util.logging.Logger;
 
 public class App {
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
-
     private final GameStateManager stateManager = new GameStateManager(GameState.INIT);
     private final InputMapper inputMapper = new InputMapper(KeyMap.createDefault());
     private final ScoreManager scoreManager = new ScoreManager();
     private final ScoreMessenger scoreMessenger = new ScoreMessenger();
     private final PieceGenerator randomPieceGenerator = new RandomPieceGenerator();
-    private final GameManager gameManager = new GameManager(stateManager, scoreMessenger,randomPieceGenerator);
+    private final GameManager gameManager = new GameManager(stateManager, scoreMessenger, randomPieceGenerator);
     private final InputReceiver inputRouter = new InputRouter(inputMapper, gameManager);
     private final KeyAdapter tetrisKeyAdapter = new TetrisKeyAdapter(inputRouter);
 
@@ -41,13 +40,13 @@ public class App {
         final var assetsManager = new AssetsManager(qualityRenderingHints);
         final var tetrisPainter = new TetrisDrawingHandler(qualityRenderingHints, assetsManager);
         final var previewPainter = new PreviewDrawingHandler(qualityRenderingHints, assetsManager);
-        final GuiFactory.gameUI gui = GuiFactory.assembly(tetrisPainter, tetrisKeyAdapter,previewPainter);
+        final GuiFactory.gameUI gui = GuiFactory.assembly(tetrisPainter, tetrisKeyAdapter, previewPainter);
         addObserver(stateManager, gui.infoObserver());
         addObserver(gameManager.fpsObservable(), gui.fpsObserver());
         addObserver(scoreMessenger, scoreManager.scoringObserver());
         addObserver(stateManager, scoreManager.gameStateObserver());
         addObserver(scoreManager, gui.scoreObserver());
-        addObserver(gameManager.getSpawnObservable(),gui.previewObserver());
+        addObserver(gameManager.getSpawnObservable(), gui.previewObserver());
         gameManager.prepareGame(gui.canvas(), gui.exitAction());
         gui.window().setVisible(true);
         gui.canvas().requestFocusInWindow();
@@ -62,7 +61,6 @@ public class App {
      * @param <T>      the type of the messages which will be sent
      * @return a closeable that removes the observer when closed
      */
-
     private <T> AutoCloseable addObserver(Observable<T> sender, Observer<T> receiver) {
         sender.addObserver(receiver);
         return () -> sender.removeObserver(receiver);

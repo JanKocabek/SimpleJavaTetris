@@ -15,9 +15,9 @@ import java.awt.Insets;
 import java.awt.event.KeyAdapter;
 import java.awt.event.WindowEvent;
 
-import static org.sehes.tetris.config.GameParameters.BLOCK_SIZE;
 import static org.sehes.tetris.config.GameParameters.COLUMNS;
 import static org.sehes.tetris.config.GameParameters.VISIBLE_ROWS;
+import static org.sehes.tetris.graphic.Config.BLOCK_SIZE;
 
 public class GuiFactory {
     public static final Dimension CANVAS_SIZE = new Dimension(BLOCK_SIZE * COLUMNS, BLOCK_SIZE * VISIBLE_ROWS);
@@ -44,7 +44,7 @@ public class GuiFactory {
         window.pack();
         window.setLocationRelativeTo(null);
 
-        return new gameUI(canvas, rightPanel.getScoreObserver(), infoP.infoUpdateObserver(), infoP.fpsUpdateObserver(), window, rightPanel.previewObserver());
+        return new gameUI(canvas, rightPanel.getScoreObserver(), infoP.infoUpdateObserver(), infoP.fpsUpdateObserver(), window, rightPanel.getPreviewObserver());
     }
 
     private static MainPane assemblyMainPane(final GameContainer container, RightPanel rightP, InfoPanel infoP) {

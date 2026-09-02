@@ -1,7 +1,7 @@
 package org.sehes.tetris.gui;
 
-import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.controller.Observer;
+import org.sehes.tetris.graphic.Config;
 import org.sehes.tetris.model.TetrominoType;
 
 import javax.swing.JPanel;
@@ -12,7 +12,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 public class PreviewWindow extends JPanel {
-    private static final Dimension WINDOW_SIZE = new Dimension(GameParameters.BLOCK_SIZE * 4, GameParameters.BLOCK_SIZE * 4);
+    private static final Dimension WINDOW_SIZE = new Dimension(Config.PREVIEW_BLOCK_SIZE * 5, Config.PREVIEW_BLOCK_SIZE * 5);
     private static final Color backgroundColor = new Color(15, 15, 25);
     private final PreviewObserver previewObserver = new PreviewObserver();
     private TetrominoType preview;
