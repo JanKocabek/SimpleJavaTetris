@@ -171,7 +171,7 @@ public class GameManager implements InputHandler {
         isHoldLock = true;
         holdObservable().notifyObservers(holdTetromino);
         if (previousHold == null) {
-            trySpawnNewTetromino();
+            spawnMinoOrGameOver();
         } else {
             gameBoard.trySetNewTetromino(previousHold);
         }
@@ -295,12 +295,10 @@ public class GameManager implements InputHandler {
         isDirty.set(true);
         gameBoard = new GameBoard();
         spawnObservable.notifyObservers(generator.peekNext());
-        if (trySpawnNewTetromino()) {
+        if (spawnMinoOrGameOver()) {
             render();
             resetTime();
             stateManager.setState(PLAYING);
-        } else {
-            setGameOver();
         }
     }
 
@@ -331,8 +329,17 @@ public class GameManager implements InputHandler {
         final var lastAction = gameBoard.getLastAction();
         final LockPieceEvent lockEvent = createLockEvent(lastAction.tSpin(), lastAction.linesCleared());
         scoreMessenger.notifyObservers(lockEvent);
-        if (!trySpawnNewTetromino()) setGameOver();
+        spawnMinoOrGameOver();
         gravityAccumulator = 0;
+    }
+
+    private boolean spawnMinoOrGameOver() {
+        if (trySpawnNewTetromino()) {
+            return true;
+        } else {
+            setGameOver();
+            return false;
+        }
     }
 
     private LockPieceEvent createLockEvent(final TSpin tSpin, int clearedLines) {
