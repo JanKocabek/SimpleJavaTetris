@@ -43,10 +43,10 @@ public class GameManager implements InputHandler {
     private static final int FRAME_TIME_MS = 1000 / FPS;
     private static final int BASE_SPEED = 600;
     private final SpawnObservable spawnObservable = new SpawnObservable();
+    private final ObservableImpl<TetrominoType> spawnObservable = new ObservableImpl<>();
     private final StateManager<GameState> stateManager;
     private final PieceGenerator generator;
-    // is full redraw needed?
-    private final AtomicBoolean isDirty = new AtomicBoolean(false);
+    private final AtomicBoolean isDirty = new AtomicBoolean(false); // is full redraw needed?
     private final long movementSpeed = TimeUnit.MILLISECONDS.toNanos(BASE_SPEED);
     private final MainLoopListener gameLoop = new MainLoopListener();
     private final ScoreMessenger scoreMessenger;
@@ -99,7 +99,7 @@ public class GameManager implements InputHandler {
 
     }
 
-    public Observable<TetrominoType> getSpawnObservable() {
+    public Observable<TetrominoType> spawnObservable() {
         return spawnObservable;
     }
 
@@ -372,24 +372,5 @@ public class GameManager implements InputHandler {
         }
     }
 
-    private static class SpawnObservable implements Observable<TetrominoType> {
-        private final List<Observer<TetrominoType>> tetrominoTypes = new CopyOnWriteArrayList<>();
 
-        @Override
-        public void addObserver(Observer<TetrominoType> observer) {
-            tetrominoTypes.add(observer);
-        }
-
-        @Override
-        public void removeObserver(Observer<TetrominoType> observer) {
-            tetrominoTypes.remove(observer);
-        }
-
-        @Override
-        public void notifyObservers(TetrominoType piece) {
-            for (Observer<TetrominoType> observer : tetrominoTypes) {
-                observer.update(piece);
-            }
-        }
-    }
 }
