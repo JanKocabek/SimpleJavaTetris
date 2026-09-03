@@ -46,7 +46,8 @@ public class App {
         addObserver(scoreMessenger, scoreManager.scoringObserver());
         addObserver(stateManager, scoreManager.gameStateObserver());
         addObserver(scoreManager, gui.scoreObserver());
-        addObserver(gameManager.getSpawnObservable(), gui.previewObserver());
+        addObserver(gameManager.spawnObservable(), gui.previewObserver());
+        addObserver(gameManager.holdObservable(), gui.holdCanvasObserver());
         gameManager.prepareGame(gui.canvas(), gui.exitAction());
         gui.window().setVisible(true);
         gui.canvas().requestFocusInWindow();

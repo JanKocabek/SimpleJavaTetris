@@ -42,8 +42,9 @@ public class GameManager implements InputHandler {
     private static final int FPS = 60;
     private static final int FRAME_TIME_MS = 1000 / FPS;
     private static final int BASE_SPEED = 600;
-    private final SpawnObservable spawnObservable = new SpawnObservable();
     private final ObservableImpl<TetrominoType> spawnObservable = new ObservableImpl<>();
+    private final ObservableImpl<TetrominoType> holdObservable = new ObservableImpl<>();
+
     private final StateManager<GameState> stateManager;
     private final PieceGenerator generator;
     private final AtomicBoolean isDirty = new AtomicBoolean(false); // is full redraw needed?
@@ -61,12 +62,15 @@ public class GameManager implements InputHandler {
     private long fpsTimer = 0;
     private Runnable gameExit = () -> System.exit(0);
     private GhostType ghostType;
+    private TetrominoType holdTetromino;
+    private boolean isHoldLock = false;
 
     public GameManager(StateManager<GameState> stateManager, ScoreMessenger scoreMessenger, PieceGenerator generator) {
         this.generator = generator;
         this.ghostType = GhostType.FULL;
         this.stateManager = stateManager;
         this.scoreMessenger = scoreMessenger;
+        this.holdTetromino = null;
     }
 
     /**
@@ -103,6 +107,10 @@ public class GameManager implements InputHandler {
         return spawnObservable;
     }
 
+    public Observable<TetrominoType> holdObservable() {
+        return holdObservable;
+    }
+
     public Observable<Integer> fpsObservable() {
         return gameLoop;
     }
@@ -114,6 +122,7 @@ public class GameManager implements InputHandler {
     private Tetromino getCurrentTetromino() {
         return gameBoard.getCurrentTetromino();
     }
+
 
     private void gameOverInput(InputAction action) {
         switch (action) {
@@ -146,22 +155,48 @@ public class GameManager implements InputHandler {
             case ROTATE_CW -> rotatePiece(RotationFlag.CLOCKWISE);
             case ROTATE_CCW -> rotatePiece(RotationFlag.COUNTER_CLOCKWISE);
             case TOGGLE_GHOST -> toggleGhostPiece();
+            case HOLD -> holdOrSwap();
             default -> {
                 break;
             }
         }
     }
 
+    private void holdOrSwap() {
+        TetrominoType tmp;
+        if (isHoldLock) return;
+        if (holdTetromino == null) {
+            holdTetromino = getCurrentTetromino().getType();
+            holdObservable().notifyObservers(holdTetromino);
+            trySpawnNewTetromino();
+            isHoldLock = true;
+        } else {
+            isHoldLock = true;
+            tmp = holdTetromino;
+            holdTetromino = getCurrentTetromino().getType();
+            gameBoard.trySetNewTetromino(tmp);
+            holdObservable().notifyObservers(holdTetromino);
+            render();
+        }
+    }
+
+    /**
+     * call new repainting on mainCanvas
+     */
+    private void render() {
+        tetrisCanvas.render(createGameSnapshot());
+    }
+
     private void toggleGhostPiece() {
         ghostType = ghostType.next();
-        tetrisCanvas.render(createGameSnapshot());
+        render();
     }
 
     private void hardDrop() {
         final var distance = gameBoard.tryHardDrop();
         if (distance > 0) {
             scoreMessenger.notifyObservers(new HardDropEvent(distance));
-            tetrisCanvas.render(createGameSnapshot());
+            render();
         }
         lockClearAndScorePiece();
         isDirty.set(true);
@@ -186,14 +221,14 @@ public class GameManager implements InputHandler {
      */
     private void movePiece(final DirectionFlag direction) {
         if (gameBoard.tryMovePiece(direction)) {
-            tetrisCanvas.render(createGameSnapshot());
+            render();
         }
     }
 
     private void softDrop() {
         if (gameBoard.trySoftDrop()) {
             scoreMessenger.notifyObservers(new SoftDropEvent(1));
-            tetrisCanvas.render(createGameSnapshot());
+            render();
         }
     }
 
@@ -206,7 +241,7 @@ public class GameManager implements InputHandler {
      */
     private void rotatePiece(final RotationFlag rotate) {
         if (gameBoard.tryRotatePiece(rotate)) {
-            tetrisCanvas.render(createGameSnapshot());
+            render();
         }
     }
 
@@ -256,12 +291,14 @@ public class GameManager implements InputHandler {
     }
 
     private void newGame() {
+        holdTetromino = null;
+        isHoldLock = false;
         stateManager.setState(NEW_GAME);
         isDirty.set(true);
         gameBoard = new GameBoard();
         spawnObservable.notifyObservers(generator.peekNext());
-        if (trySpawnTetromino()) {
-            tetrisCanvas.render(createGameSnapshot());
+        if (trySpawnNewTetromino()) {
+            render();
             resetTime();
             stateManager.setState(PLAYING);
         } else {
@@ -280,7 +317,7 @@ public class GameManager implements InputHandler {
         return new GameSnapshot(getBoardView(), Optional.ofNullable(current), wasDirty, current == null ? 0 : gameBoard.calculateDropDistance(), current == null ? GhostType.NONE : ghostType);
     }
 
-    private boolean trySpawnTetromino() {
+    private boolean trySpawnNewTetromino() {
         final var piece = generator.getNextPiece();
         if (gameBoard.trySetNewTetromino(piece)) {
             spawnObservable.notifyObservers(generator.peekNext());
@@ -290,12 +327,13 @@ public class GameManager implements InputHandler {
     }
 
     private void lockClearAndScorePiece() {
+        isHoldLock = false;
         gameBoard.lockTetrominoInPlace();
         gameBoard.clearLines();
         final var lastAction = gameBoard.getLastAction();
         final LockPieceEvent lockEvent = createLockEvent(lastAction.tSpin(), lastAction.linesCleared());
         scoreMessenger.notifyObservers(lockEvent);
-        if (!trySpawnTetromino()) setGameOver();
+        if (!trySpawnNewTetromino()) setGameOver();
         gravityAccumulator = 0;
     }
 
@@ -340,7 +378,7 @@ public class GameManager implements InputHandler {
                 gravityAccumulator -= movementSpeed;
             }
 
-            tetrisCanvas.render(createGameSnapshot());
+            render();
         }
 
         private void fpsCalculation(long elapsedTime) {
