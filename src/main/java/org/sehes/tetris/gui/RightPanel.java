@@ -10,9 +10,9 @@ import javax.swing.JPanel;
 
 public class RightPanel extends JPanel {
     private final ScorePanel scorePanel;
-    private final PreviewWindow previewWindow;
+    private final PreviewCanvas previewWindow;
 
-    RightPanel(PreviewWindow previewWindow) {
+    RightPanel(PreviewCanvas previewWindow) {
         super();
         setOpaque(true);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -30,7 +30,7 @@ public class RightPanel extends JPanel {
     }
 
     public Observer<ScoreInfoDTO> getScoreObserver() {
-        return scorePanel;
+        return scorePanel.ScoreObserver();
     }
 
 }

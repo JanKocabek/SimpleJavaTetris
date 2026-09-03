@@ -11,14 +11,14 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
-public class PreviewWindow extends JPanel {
+public class PreviewCanvas extends JPanel {
     private static final Dimension WINDOW_SIZE = new Dimension(Config.PREVIEW_BLOCK_SIZE * 5, Config.PREVIEW_BLOCK_SIZE * 5);
     private static final Color backgroundColor = new Color(15, 15, 25);
-    private final PreviewObserver previewObserver = new PreviewObserver();
-    private TetrominoType preview;
+    private final Observer<TetrominoType> previewObserver = this::onUpdatePreview;
     private final Painter<TetrominoType> painter;
+    private TetrominoType preview;
 
-    PreviewWindow(Painter<TetrominoType> painter) {
+    PreviewCanvas(Painter<TetrominoType> painter) {
         this.painter = painter;
         this.setPreferredSize(WINDOW_SIZE);
         this.setMinimumSize(WINDOW_SIZE);
@@ -33,16 +33,12 @@ public class PreviewWindow extends JPanel {
         painter.paint(g2d, preview, getWidth(), getHeight());
     }
 
-
     public Observer<TetrominoType> previewObserver() {
         return previewObserver;
     }
 
-    private class PreviewObserver implements Observer<TetrominoType> {
-        @Override
-        public void update(TetrominoType tetrominoType) {
-            preview = tetrominoType;
-            repaint();
-        }
+    private void onUpdatePreview(TetrominoType tetrominoType) {
+        preview = tetrominoType;
+        repaint();
     }
 }

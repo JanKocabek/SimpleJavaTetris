@@ -31,7 +31,7 @@ public class GuiFactory {
 
         final GameContainer gameContainer = assemblyGameContainer();
         final InfoPanel infoP = new InfoPanel();
-        final PreviewWindow previewWindow= new PreviewWindow(previewPainter);
+        final PreviewCanvas previewWindow= new PreviewCanvas(previewPainter);
         final RightPanel rightPanel = new RightPanel(previewWindow);
         final MainPane mainPane = assemblyMainPane(gameContainer, rightPanel, infoP);
         final GameWindow window = new GameWindow(mainPane);

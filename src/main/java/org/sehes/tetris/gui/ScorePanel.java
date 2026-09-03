@@ -16,7 +16,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 
-public class ScorePanel extends JPanel implements Observer<ScoreInfoDTO> {
+public class ScorePanel extends JPanel {
 
     private static final int SCORE_BORDER_THICK = 2;
     private static final String EMPTY = " ";
@@ -25,6 +25,7 @@ public class ScorePanel extends JPanel implements Observer<ScoreInfoDTO> {
     private final JLabel clearingInfo = new JLabel(EMPTY, SwingConstants.CENTER);
     private final JLabel comboInfo = new JLabel(EMPTY, SwingConstants.CENTER);
     private final JLabel b2bInfo = new JLabel(EMPTY, SwingConstants.CENTER);
+    private final Observer<ScoreInfoDTO> scoreObserver = this::onScoreChange;
 
     public ScorePanel() {
         super();
@@ -53,6 +54,10 @@ public class ScorePanel extends JPanel implements Observer<ScoreInfoDTO> {
 //        add(javax.swing.Box.createVerticalGlue(), fillerConstraints);
     }
 
+    public Observer<ScoreInfoDTO> ScoreObserver() {
+        return scoreObserver;
+    }
+
     private void setupCompGridPos(GridBagConstraints constraints, int row, Insets insets) {
         constraints.gridy = row;
         constraints.insets = insets;
@@ -67,8 +72,7 @@ public class ScorePanel extends JPanel implements Observer<ScoreInfoDTO> {
     }
 
 
-    @Override
-    public void update(ScoreInfoDTO info) {
+    private void onScoreChange(ScoreInfoDTO info) {
         scoreUI.updateScore(info.score());
         final var b2b = info.B2BBonus() ? "B2B" : EMPTY;
         b2bInfo.setText(b2b);
@@ -81,6 +85,7 @@ public class ScorePanel extends JPanel implements Observer<ScoreInfoDTO> {
             comboInfo.setText(EMPTY);
         }
     }
+
 
     /**
      * Inner class representing the score label within the ScorePanel. It

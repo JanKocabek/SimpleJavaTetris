@@ -35,16 +35,18 @@ public class InfoPanel extends JPanel {
     }
 
     public Observer<GameState> infoUpdateObserver() {
-        return infoLabel;
+        return infoLabel.infoObserver;
     }
+
     public Observer<Integer> fpsUpdateObserver() {
-        return fpsLabel;
+        return fpsLabel.fpsObserver;
     }
 
 
-    private static class FpsLabel extends JLabel implements Observer<Integer> {
+    private static class FpsLabel extends JLabel {
         private static final String BASE_STRING = "FPS: ";
         private static final Font FPS_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 12);
+        private final Observer<Integer> fpsObserver = this::update;
 
         FpsLabel() {
             setFont(FPS_FONT);
@@ -55,32 +57,31 @@ public class InfoPanel extends JPanel {
             setBorder(new EmptyBorder(0, 0, 0, 8));
         }
 
-        private void updateFPS(int fps) {
-            setText(BASE_STRING + fps);
+        private void update(Integer state) {
+            setText(BASE_STRING + (int) state);
         }
 
-        @Override
-        public void update(Integer state) {
-            updateFPS(state);
-        }
+
     }
 
-    private static class InfoLabel extends JLabel implements Observer<GameState>{
+    private static class InfoLabel extends JLabel {
 
         private static final Font INFO_FONT = new Font(Font.SERIF, Font.BOLD, 18);
+        private final Observer<GameState> infoObserver = this::update;
 
         private InfoLabel() {
             setHorizontalAlignment(SwingConstants.CENTER);
             setVerticalAlignment(SwingConstants.CENTER);
             setFont(INFO_FONT);
             setForeground(Color.black);
-            updateInfo(GameState.INIT);
+            setText("game is loading wait please");
             Border border = new EmptyBorder(5, 0, 10, 0);
             setBorder(border);
         }
 
-        private void updateInfo(GameState gameState) {
-            switch (gameState) {
+
+        private void update(GameState state) {
+            switch (state) {
                 case INIT -> setText("game is loading wait please");
 
                 case PREPARED -> setText("press enter to start a new game");
@@ -94,11 +95,6 @@ public class InfoPanel extends JPanel {
                 default -> setText("UNEXPECTED MOMENT send me bug report");
 
             }
-        }
-
-        @Override
-        public void update(GameState state) {
-            updateInfo(state);
         }
     }
 
