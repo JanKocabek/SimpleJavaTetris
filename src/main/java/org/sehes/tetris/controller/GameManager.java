@@ -167,15 +167,20 @@ public class GameManager implements InputHandler {
 
         TetrominoType currentType = getCurrentTetromino().getType();
         TetrominoType previousHold = holdTetromino;
-        holdTetromino = currentType;
+        holdMinoAndNotify(currentType);
         isHoldLock = true;
-        holdObservable().notifyObservers(holdTetromino);
+        
         if (previousHold == null) {
             spawnMinoOrGameOver();
         } else {
             gameBoard.trySetNewTetromino(previousHold);
         }
         render();
+    }
+
+    private void holdMinoAndNotify(TetrominoType currentType) {
+        holdTetromino = currentType;
+        holdObservable().notifyObservers(holdTetromino);
     }
 
     /**
@@ -289,7 +294,7 @@ public class GameManager implements InputHandler {
     }
 
     private void newGame() {
-        holdTetromino = null;
+        holdMinoAndNotify(null);
         isHoldLock = false;
         stateManager.setState(NEW_GAME);
         isDirty.set(true);
