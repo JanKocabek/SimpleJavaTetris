@@ -16,24 +16,24 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 
-public class ScorePanel extends JPanel implements Observer<ScoreInfoDTO> {
+public class ScorePanel extends JPanel {
 
-    private static final int THICKNESS = 2;
-    private static final String INFO_LABEL_EMPTY = " \n ";
-    private static final String COMBO_EMPTY = " ";
+    private static final int SCORE_BORDER_THICK = 2;
+    private static final String EMPTY = " ";
     private final ScoreLabel scoreUI;
     private final Font scoreFont = new Font(Font.MONOSPACED, Font.BOLD, 20);
-    private final JLabel clearingInfo = new JLabel(INFO_LABEL_EMPTY, SwingConstants.CENTER);
-    private final JLabel comboInfo = new JLabel(COMBO_EMPTY, SwingConstants.CENTER);
-    private final JLabel b2bInfo = new JLabel(" ", SwingConstants.CENTER);
+    private final JLabel clearingInfo = new JLabel(EMPTY, SwingConstants.CENTER);
+    private final JLabel comboInfo = new JLabel(EMPTY, SwingConstants.CENTER);
+    private final JLabel b2bInfo = new JLabel(EMPTY, SwingConstants.CENTER);
+    private final Observer<ScoreInfoDTO> scoreObserver = this::onScoreChange;
 
     public ScorePanel() {
         super();
         setOpaque(true);
         setBackground(Color.WHITE);
-        this.scoreUI = new ScoreLabel();
         //GridBagConstraints for stacking vertically
         setLayout(new GridBagLayout());
+        this.scoreUI = new ScoreLabel();
         final GridBagConstraints verStackConstr = createVerStackConstr();
         setupCompGridPos(verStackConstr, 0, new Insets(0, 0, 0, 0));
         add(scoreUI, verStackConstr);
@@ -47,7 +47,15 @@ public class ScorePanel extends JPanel implements Observer<ScoreInfoDTO> {
 //        comboInfo.setOpaque(true);
 //        comboInfo.setBackground(Color.BLUE);
         add(comboInfo, verStackConstr);
+        //uncomment if needed move up
+//        GridBagConstraints fillerConstraints = new GridBagConstraints();
+//        fillerConstraints.gridy = 4;
+//        fillerConstraints.weighty = 1.0; // Pushes everything above it to the top
+//        add(javax.swing.Box.createVerticalGlue(), fillerConstraints);
+    }
 
+    public Observer<ScoreInfoDTO> ScoreObserver() {
+        return scoreObserver;
     }
 
     private void setupCompGridPos(GridBagConstraints constraints, int row, Insets insets) {
@@ -64,20 +72,20 @@ public class ScorePanel extends JPanel implements Observer<ScoreInfoDTO> {
     }
 
 
-    @Override
-    public void update(ScoreInfoDTO info) {
+    private void onScoreChange(ScoreInfoDTO info) {
         scoreUI.updateScore(info.score());
-        final var b2b = info.B2BBonus() ? "B2B" : " ";
+        final var b2b = info.B2BBonus() ? "B2B" : EMPTY;
         b2bInfo.setText(b2b);
         if (!info.clearType().name().equals("NONE"))
-            clearingInfo.setText("%s ".formatted(info.clearType().toString().replace("_", " ")));
-        else clearingInfo.setText(INFO_LABEL_EMPTY);
+            clearingInfo.setText("%s".formatted(info.clearType().toString().replace("_", EMPTY)));
+        else clearingInfo.setText(EMPTY);
         if (info.combo() > 0) {
             comboInfo.setText("Combo x" + info.combo());
         } else {
-            comboInfo.setText(COMBO_EMPTY);
+            comboInfo.setText(EMPTY);
         }
     }
+
 
     /**
      * Inner class representing the score label within the ScorePanel. It
@@ -98,7 +106,7 @@ public class ScorePanel extends JPanel implements Observer<ScoreInfoDTO> {
             setFont(scoreFont);
             setForeground(Color.BLACK);
             setBackground(Color.WHITE);
-            Border lineBorder = BorderFactory.createLineBorder(Color.BLACK, THICKNESS);
+            Border lineBorder = BorderFactory.createLineBorder(Color.BLACK, SCORE_BORDER_THICK);
             Border lineBorderWithTitle = BorderFactory.createTitledBorder(lineBorder, "Score", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.TOP, scoreFont, Color.BLACK);
             setBorder(lineBorderWithTitle);
             setText(String.format(SCORE_FORMAT, 0));

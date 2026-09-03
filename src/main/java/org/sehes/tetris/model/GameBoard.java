@@ -30,7 +30,6 @@ import java.util.List;
 public class GameBoard {
 
     private static final System.Logger myLogger = System.getLogger(GameBoard.class.getName());
-    private final TetrominoFactory factory = new TetrominoFactory();
     private final TetrominoType[][] board;
     private final BoardView boardView;
     private final ActionSnapshot lastActionSnapshot;
@@ -82,13 +81,13 @@ public class GameBoard {
         return boardView;
     }
 
-    public boolean trySetNewTetromino() {
+    public boolean trySetNewTetromino(TetrominoType type) {
         final Coordinate startingPosition = GameParameters.SPAWN_POINT;
-        return trySpawnTetromino(factory.createNewRandomTetromino(startingPosition));
+        return trySpawnTetromino((TetrominoFactory.spawnTetromino(type, startingPosition)));
     }
 
     public boolean tryMovePiece(final DirectionFlag flag) {
-        if(currentTetromino == null) return false;
+        if (currentTetromino == null) return false;
         if (flag == DirectionFlag.DOWN) {
             throw new IllegalArgumentException("Use trySoftDrop() for down movement");
         }
@@ -109,7 +108,7 @@ public class GameBoard {
     }
 
     public boolean tryGravityMove() {
-        if(currentTetromino == null) return false;
+        if (currentTetromino == null) return false;
         if (canMove(currentTetromino, DirectionFlag.DOWN)) {
             currentTetromino.move(DirectionFlag.DOWN);
             lastActionSnapshot.lastActionType = LastActionType.MOVE;
@@ -301,7 +300,7 @@ public class GameBoard {
     }
 
     public int tryHardDrop() {
-        if(currentTetromino == null) {
+        if (currentTetromino == null) {
             return 0;
         }
         final var distance = calculateDropDistance();
@@ -313,7 +312,7 @@ public class GameBoard {
     }
 
     public int calculateDropDistance() {
-        if(currentTetromino == null) {
+        if (currentTetromino == null) {
             throw new IllegalStateException("Cannot calculate drop distance when no tetromino is present");
         }
         var distance = 0;

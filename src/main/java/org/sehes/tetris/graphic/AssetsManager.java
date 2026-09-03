@@ -1,11 +1,11 @@
 package org.sehes.tetris.graphic;
 
-import org.sehes.tetris.config.GameParameters;
 import org.sehes.tetris.config.GhostType;
 import org.sehes.tetris.model.TetrominoType;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.geom.Path2D;
@@ -13,13 +13,28 @@ import java.awt.image.BufferedImage;
 import java.util.EnumMap;
 
 public final class AssetsManager {
-    private final EnumMap<TetrominoType, BufferedImage> tiles;
+    private final EnumMap<TetrominoType, BufferedImage> tetrominoTiles;
     private final EnumMap<GhostType, BufferedImage> ghostTiles;
+    private final EnumMap<TetrominoType, BufferedImage> previewTiles;
 
     public AssetsManager(RenderingHints hints) {
-        final MinoBlock block = new MinoBlock(GameParameters.BLOCK_SIZE, Config.BLOCK_THICKNESS);
-        tiles = prepareMinoTiles(block, hints);
+        final MinoBlock block = new MinoBlock(Config.BLOCK_SIZE, Config.BLOCK_THICKNESS);
+        tetrominoTiles = prepareMinoTiles(block, hints);
         ghostTiles = prepareGhostTiles(hints);
+        previewTiles = prepareMinoTiles(block, hints, Config.PREVIEW_BLOCK_SIZE);
+    }
+
+    private EnumMap<TetrominoType, BufferedImage> prepareMinoTiles(MinoBlock block, RenderingHints hints) {
+        return prepareMinoTiles(block, hints, Config.BLOCK_SIZE);
+    }
+
+    private EnumMap<TetrominoType, BufferedImage> prepareMinoTiles(MinoBlock block, RenderingHints hints, int tileSize) {
+        final var tilesMap = new EnumMap<TetrominoType, BufferedImage>(TetrominoType.class);
+        for (TetrominoType type : TetrominoType.getTetrominoShapes()) {
+            tilesMap.put(type, createMinoTile(type, block, hints, tileSize));
+        }
+
+        return tilesMap;
     }
 
     private EnumMap<GhostType, BufferedImage> prepareGhostTiles(RenderingHints hints) {
@@ -33,19 +48,25 @@ public final class AssetsManager {
         return ghostTiles;
     }
 
-    private EnumMap<TetrominoType, BufferedImage> prepareMinoTiles(MinoBlock block, RenderingHints hints) {
-        final var tilesMap = new EnumMap<TetrominoType, BufferedImage>(TetrominoType.class);
-        for (TetrominoType type : TetrominoType.getTetrominoShapes()) {
-            tilesMap.put(type, createMinoTile(type, block, hints));
-        }
-
-        return tilesMap;
-    }
-
-    private BufferedImage createMinoTile(TetrominoType type, MinoBlock block, RenderingHints hints) {
-        final var img = new BufferedImage(GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
+    private BufferedImage createMinoTile(TetrominoType type, MinoBlock block, RenderingHints hints, int tileSize) {
+        final var img = new BufferedImage(tileSize, tileSize, BufferedImage.TYPE_INT_ARGB);
         final var g2d = img.createGraphics();
         g2d.setRenderingHints(hints);
+        scaleCheck(tileSize, g2d);
+        drawShape(type, block, g2d);
+        g2d.dispose();
+        return img;
+    }
+
+    private void scaleCheck(int tileSize, Graphics2D g2d) {
+        if (tileSize != Config.BLOCK_SIZE) {
+            double scale = (double) tileSize / Config.BLOCK_SIZE;
+            g2d.scale(scale, scale);
+        }
+    }
+
+    private void drawShape(TetrominoType type, MinoBlock block, Graphics2D g2d) {
+
         for (Renderable shape : block.getShapes()) {
             final var side = shape.getSide();
             final var points = shape.getPoints();
@@ -58,15 +79,13 @@ public final class AssetsManager {
             path.closePath();
             g2d.fill(path);
         }
-        g2d.dispose();
-        return img;
     }
 
     private BufferedImage createGhostTile(RenderingHints hints, float thickness, Stroke stroke, Color strokeColor) {
-        BufferedImage buffer = new BufferedImage(GameParameters.BLOCK_SIZE, GameParameters.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage buffer = new BufferedImage(Config.BLOCK_SIZE, Config.BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
         final var g2d = buffer.createGraphics();
         g2d.setRenderingHints(hints);
-        final var sideSize = (int) (GameParameters.BLOCK_SIZE - thickness-2);
+        final var sideSize = (int) (Config.BLOCK_SIZE - thickness - 2);
         g2d.setColor(strokeColor);
         g2d.setStroke(stroke);
         g2d.drawRect(0, 0, sideSize, sideSize);
@@ -75,7 +94,7 @@ public final class AssetsManager {
     }
 
     public BufferedImage getTile(TetrominoType type) {
-        return tiles.get(type);
+        return tetrominoTiles.get(type);
     }
 
     public BufferedImage getGhostTile(GhostType type) {
@@ -83,5 +102,9 @@ public final class AssetsManager {
             case FULL, DASH -> ghostTiles.get(type);
             case NONE -> throw new IllegalArgumentException("Empty ghost Tile was called as regular one");
         };
+    }
+
+    public BufferedImage getPreviewTile(TetrominoType type) {
+        return previewTiles.get(type);
     }
 }
