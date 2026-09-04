@@ -17,9 +17,7 @@ import org.sehes.tetris.model.score.TSpin;
 import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -112,7 +110,7 @@ public class GameManager implements InputHandler {
     }
 
     public Observable<Integer> fpsObservable() {
-        return gameLoop;
+        return gameLoop.fpsObservable();
     }
 
     private BoardView getBoardView() {
@@ -364,8 +362,8 @@ public class GameManager implements InputHandler {
      * and stops the game loop timer. After processing the game logic, it
      * repaints the canvas to reflect any changes in the game state.
      */
-    private class MainLoopListener implements ActionListener, Observable<Integer> {
-        private final List<Observer<Integer>> observers = new CopyOnWriteArrayList<>();
+    private class MainLoopListener implements ActionListener {
+        private final Observable<Integer> fpsObservable = new ObservableImpl<>();
 
 
         @Override
@@ -395,32 +393,21 @@ public class GameManager implements InputHandler {
             render();
         }
 
-        private void fpsCalculation(long elapsedTime) {
-            int currentFPS;
-            frameCount++;
-            fpsTimer += elapsedTime;
-
-            if (fpsTimer >= TimeUnit.SECONDS.toNanos(1)) {
-                currentFPS = frameCount; // This is your actual FPS for the last second
-                frameCount = 0;
-                fpsTimer = 0;
-                notifyObservers(currentFPS);
-            }
+        public Observable<Integer> fpsObservable() {
+            return fpsObservable;
         }
+    }
 
-        @Override
-        public void addObserver(final Observer<Integer> observer) {
-            observers.add(observer);
-        }
+    private void fpsCalculation(long elapsedTime) {
+        int currentFPS;
+        frameCount++;
+        fpsTimer += elapsedTime;
 
-        @Override
-        public void removeObserver(final Observer<Integer> observer) {
-            observers.remove(observer);
-        }
-
-        @Override
-        public void notifyObservers(Integer event) {
-            observers.forEach(o -> o.update(event));
+        if (fpsTimer >= TimeUnit.SECONDS.toNanos(1)) {
+            currentFPS = frameCount; // This is your actual FPS for the last second
+            frameCount = 0;
+            fpsTimer = 0;
+            fpsObservable().notifyObservers(currentFPS);
         }
     }
 

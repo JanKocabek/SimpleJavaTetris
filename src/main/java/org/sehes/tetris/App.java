@@ -41,10 +41,10 @@ public class App {
         final var tetrisPainter = new TetrisDrawingHandler(qualityRenderingHints, assetsManager);
         final var previewPainter = new PreviewDrawingHandler(qualityRenderingHints, assetsManager);
         final GuiFactory.gameUI gui = GuiFactory.assembly(tetrisPainter, tetrisKeyAdapter, previewPainter);
-        addObserver(stateManager, gui.infoObserver());
+        addObserver(stateManager.GameStateObservable(), gui.infoObserver());
         addObserver(gameManager.fpsObservable(), gui.fpsObserver());
         addObserver(scoreMessenger, scoreManager.scoringObserver());
-        addObserver(stateManager, scoreManager.gameStateObserver());
+        addObserver(stateManager.GameStateObservable(), scoreManager.gameStateObserver());
         addObserver(scoreManager, gui.scoreObserver());
         addObserver(gameManager.spawnObservable(), gui.previewObserver());
         addObserver(gameManager.holdObservable(), gui.holdCanvasObserver());
