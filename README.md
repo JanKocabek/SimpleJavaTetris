@@ -20,9 +20,12 @@
 
 ## 📖 Overview
 
-**TetrisEngine** is more than just a clone; it is a robust implementation focusing on clean OOP principles and game architecture. By strictly adhering to the **Official Tetris Guidelines** (including the **Super Rotation System**), this engine provides a smooth and competitive gameplay experience.
+**TetrisEngine** is more than just a clone; it is a robust implementation focusing on clean OOP principles and game
+architecture. By strictly adhering to the **Official Tetris Guidelines** (including the **Super Rotation System**), this
+engine provides a smooth and competitive gameplay experience.
 
-The ultimate goal is to evolve this project into a **Tetris-ARPG**, introducing progression, skill trees, and monster-battling mechanics through row clears.
+The ultimate goal is to evolve this project into a **Tetris-ARPG**, introducing progression, skill trees, and
+monster-battling mechanics through row clears.
 
 ---
 
@@ -49,6 +52,7 @@ The ultimate goal is to evolve this project into a **Tetris-ARPG**, introducing 
 | **Soft Drop**                | `Down Arrow`  |
 | **Hard Drop**                | `space`       |
 | **GhostBlock Toggle**        | `V` key       |
+| **Hold Piece**               | `shift`       |
 
 ---
 
@@ -59,8 +63,8 @@ The development journey from a core engine to an ARPG-ready platform.
 | ✅ Completed Steps                      | 🚀 Future & Current Goals                  |
 |:----------------------------------------|:-------------------------------------------|
 | **Core Mechanics**                      | **Enhanced Gameplay**                      |
-| ✔️ SRS Wall-kick system                 | ⬜ Preview window for next pieces          |
-| ✔️ All 7 standard tetrominoes           | ⬜ Auto-increasing difficulty (Gravity)    |
+| ✔️ SRS Wall-kick system                 | ⬜ Auto-increasing difficulty (Gravity)    |
+| ✔️ All 7 standard tetrominoes           |                                            |
 | ✔️ Collision detection (Walls & Pieces) |                                            |
 | ✔️ Basic scoring logic                  |                                            |
 | ✔️ Simple Pause / Game Over system      |                                            |
@@ -68,6 +72,8 @@ The development journey from a core engine to an ARPG-ready platform.
 | ✔️ Hard drop implementation             | ⬜ Main Menu                               |  
 | ✔️ Advanced Scoring (T-Spins, Combos)   | ⬜ About & Credits screen                  |
 | ✔️ Ghost piece (Visual guide)           | ⬜ Local Saving (High scores)              |
+| ✔️  Preview window for next pieces      | ⬜ KeyRebinding option                     |
+| ✔️  Hold function                       |                                            |
 | **Technical Foundation**                | ⬜ Professional Sprites & Visual Effects   |
 | ✔️ Keyboard input handling              | ⬜ Separated Threads (Logic vs Render)     |
 | ✔️ Board state & Active tracking        |                                            |
@@ -78,37 +84,42 @@ The development journey from a core engine to an ARPG-ready platform.
 | 🚧 Modular Refactoring (In Progress)    | ⬜ Local & Network Multiplayer             |
 |                                         | ⬜ Simple AI Opponent                      |
 |                                         | ⬜ **ARPG:** Monsters, Bosses, Skill Trees |
+
   
 ---
 
 ## 🛠️ Technical Focus
 
-*   **Scalability:** Refactoring the engine to use modular composition, allowing for the easy addition of "ARPG" features like skill trees and power-ups.
-*   **Accuracy:** Ensuring all rotations, wall-kicks, and lock-out timings strictly follow official Tetris guidelines.
-*   **Performance:** Moving toward a multi-threaded architecture to ensure smooth 60FPS rendering independent of game logic calculations.
+* **Scalability:** Refactoring the engine to use modular composition, allowing for the easy addition of "ARPG" features
+  like skill trees and power-ups.
+* **Accuracy:** Ensuring all rotations, wall-kicks, and lock-out timings strictly follow official Tetris guidelines.
+* **Performance:** Moving toward a multi-threaded architecture to ensure smooth 60FPS rendering independent of game
+  logic calculations.
 
 ---
 
 ## 🚀 How to Run
 
 ### 📋 Prerequisites
-*   **Java 21** or higher.
-*   **Maven** (optional, for building from source).
+
+* **Java 21** or higher.
+* **Maven** (optional, for building from source).
 
 ### ⚙️ Execution
-1.  **Clone the Repo:**
-    ```bash
-    git clone https://github.com/your-username/JavaSwingTetris.git
-    ```
-2.  **Build with Maven:**
-    ```bash
-    mvn clean package
-    ```
-3.  **Run the JAR:**
-    ```bash
-    java -jar target/TetrisEngine.jar
-    ```
-    *Alternatively, run `org.sehes.tetris.Main` directly from your IDE.*
+
+1. **Clone the Repo:**
+   ```bash
+   git clone https://github.com/your-username/JavaSwingTetris.git
+   ```
+2. **Build with Maven:**
+   ```bash
+   mvn clean package
+   ```
+3. **Run the JAR:**
+   ```bash
+   java -jar target/TetrisEngine.jar
+   ```
+   *Alternatively, run `org.sehes.tetris.Main` directly from your IDE.*
 
 ---
 

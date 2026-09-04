@@ -21,22 +21,28 @@ import static org.sehes.tetris.graphic.Config.BLOCK_SIZE;
 
 public class GuiFactory {
     public static final Dimension CANVAS_SIZE = new Dimension(BLOCK_SIZE * COLUMNS, BLOCK_SIZE * VISIBLE_ROWS);
-    public static final int GRID_COLUMNS = 2;
+    // Grid Layout Constants
+    private static final int LEFT_COL = 0;
+    private static final int CENTER_COL = 1;
+    private static final int RIGHT_COL = 2;
+    private static final int TOTAL_COLUMNS = 3;
 
     private GuiFactory() {
     }
 
-    public static gameUI assembly(Painter<GameSnapshot> TetrisPainter, KeyAdapter tetrisKeyAdapter,Painter<TetrominoType> previewPainter) {
+    public static gameUI assembly(Painter<GameSnapshot> TetrisPainter, KeyAdapter tetrisKeyAdapter, Painter<TetrominoType> previewPainter) {
         /*creation of ScorePanel is putted here if their be any needs of additional assembly in the future */
 
         final GameContainer gameContainer = assemblyGameContainer();
         final InfoPanel infoP = new InfoPanel();
-        final PreviewCanvas previewWindow= new PreviewCanvas(previewPainter);
-        final RightPanel rightPanel = new RightPanel(previewWindow);
-        final MainPane mainPane = assemblyMainPane(gameContainer, rightPanel, infoP);
+        final SmallCanvas holdCanvas= new SmallCanvas(previewPainter);
+        final LeftPanel leftP = new LeftPanel(holdCanvas);
+        final SmallCanvas previewCanvas = new SmallCanvas(previewPainter);
+        final RightPanel rightPanel = new RightPanel(previewCanvas);
+        final MainPane mainPane = assemblyMainPane(gameContainer, rightPanel, infoP,leftP);
         final GameWindow window = new GameWindow(mainPane);
-        final TetrisCanvas canvas = assemblyCanvas(TetrisPainter, tetrisKeyAdapter);
-        gameContainer.add(canvas, BorderLayout.CENTER);
+        final TetrisCanvas mainCanvas = assemblyCanvas(TetrisPainter, tetrisKeyAdapter);
+        gameContainer.add(mainCanvas, BorderLayout.CENTER);
         gameContainer.revalidate();
         gameContainer.repaint();
         window.revalidate();
@@ -44,56 +50,39 @@ public class GuiFactory {
         window.pack();
         window.setLocationRelativeTo(null);
 
-        return new gameUI(canvas, rightPanel.getScoreObserver(), infoP.infoUpdateObserver(), infoP.fpsUpdateObserver(), window, rightPanel.getPreviewObserver());
+        return new gameUI(mainCanvas, rightPanel.getScoreObserver(), infoP.infoUpdateObserver(), infoP.fpsUpdateObserver(), window, rightPanel.getPreviewObserver(),leftP.getHoldCanvasObserver());
     }
 
-    private static MainPane assemblyMainPane(final GameContainer container, RightPanel rightP, InfoPanel infoP) {
+    private static MainPane assemblyMainPane(final GameContainer container, RightPanel rightP, InfoPanel infoP,LeftPanel leftP) {
         final MainPane pane = new MainPane(new GridBagLayout());
 
-        GridBagConstraints gbcContain = new GridBagConstraints();
-        gbcContain.gridx = 0;
-        gbcContain.gridy = 0;
-        gbcContain.weightx = 0.75;
-        gbcContain.weighty = 0.0;
-        gbcContain.gridwidth = 1;
-        gbcContain.anchor = GridBagConstraints.CENTER;
-        gbcContain.fill = GridBagConstraints.BOTH;
-        // These insets replace the EmptyBorder from GameContainer.
-        int topMain = 11;//space which made canvas and score panel at the same starting height
-        int leftMain = 8;
-        int bottomMain = 4;
-        int rightName = 4;
-        gbcContain.insets = new Insets(topMain, leftMain, bottomMain, rightName);
-        pane.add(container, gbcContain);
+        // Column 0: Left Panel (Hold / Stats)
+        pane.add(leftP, Gbc.at(LEFT_COL, 0)
+                .weight(0, 1.0)
+                .anchor(GridBagConstraints.NORTHWEST)
+                .insets(11, 8, 0, 4));
 
-        GridBagConstraints gbcRight = new GridBagConstraints();
-        gbcRight.gridx = 1;//second column for right panel
-        gbcRight.gridy = 0;
-        gbcRight.weightx = 0.25;
-        gbcRight.weighty = 1.0;
-        gbcRight.gridwidth = 1;
-        gbcRight.anchor = GridBagConstraints.NORTHEAST;
-        gbcRight.fill = GridBagConstraints.NONE;
+        // Column 1: Center Game Container
+        pane.add(container, Gbc.at(CENTER_COL, 0)
+                .weight(0, 0.0)
+                .fill(GridBagConstraints.BOTH)
+                .insets(11, 4, 0, 4));
 
-        int topScore = 0;
-        int leftScore = 0;
-        int bottomScore = 0;
-        int rightScore = leftMain;
-        gbcRight.insets = new Insets(topScore, leftScore, bottomScore, rightScore);
-        pane.add(rightP, gbcRight);
+        // Column 2: Right Panel (Score / Preview)
+        pane.add(rightP, Gbc.at(RIGHT_COL, 0)
+                .weight(0, 1.0)
+                .anchor(GridBagConstraints.NORTHEAST)
+                .insets(0, 4, 0, 8));
 
-        GridBagConstraints gbcInfo = new GridBagConstraints();
-        gbcInfo.gridx = 0;
-        gbcInfo.gridy = 1;//second row for info panel
-        gbcInfo.weightx = 1.0;
-        gbcInfo.weighty = 0.0;
-        gbcInfo.gridwidth = GRID_COLUMNS;
-        gbcInfo.gridheight = 1;
-        gbcInfo.insets = new Insets(0, 0, 0, 0);
-        gbcInfo.anchor = GridBagConstraints.SOUTHWEST;
-        gbcInfo.fill = GridBagConstraints.BOTH;
-        pane.add(infoP, gbcInfo);
+        // Row 1: Bottom Info Panel (Spans across all columns)
+        pane.add(infoP, Gbc.at(LEFT_COL, 1)
+                .span(TOTAL_COLUMNS, 1)
+                .weight(1.0, 0.0)
+                .fill(GridBagConstraints.BOTH)
+                .anchor(GridBagConstraints.SOUTHWEST));
+
         return pane;
+
     }
 
     private static GameContainer assemblyGameContainer() {
@@ -121,10 +110,95 @@ public class GuiFactory {
     }
 
     public record gameUI(TetrisCanvas canvas, Observer<ScoreInfoDTO> scoreObserver, Observer<GameState> infoObserver,
-                         Observer<Integer> fpsObserver, GameWindow window, Observer<TetrominoType> previewObserver) {
+                         Observer<Integer> fpsObserver, GameWindow window, Observer<TetrominoType> previewObserver,Observer<TetrominoType> holdCanvasObserver) {
         public Runnable exitAction() {
             return () -> window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
         }
 
+    }
+
+    /**
+     * A fluent builder wrapper around {@link GridBagConstraints} designed to make
+     * layout constraints declarative, readable, and concise within GUI factory assemblies.
+     */
+    public static final class Gbc extends GridBagConstraints {
+
+        private Gbc(int gridx, int gridy) {
+            this.gridx = gridx;
+            this.gridy = gridy;
+        }
+
+        /**
+         * Creates a new fluent {@code Gbc} instance anchored at the specified grid position.
+         *
+         * @param gridx the initial column coordinate (0-indexed)
+         * @param gridy the initial row coordinate (0-indexed)
+         * @return a new {@code Gbc} instance
+         */
+        public static Gbc at(int gridx, int gridy) {
+            return new Gbc(gridx, gridy);
+        }
+
+        /**
+         * Sets the distribution weights for extra horizontal and vertical space.
+         *
+         * @param weightx the horizontal resizing weight (0.0 means fixed, higher values claim extra space)
+         * @param weighty the vertical resizing weight (0.0 means fixed, higher values claim extra space)
+         * @return this {@code Gbc} instance for method chaining
+         */
+        public  Gbc weight(double weightx, double weighty) {
+            this.weightx = weightx;
+            this.weighty = weighty;
+            return this;
+        }
+
+        /**
+         * Sets the fill policy determining how the component is resized if its display area is larger than its requested size.
+         *
+         * @param fill the fill policy constant (e.g., {@link GridBagConstraints#BOTH}, {@link GridBagConstraints#HORIZONTAL})
+         * @return this {@code Gbc} instance for method chaining
+         */
+        public  Gbc fill(int fill) {
+            this.fill = fill;
+            return this;
+        }
+
+        /**
+         * Sets the anchoring position for the component within its display area when it does not fill the entire space.
+         *
+         * @param anchor the anchor constant (e.g., {@link GridBagConstraints#NORTHEAST}, {@link GridBagConstraints#CENTER})
+         * @return this {@code Gbc} instance for method chaining
+         */
+        public  Gbc anchor(int anchor) {
+            this.anchor = anchor;
+            return this;
+        }
+
+        /**
+         * Sets the number of columns and rows the component spans within the grid.
+         *
+         * @param gridwidth the number of columns spanned (or relative constants like {@link GridBagConstraints#REMAINDER})
+         * @param gridheight the number of rows spanned
+         * @return this {@code Gbc} instance for method chaining
+         */
+        public  Gbc span(int gridwidth, int gridheight) {
+            this.gridwidth = gridwidth;
+            this.gridheight = gridheight;
+            return this;
+        }
+
+        /**
+         * Sets the external padding (insets) around the component in pixels.
+         *
+         * @param top the top inset padding
+         * @param left the left inset padding
+         * @param bottom the bottom inset padding
+         * @param right the right inset padding
+         * @return this {@code Gbc} instance for method chaining
+         */
+        public  Gbc insets(int top, int left, int bottom, int right) {
+            this.insets = new Insets(top, left, bottom, right);
+            return this;
+        }
     }
 }
