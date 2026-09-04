@@ -3,7 +3,7 @@ package org.sehes.tetris.controller;
 
 public class GameStateManager implements StateManager<GameState> {
     private GameState currentState;
-    private final Observable<GameState> gameStateObservable = new ObservableImpl<>();
+    private final Observable.Publisher<GameState> gameStateObservable = new ObservableImpl<>();
 
     public GameStateManager(GameState state) {
         this.currentState = state;
@@ -21,7 +21,7 @@ public class GameStateManager implements StateManager<GameState> {
     @Override
     public void setState(GameState state) {
         this.currentState = state;
-        gameStateObservable.notifyObservers(state);
+        gameStateObservable.notify(state);
     }
 
 }

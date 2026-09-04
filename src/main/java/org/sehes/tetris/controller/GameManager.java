@@ -185,7 +185,7 @@ public class GameManager implements InputHandler {
 
     private void setHoldAndNotify(TetrominoType currentType) {
         holdTetromino = currentType;
-        holdObservable().notifyObservers(holdTetromino);
+        holdObservable.notify(holdTetromino);
     }
 
     /**
@@ -304,7 +304,7 @@ public class GameManager implements InputHandler {
         stateManager.setState(NEW_GAME);
         isDirty.set(true);
         gameBoard = new GameBoard();
-        spawnObservable.notifyObservers(generator.peekNext());
+        spawnObservable.notify(generator.peekNext());
         if (spawnMinoOrGameOver()) {
             render();
             resetTime();
@@ -326,7 +326,7 @@ public class GameManager implements InputHandler {
     private boolean trySpawnNewTetromino() {
         final var piece = generator.getNextPiece();
         if (trySpawnMino(piece)) {
-            spawnObservable.notifyObservers(generator.peekNext());
+            spawnObservable.notify(generator.peekNext());
             return true;
         }
         return false;
@@ -363,7 +363,7 @@ public class GameManager implements InputHandler {
      * repaints the canvas to reflect any changes in the game state.
      */
     private class MainLoopListener implements ActionListener {
-        private final Observable<Integer> fpsObservable = new ObservableImpl<>();
+        private final Observable.Publisher<Integer> fpsObservablePublisher = new ObservableImpl<>();
 
 
         @Override
@@ -394,7 +394,7 @@ public class GameManager implements InputHandler {
         }
 
         public Observable<Integer> fpsObservable() {
-            return fpsObservable;
+            return fpsObservablePublisher;
         }
     }
 
@@ -407,9 +407,7 @@ public class GameManager implements InputHandler {
             currentFPS = frameCount; // This is your actual FPS for the last second
             frameCount = 0;
             fpsTimer = 0;
-            fpsObservable().notifyObservers(currentFPS);
+            gameLoop.fpsObservablePublisher.notify(currentFPS);
         }
     }
-
-
 }

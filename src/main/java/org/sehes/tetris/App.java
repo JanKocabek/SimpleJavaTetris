@@ -45,7 +45,7 @@ public class App {
         addObserver(gameManager.fpsObservable(), gui.fpsObserver());
         addObserver(scoreMessenger, scoreManager.scoringObserver());
         addObserver(stateManager.GameStateObservable(), scoreManager.gameStateObserver());
-        addObserver(scoreManager, gui.scoreObserver());
+        addObserver(scoreManager.ScoreInfoObservable(), gui.scoreObserver());
         addObserver(gameManager.spawnObservable(), gui.previewObserver());
         addObserver(gameManager.holdObservable(), gui.holdCanvasObserver());
         gameManager.prepareGame(gui.canvas(), gui.exitAction());
