@@ -169,14 +169,21 @@ public class GameManager implements InputHandler {
         TetrominoType previousHold = holdTetromino;
         setHoldAndNotify(currentType);
         isHoldLock = true;
-        
-        if (previousHold == null) {
-            spawnMinoOrGameOver();
-        } else {
-            gameBoard.trySetNewTetromino(previousHold);
+
+        boolean spawnSuccessful = (previousHold == null)
+                ? trySpawnNewTetromino()
+                : trySpawnMino(previousHold);
+
+        if (!spawnSuccessful) {
+            setGameOver();
         }
         render();
     }
+
+    private boolean trySpawnMino(TetrominoType previousHold) {
+        return gameBoard.trySetNewTetromino(previousHold);
+    }
+
 
     private void setHoldAndNotify(TetrominoType currentType) {
         holdTetromino = currentType;
@@ -320,7 +327,7 @@ public class GameManager implements InputHandler {
 
     private boolean trySpawnNewTetromino() {
         final var piece = generator.getNextPiece();
-        if (gameBoard.trySetNewTetromino(piece)) {
+        if (trySpawnMino(piece)) {
             spawnObservable.notifyObservers(generator.peekNext());
             return true;
         }
@@ -339,12 +346,9 @@ public class GameManager implements InputHandler {
     }
 
     private boolean spawnMinoOrGameOver() {
-        if (trySpawnNewTetromino()) {
-            return true;
-        } else {
-            setGameOver();
-            return false;
-        }
+        if (trySpawnNewTetromino()) return true;
+        setGameOver();
+        return false;
     }
 
     private LockPieceEvent createLockEvent(final TSpin tSpin, int clearedLines) {
