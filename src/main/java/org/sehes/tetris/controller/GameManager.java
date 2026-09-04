@@ -40,8 +40,8 @@ public class GameManager implements InputHandler {
     private static final int FPS = 60;
     private static final int FRAME_TIME_MS = 1000 / FPS;
     private static final int BASE_SPEED = 600;
-    private final ObservableImpl<TetrominoType> spawnObservable = new ObservableImpl<>();
-    private final ObservableImpl<TetrominoType> holdObservable = new ObservableImpl<>();
+    private final Observable.Publisher<TetrominoType> spawnObservable = new ObservableImpl<>();
+    private final Observable.Publisher<TetrominoType> holdObservable = new ObservableImpl<>();
 
     private final StateManager<GameState> stateManager;
     private final PieceGenerator generator;
