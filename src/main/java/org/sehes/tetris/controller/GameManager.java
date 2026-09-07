@@ -103,6 +103,13 @@ public class GameManager implements InputHandler {
     }
 
     private void onTickUpdate(Long elapsedTime) {
+        if (stateManager.getState() == NEW_GAME || stateManager.getState() == PLAYING) {
+            gravityUpdate(elapsedTime);
+        }
+        render();
+    }
+
+    private void gravityUpdate(Long elapsedTime) {
         gravityAccumulator += elapsedTime;
         while (gravityAccumulator >= movementSpeed) {
             if (!gameBoard.tryGravityMove()) {
@@ -113,7 +120,6 @@ public class GameManager implements InputHandler {
             }
             gravityAccumulator -= movementSpeed;
         }
-        render();
     }
 
     private BoardView getBoardView() {
@@ -255,40 +261,14 @@ public class GameManager implements InputHandler {
 
     /**
      * Starts the game by resetting the game board and starting the game loop
-     * timer. Sets the game state to PLAYING. This method can only be called if
-     * the game is in the INITIALIZE or GAME_OVER state to prevent starting a
-     * new game while one is already in progress.
+     * timer. Sets the game state to PLAYING.
      */
-    //ToDo: This method could maybe be split into two methods and remove unnecessary switch
     private void startGame() {
-        switch (stateManager.getState()) {
-            case PREPARED -> {
-                newGame();
-                gameLoop.start();
-            }
-            case GAME_OVER -> {
-                newGame();
-                gameLoop.restart();
-            }
-            default -> {
-                // Do nothing
-            }
+        GameState state = stateManager.getState();// Do nothing
+        if (state == PREPARED || state == GAME_OVER) {
+            newGame();
+            gameLoop.start();
         }
-    }
-
-    private void pauseGame() {
-        gameLoop.stop();
-        stateManager.setState(PAUSED);
-    }
-
-    private void resumeGame() {
-        resetTime();
-        gameLoop.resume();
-        stateManager.setState(PLAYING);
-    }
-
-    private void resetTime() {
-        gravityAccumulator = 0;
     }
 
     private void newGame() {
@@ -300,9 +280,24 @@ public class GameManager implements InputHandler {
         spawnObservable.notify(generator.peekNext());
         if (spawnMinoOrGameOver()) {
             render();
-            resetTime();
+            resetAccumulator();
             stateManager.setState(PLAYING);
         }
+    }
+
+    private void pauseGame() {
+        //  gameLoop.stop();
+        stateManager.setState(PAUSED);
+    }
+
+    private void resumeGame() {
+        resetAccumulator();
+        gameLoop.resume();
+        stateManager.setState(PLAYING);
+    }
+
+    private void resetAccumulator() {
+        gravityAccumulator = 0;
     }
 
     private void setGameOver() {

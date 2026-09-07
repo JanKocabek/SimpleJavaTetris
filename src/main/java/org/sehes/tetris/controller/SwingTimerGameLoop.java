@@ -47,12 +47,12 @@ public class SwingTimerGameLoop implements ActionListener, GameLoop {
 
     @Override
     public void resume() {
-        timer.start();
         resetTime();
     }
 
     @Override
     public void start() {
+        resetTime();
         timer.start();
     }
 
@@ -63,9 +63,7 @@ public class SwingTimerGameLoop implements ActionListener, GameLoop {
 
     @Override
     public void restart() {
-        resetTime();
         timer.restart();
-        resetTime();
     }
 
     private void resetTime() {
