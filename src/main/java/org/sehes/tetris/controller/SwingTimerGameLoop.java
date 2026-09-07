@@ -28,7 +28,6 @@ public class SwingTimerGameLoop implements ActionListener, GameLoop {
         timer = new Timer(FRAME_TIME_MS, this);
     }
 
-
     @Override
     public void actionPerformed(final ActionEvent e) {
         long currentTime = System.nanoTime();
@@ -65,6 +64,7 @@ public class SwingTimerGameLoop implements ActionListener, GameLoop {
     @Override
     public void restart() {
         timer.restart();
+        resetTime();
     }
 
     private void resetTime() {
