@@ -63,6 +63,7 @@ public class SwingTimerGameLoop implements ActionListener, GameLoop {
 
     @Override
     public void restart() {
+        resetTime();
         timer.restart();
         resetTime();
     }
